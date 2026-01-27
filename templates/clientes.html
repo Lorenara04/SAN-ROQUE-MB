@@ -1,0 +1,302 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Clientes - Licorera{% endblock %}
+
+{% block content %}
+
+<style>
+/* --- Mantenemos tu estilo original con pequeñas adiciones --- */
+.clientes-card-pro {
+    background: #ffffff;
+    border: 1px solid #e0e6ed;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.clientes-title-pro {
+    font-weight: 800;
+    color: #1a202c;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-licorera {
+    background:#0077b6;
+    border: none;
+    padding: 10px 24px;
+    color: #fff !important;
+    font-weight: 700;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+.btn-licorera:hover {
+    background: #0077b6;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(2, 119, 189, 0.3);
+}
+
+/* Estilo para los Pills de Categoría (del segundo diseño) */
+.pill-premium {
+    background: #111e25;
+    color:#E1F5FE;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-weight: bold;
+    font-size: 11px;
+    display: inline-block;
+}
+.pill-estandar {
+    background: #f1f5f9;
+    color: #475569;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-weight: bold;
+    font-size: 11px;
+    display: inline-block;
+}
+
+.search-input {
+    border-radius: 8px;
+    border: 1.5px solid #cbd5e0;
+    padding: 12px 20px;
+}
+
+.table-pro {
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+}
+.table-pro thead {
+    background: #f8fafc;
+}
+
+.action-btn-pro {
+    width: 34px;
+    height: 34px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+    border: none;
+}
+.btn-edit-pro { background: #e0f2fe; color: #0369a1; }
+.btn-delete-pro { background: #fee2e2; color: #b91c1c; }
+
+.modal-header-pro {
+    background: #1a202c;
+    color: white;
+}
+
+/* Clase para forzar mayúsculas visualmente */
+.mayuscula { text-transform: uppercase; }
+</style>
+
+<div class="clientes-card-pro">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="clientes-title-pro mb-0">
+                <i class="fas fa-address-book text-primary me-2"></i> Base de Clientes
+            </h2>
+            <div class="mt-2">
+                <a href="/" class="btn btn-sm btn-outline-secondary border-0"><i class="fas fa-home"></i> Inicio</a>
+                <a href="/creditos/largo" class="btn btn-sm btn-outline-secondary border-0"><i class="fas fa-clock"></i> C. Largo</a>
+                <a href="/creditos/corto" class="btn btn-sm btn-outline-secondary border-0"><i class="fas fa-bolt"></i> C. Corto</a>
+            </div>
+        </div>
+        <button class="btn-licorera" data-bs-toggle="modal" data-bs-target="#agregarClienteModal">
+            <i class="fas fa-plus-circle me-2"></i>Nuevo Cliente
+        </button>
+    </div>
+
+    <div class="mb-4">
+        <div class="input-group">
+            <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+            <input type="text" id="buscarCliente" class="form-control search-input border-start-0" 
+                   placeholder="Escribe nombre, teléfono o categoría...">
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-pro align-middle" id="tablaClientes">
+            <thead>
+                <tr>
+                    <th class="ps-3">ID</th>
+                    <th>Nombre Completo</th>
+                    <th>Categoría</th> <th>Teléfono / Contacto</th>
+                    <th>Dirección</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cliente in clientes %}
+                <tr>
+                    <td class="ps-3 text-muted fw-bold">#{{ cliente.id }}</td>
+                    <td class="fw-bold mayuscula">{{ cliente.nombre }}</td>
+                    <td>
+                        {% if cliente.categoria == 'premium' %}
+                            <span class="pill-premium"><i class="fas fa-star me-1"></i>PREMIUM</span>
+                        {% else %}
+                            <span class="pill-estandar">ESTÁNDAR</span>
+                        {% endif %}
+                    </td>
+                    <td><i class="fab fa-whatsapp text-success me-1"></i> {{ cliente.telefono or 'N/A' }}</td>
+                    <td><small>{{ cliente.direccion or 'No registra' }}</small></td>
+                    <td>
+                        <div class="d-flex justify-content-center gap-2">
+                            <button class="action-btn-pro btn-edit-pro" 
+                                    onclick="prepararEdicion('{{ cliente.id }}', '{{ cliente.nombre }}', '{{ cliente.telefono }}', '{{ cliente.email }}', '{{ cliente.direccion }}', '{{ cliente.categoria }}')"
+                                    title="Editar datos">
+                                <i class="fas fa-pen-alt"></i>
+                            </button>
+                            <button class="action-btn-pro btn-delete-pro" 
+                                    onclick="confirmarEliminar('{{ cliente.id }}', '{{ cliente.nombre }}')"
+                                    title="Eliminar cliente">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center py-5 text-muted">
+                        <i class="fas fa-users-slash fa-2x mb-3 d-block"></i>
+                        Aún no tienes clientes registrados.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="agregarClienteModal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header modal-header-pro border-0">
+                <h5 class="modal-title fw-bold">Registro de Cliente</h5>
+                <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('clientes.agregar_cliente') }}" method="POST">
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-uppercase">Nombre y Apellidos</label>
+                        <input type="text" name="nombre" class="form-control mayuscula" placeholder="EJ: JUAN PEREZ" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-uppercase">Categoría de Cliente</label>
+                        <select name="categoria" class="form-select">
+                            <option value="estandar">Estándar (Precio Venta)</option>
+                            <option value="premium">Premium (Precio Costo)</option>
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small text-uppercase">Teléfono</label>
+                            <input type="text" name="telefono" class="form-control" placeholder="300...">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small text-uppercase">Email</label>
+                            <input type="email" name="email" class="form-control" placeholder="cliente@correo.com">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label fw-bold small text-uppercase">Dirección de Entrega</label>
+                        <input type="text" name="direccion" class="form-control" placeholder="Calle, Barrio, Ciudad">
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-link text-muted text-decoration-none" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary px-4 fw-bold">Guardar Registro</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editarClienteModal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-primary text-white border-0">
+                <h5 class="modal-title fw-bold">Actualizar Datos</h5>
+                <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formEditarCliente" method="POST">
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-uppercase">Nombre y Apellidos</label>
+                        <input type="text" name="nombre" id="edit_nombre" class="form-control mayuscula" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-uppercase">Categoría</label>
+                        <select name="categoria" id="edit_categoria" class="form-select">
+                            <option value="estandar">Estándar</option>
+                            <option value="premium">Premium</option>
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small text-uppercase">Teléfono</label>
+                            <input type="text" name="telefono" id="edit_telefono" class="form-control">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small text-uppercase">Email</label>
+                            <input type="email" name="email" id="edit_email" class="form-control">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label fw-bold small text-uppercase">Dirección</label>
+                        <input type="text" name="direccion" id="edit_direccion" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-link text-muted text-decoration-none" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success px-4 fw-bold">Actualizar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// 1. Buscador funcional
+document.getElementById("buscarCliente").addEventListener("input", function() {
+    let filtro = this.value.toLowerCase();
+    let filas = document.querySelectorAll("#tablaClientes tbody tr");
+    filas.forEach(fila => {
+        fila.style.display = fila.textContent.toLowerCase().includes(filtro) ? "" : "none";
+    });
+});
+
+// 2. Forzar mayúsculas en tiempo real (Funcionalidad importada)
+document.querySelectorAll('.mayuscula').forEach(input => {
+    input.addEventListener('input', () => {
+        input.value = input.value.toUpperCase();
+    });
+});
+
+// 3. Preparar edición con nueva categoría
+function prepararEdicion(id, nombre, telefono, email, direccion, categoria) {
+    document.getElementById('edit_nombre').value = nombre;
+    document.getElementById('edit_telefono').value = telefono;
+    document.getElementById('edit_email').value = email;
+    document.getElementById('edit_direccion').value = direccion;
+    document.getElementById('edit_categoria').value = categoria || 'estandar';
+    
+    document.getElementById('formEditarCliente').action = "/clientes/editar/" + id;
+    
+    const modalEditar = new bootstrap.Modal(document.getElementById('editarClienteModal'));
+    modalEditar.show();
+}
+
+// 4. Confirmar eliminación
+function confirmarEliminar(id, nombre) {
+    if(confirm(`¿Está seguro de eliminar a ${nombre}?`)) {
+        window.location.href = `/clientes/eliminar/${id}`;
+    }
+}
+</script>
+
+{% endblock %}

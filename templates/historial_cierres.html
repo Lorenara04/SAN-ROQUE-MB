@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+
+{% block title %}Historial de Cierres • San Roque M.B.{% endblock %}
+
+{% block content %}
+
+<style>
+/* ==== PALETA DE COLORES ==== */
+:root {
+    --azul-bebe: #cfe8ff;
+    --azul-mar: #1e3a8a;
+    --azul-medio: #3b82f6;
+    --gris-claro: #f8fafc;
+    --gris-medio: #cbd5e1;
+    --verde: #10b981; /* para efectivo */
+    --rojo: #d32f2f;  /* para egresos */
+}
+
+/* ==== ESTILOS GENERALES ==== */
+.titulo-empresarial {
+    color: var(--azul-mar);
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+.table {
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.table th {
+    background-color: var(--azul-mar);
+    color: white;
+    font-weight: 600;
+}
+
+.table td {
+    border-top: 1px solid var(--gris-medio);
+}
+
+/* Badges de usuario */
+.badge-usuario {
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-weight: 600;
+    background-color: var(--azul-bebe);
+    color: var(--azul-mar);
+    border: 1px solid var(--azul-mar);
+}
+
+/* Botón de detalles */
+.btn-reporte {
+    background-color: var(--azul-medio);
+    color: white;
+    border-radius: 8px;
+    padding: 5px 12px;
+    font-weight: 600;
+    transition: 0.2s;
+}
+.btn-reporte:hover {
+    background-color: var(--azul-mar);
+}
+
+/* Resumen de métodos de pago */
+.resumen-box {
+    border-radius: 10px;
+    padding: 15px;
+    border: 1px solid var(--gris-medio);
+    text-align: center;
+}
+
+.resumen-box small {
+    display: block;
+    font-weight: 700;
+}
+
+.resumen-box .monto {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+/* Desglose individual de métodos */
+.resumen-metodo {
+    border-radius: 10px;
+    padding: 10px;
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    border: 1px solid var(--gris-medio);
+}
+
+.badge-metodo {
+    padding: 4px 8px;
+    border-radius: 6px;
+    color: white;
+    font-weight: bold;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+}
+
+/* Egresos */
+.inner-table th {
+    border-bottom: 2px solid var(--rojo);
+    text-align: left;
+}
+
+.inner-table td {
+    padding: 6px 8px;
+}
+
+.inner-table tr:last-child {
+    font-weight: 800;
+}
+
+.modal-header, .modal-footer {
+    background-color: var(--gris-claro);
+}
+
+.modal-title {
+    color: var(--azul-mar);
+}
+
+</style>
+
+<div class="container-fluid px-4">
+    <div class="text-center">
+        <h2 class="titulo-empresarial">📊 Historial de Cierres • San Roque M.B.</h2>
+    </div>
+
+    <div class="table-responsive tabla-profesional mb-5">
+        <table class="table text-center mb-0">
+            <thead>
+                <tr>
+                    <th>Fecha de Cierre</th>
+                    <th>Responsable</th>
+                    <th>Ingresos (Brutos)</th>
+                    <th>Gastos/Pagos</th>
+                    <th>Saldo en Caja</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cierre in cierres %}
+                {% set detalles = cierre.detalles_json | from_json %}
+                {% set egresos = detalles.get('EGRESOS_TOTAL', 0) %}
+                <tr style="vertical-align: middle;">
+                    <td>{{ cierre.fecha_cierre.strftime('%d/%m/%Y') }}</td>
+                    <td><span class="badge-usuario">{{ cierre.usuario.username | upper }}</span></td>
+                    <td style="color: var(--azul-mar); font-weight: 700;">{{ cierre.total_venta | format_number }}</td>
+                    <td style="color: var(--rojo);">-{{ egresos | format_number }}</td>
+                    <td style="font-weight: 800; color: var(--verde);">{{ (cierre.total_venta - egresos) | format_number }}</td>
+                    <td>
+                        <button class="btn btn-reporte" data-bs-toggle="modal" data-bs-target="#modal{{ cierre.id }}">
+                            Detalles
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ================= MODALES DETALLE ================= -->
+{% for cierre in cierres %}
+{% set detalles = cierre.detalles_json | from_json %}
+{% set lista_egresos = detalles.get('DETALLE_EGRESOS', []) %}
+{% set desgloses = detalles.get('DESGLOSE_PAGOS', {}) %}
+
+<div class="modal fade" id="modal{{ cierre.id }}" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-gradient" style="background: linear-gradient(90deg, var(--azul-bebe), var(--azul-medio)); color: var(--azul-mar);">
+                <h5 class="modal-title fw-bold">📄 Reporte Consolidado: {{ cierre.fecha_cierre.strftime('%d/%m/%Y') }}</h5>
+                <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body bg-gray-50 p-4">
+
+                <!-- RESUMEN GENERAL -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <div class="card shadow-sm text-center py-3" style="background: var(--verde); color: white; border-radius: 12px;">
+                            <small class="d-block fw-bold">💵 EFECTIVO</small>
+                            <div class="h4 fw-bold mt-1">{{ desgloses.get('Efectivo', 0) | format_number }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card shadow-sm text-center py-3" style="background: var(--azul-bebe); color: var(--azul-mar); border-radius: 12px;">
+                            <small class="d-block fw-bold">📱 ELECTRÓNICO</small>
+                            <div class="h4 fw-bold mt-1">
+                                {{ (desgloses.get('Nequi', 0) + desgloses.get('Daviplata', 0) + desgloses.get('Tarjeta', 0)) | format_number }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DESGLOSE POR MÉTODO -->
+                <div class="row g-3 mb-4">
+                    {% for metodo, color in [('Nequi', '--azul-medio'), ('Daviplata', '--azul-mar'), ('Tarjeta', '--azul-medio')] %}
+                    <div class="col-md-4">
+                        <div class="d-flex justify-content-between align-items-center px-3 py-2 shadow-sm rounded" style="background: white; border-left: 5px solid var({{ color }});">
+                            <span class="fw-bold text-uppercase">{{ metodo }}</span>
+                            <span class="fw-bold">{{ desgloses.get(metodo, 0) | format_number }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- EGRESOS -->
+                <div class="mt-4">
+                    <h6 class="fw-bold mb-3" style="color: var(--rojo); border-left: 4px solid var(--rojo); padding-left: 8px;">💸 DESGLOSE DE EGRESOS</h6>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr class="text-muted">
+                                    <th>Concepto / Motivo</th>
+                                    <th class="text-end">Monto</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for egreso in lista_egresos %}
+                                <tr>
+                                    <td>{{ egreso.concepto }}</td>
+                                    <td class="text-end text-danger fw-bold">-{{ egreso.monto | format_number }}</td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="2" class="text-center text-secondary py-3">No se registraron egresos.</td>
+                                </tr>
+                                {% endfor %}
+                                <tr class="fw-bold bg-red-50">
+                                    <td class="text-end">TOTAL GASTOS:</td>
+                                    <td class="text-end text-danger">-{{ detalles.get('EGRESOS_TOTAL', 0) | format_number }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- PIE DE MODAL -->
+                <div class="d-flex justify-content-between mt-4 pt-2 border-top">
+                    <small class="text-muted"><strong>Hora de Cierre:</strong> {{ detalles.get('HORA_CIERRE', 'N/A') }}</small>
+                    <small class="text-muted"><strong>Responsable:</strong> {{ cierre.usuario.username | upper }}</small>
+                </div>
+
+            </div>
+            <div class="modal-footer bg-gray-100">
+                <button class="btn btn-outline-secondary rounded-3" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}

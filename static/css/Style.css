@@ -1,0 +1,236 @@
+/* --------------------------------------------------------- */
+/* 1. VARIABLES Y CONFIGURACIÓN - SAN ROQUE PREMIUM DESIGN   */
+/* --------------------------------------------------------- */
+:root {
+    /* Identidad de Marca: Azul San Roque y Dorado */
+    --color-principal: #1a3a5a;       /* Azul San Roque */
+    --color-principal-light: #2c5282;
+    --color-principal-dark: #0f172a;
+    --color-dorado: #b8860b;          /* Dorado de acento */
+    --color-dorado-light: #d4af37;
+    
+    /* Paleta de Interfaz */
+    --bg-body: #f1f5f9;               
+    --bg-card: #ffffff;
+    --texto-oscuro: #1e293b;
+    --texto-muted: #64748b;
+    
+    /* Estados */
+    --success: #10b981;
+    --danger: #be123c;
+    --warning: #f59e0b;
+    --info: #0288d1;
+
+    /* UI Helpers */
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+    --shadow-md: 0 10px 25px -5px rgba(0,0,0,0.1);
+    --shadow-lg: 0 20px 40px -10px rgba(0,0,0,0.15);
+    --border-radius: 12px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Reset Profesional */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-body);
+    color: var(--texto-oscuro);
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* --------------------------------------------------------- */
+/* 2. NAVBAR PROFESIONAL (SAN ROQUE ELEGANT DARK)            */
+/* --------------------------------------------------------- */
+.nav-coquette { 
+    background: var(--color-principal-dark);
+    padding: 0.7rem 2rem;
+    border-bottom: 3px solid var(--color-dorado);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: var(--shadow-md);
+}
+
+.logo-wrapper {
+    width: 45px;
+    height: 45px;
+    border-radius: 8px;
+    padding: 2px;
+    background: var(--bg-card);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: var(--transition);
+}
+
+.logo-wrapper:hover {
+    transform: rotate(5deg) scale(1.1);
+}
+
+.logo-coquette {
+    width: 90%;
+    height: 90%;
+    object-fit: contain;
+}
+
+.titulo-coquette {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-left: 12px;
+}
+
+.nav-links-container {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.nav-link-coquette {
+    color: #e2e8f0 !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    transition: var(--transition);
+    padding: 8px 12px;
+    border-radius: 6px;
+}
+
+.nav-link-coquette:hover {
+    color: var(--color-dorado-light) !important;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* --------------------------------------------------------- */
+/* 3. TARJETAS Y CONTENEDORES (CARDS)                       */
+/* --------------------------------------------------------- */
+.card-pro {
+    background: var(--bg-card);
+    border-radius: var(--border-radius);
+    border: 1px solid #e2e8f0;
+    box-shadow: var(--shadow-sm);
+    padding: 20px;
+    transition: var(--transition);
+}
+
+.card-pro:hover {
+    box-shadow: var(--shadow-md);
+}
+
+/* --------------------------------------------------------- */
+/* 4. BOTONES (BUTTONS)                                      */
+/* --------------------------------------------------------- */
+.btn-pro {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+    transition: var(--transition);
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-pro-primary {
+    background: var(--color-principal);
+    color: white;
+}
+
+.btn-pro-primary:hover {
+    background: var(--color-principal-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(26, 58, 90, 0.3);
+}
+
+.btn-pro-dorado {
+    background: var(--color-dorado);
+    color: white;
+}
+
+.btn-pro-dorado:hover {
+    background: var(--color-dorado-light);
+    transform: translateY(-2px);
+}
+
+/* --------------------------------------------------------- */
+/* 5. TABLAS MODERNAS (TABLES)                               */
+/* --------------------------------------------------------- */
+.table-modern {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table-modern thead th {
+    background: var(--color-principal-dark);
+    color: white;
+    padding: 15px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: left;
+}
+
+.table-modern thead th:first-child { border-radius: 10px 0 0 0; }
+.table-modern thead th:last-child { border-radius: 0 10px 0 0; }
+
+.table-modern tbody td {
+    padding: 15px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 0.9rem;
+    color: var(--texto-oscuro);
+}
+
+.table-modern tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+/* --------------------------------------------------------- */
+/* 6. COMPONENTES ESPECIALES                                 */
+/* --------------------------------------------------------- */
+.badge-premium {
+    background: #fef3c7;
+    color: #b45309;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-weight: 800;
+    font-size: 11px;
+    border: 1px solid #f59e0b;
+}
+
+.total-display {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--color-principal-dark);
+    font-family: 'Courier New', monospace;
+}
+
+/* Utilidades Rápidas */
+.text-upper { text-transform: uppercase; }
+.text-bold { font-weight: 700; }
+
+/* Animación de entrada */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade {
+    animation: fadeInUp 0.5s ease-out forwards;
+}

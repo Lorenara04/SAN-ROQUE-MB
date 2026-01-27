@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}Cierre de Caja - Gestión de Licorera{% endblock %}
+
+{% block content %}
+
+<style>
+    /* VARIABLES PROFESIONALES */
+    :root {
+        --primary-blue: #0277bd;
+        --dark-slate: #263238;
+        --bg-light: #f8f9fa;
+        --success-green: #2e7d32;
+        --danger-red: #c62828;
+        --shadow-pro: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .caja-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    /* TARJETAS KPI (INDICADORES) */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .kpi-card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: var(--shadow-pro);
+        border-left: 6px solid var(--primary-blue);
+        transition: transform 0.2s;
+    }
+
+    .kpi-card:hover { transform: scale(1.02); }
+    .kpi-ventas { border-left-color: var(--success-green); }
+    .kpi-gastos { border-left-color: var(--danger-red); }
+    .kpi-neto { background: var(--dark-slate); color: white; border-left-color: #ffd600; }
+
+    .kpi-card h3 { 
+        font-size: 0.8rem; 
+        text-transform: uppercase; 
+        font-weight: 700; 
+        margin-bottom: 10px; 
+        opacity: 0.8; 
+    }
+    .kpi-card .value { font-size: 1.8rem; font-weight: 800; }
+
+    /* SECCIONES */
+    .section-card {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: var(--shadow-pro);
+    }
+
+    .section-title {
+        color: var(--dark-slate);
+        font-weight: 800;
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-bottom: 2px solid var(--bg-light);
+        padding-bottom: 10px;
+    }
+
+    /* TABLAS */
+    .clean-table { width: 100%; border-collapse: collapse; }
+    .clean-table th { 
+        text-align: left; 
+        padding: 12px; 
+        background: var(--bg-light); 
+        font-size: 0.75rem; 
+        text-transform: uppercase; 
+        color: #666;
+    }
+    .clean-table td { padding: 15px 12px; border-bottom: 1px solid #eee; font-size: 0.95rem; }
+
+    /* BADGES */
+    .method-badge {
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        background: #e1f5fe;
+        color: #0277bd;
+        text-transform: uppercase;
+    }
+
+    .btn-cierre-pro {
+        background: var(--dark-slate);
+        color: white;
+        border: none;
+        padding: 15px;
+        border-radius: 8px;
+        width: 100%;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: 0.3s;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    .btn-cierre-pro:hover { background: #000; transform: translateY(-2px); }
+</style>
+
+<div class="caja-container">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h4 fw-bold mb-0"><i class="fas fa-cash-register text-primary me-2"></i> Reporte de Turno Actual</h1>
+        <span class="badge bg-dark p-2">{{ hoy.strftime('%A, %d de %B %Y') }}</span>
+    </div>
+
+    <div class="kpi-grid">
+        <div class="kpi-card kpi-ventas">
+            <h3>Total Ventas Brutas</h3>
+            <div class="value" style="color: var(--success-green);">$ {{ "{:,.0f}".format(total_diario) }}</div>
+        </div>
+        <div class="kpi-card kpi-gastos">
+            <h3>Salidas (Egresos/Gastos)</h3>
+            <div class="value" style="color: var(--danger-red);">- $ {{ "{:,.0f}".format(desglose.get('EGRESOS_TOTAL', 0)) }}</div>
+        </div>
+        <div class="kpi-card kpi-neto">
+            <h3>Efectivo Neto Esperado</h3>
+            <div class="value">$ {{ "{:,.0f}".format(total_diario - desglose.get('EGRESOS_TOTAL', 0)) }}</div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-7">
+            <div class="section-card h-100">
+                <h2 class="section-title"><i class="fas fa-wallet text-primary"></i> Ingresos por Medio de Pago</h2>
+                <table class="clean-table">
+                    <thead>
+                        <tr>
+                            <th>Medio de Pago</th>
+                            <th class="text-end">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for metodo, monto in desglose.items() %}
+                        {% if metodo != 'EGRESOS_TOTAL' and metodo != 'EGRESOS_LISTA' %}
+                        <tr>
+                            <td><span class="method-badge">{{ metodo }}</span></td>
+                            <td class="text-end fw-bold text-success">$ {{ "{:,.0f}".format(monto) }}</td>
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="section-card h-100">
+                <h2 class="section-title"><i class="fas fa-arrow-circle-down text-danger"></i> Gastos del Turno</h2>
+                <table class="clean-table">
+                    <thead>
+                        <tr>
+                            <th>Concepto</th>
+                            <th class="text-end">Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for g in desglose.get('EGRESOS_LISTA', []) %}
+                        <tr>
+                            <td>{{ g.concepto }}</td>
+                            <td class="text-end text-danger fw-bold">- $ {{ "{:,.0f}".format(g.monto) }}</td>
+                        </tr>
+                        {% endfor %}
+                        {% if not desglose.get('EGRESOS_LISTA') %}
+                        <tr><td colspan="2" class="text-center py-4 text-muted">Sin egresos registrados</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        {% if not caja_cerrada_hoy %}
+        <form action="{{ url_for('reportes.ejecutar_cierre_caja') }}" method="POST" onsubmit="return confirm('¿Confirmas que la administradora ha validado el efectivo físico? No se podrán editar las ventas de hoy una vez cerrado.')">
+            <button type="submit" class="btn-cierre-pro">
+                <i class="fas fa-lock me-2"></i> Finalizar Turno y Realizar Cierre de Caja
+            </button>
+        </form>
+        {% else %}
+        <div class="alert alert-info text-center border-0 shadow-sm">
+            <i class="fas fa-check-circle me-2"></i> El cierre de caja para este turno ya fue realizado por la administración.
+            <br>
+            <a href="{{ url_for('reportes.historial_cierres') }}" class="btn btn-sm btn-outline-info mt-2">Ver Historial de Cierres</a>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+
+{% endblock %}

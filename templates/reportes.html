@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+{% block title %}Reportes Inteligentes - San Roque{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --sky-bg: #f0f9ff;
+        --sky-light: #e0f2fe;
+        --sky-medium: #7dd3fc;
+        --sky-dark: #0284c7;
+        --navy: #1e3a8a;
+        --emerald: #10b981;
+    }
+
+    body { background-color: #f8fafc; }
+
+    .report-container {
+        background-color: var(--sky-bg);
+        border-radius: 24px;
+        padding: 2rem;
+        border: 1px solid var(--sky-light);
+    }
+
+    /* Tarjetas de Métricas Estilo Sky */
+    .metric-card-sky {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        border: 1px solid var(--sky-light);
+        transition: transform 0.2s;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    }
+    .metric-card-sky:hover { transform: translateY(-5px); }
+
+    .text-navy { color: var(--navy); }
+    .text-sky { color: var(--sky-dark); }
+
+    /* Estilo del Formulario de Informe */
+    .glass-card-report {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        border: 2px solid var(--sky-medium);
+    }
+
+    .form-control-sky {
+        border: 1px solid var(--sky-medium);
+        border-radius: 10px;
+        padding: 10px;
+        color: var(--navy);
+    }
+
+    .btn-sky {
+        background: linear-gradient(135deg, var(--sky-dark), var(--navy));
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 12px;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+    .btn-sky:hover { opacity: 0.9; transform: scale(1.02); color: white; }
+
+    /* Tabla de Detalles */
+    .table-sky {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        border: 1px solid var(--sky-light);
+    }
+    .table-sky thead {
+        background-color: var(--sky-dark);
+        color: white;
+    }
+</style>
+
+<div class="container py-4">
+    <div class="report-container shadow-sm">
+        
+        <div class="d-flex justify-content-between align-items-center mb-5 flex-wrap">
+            <div>
+                <h2 class="fw-bold text-navy mb-0">
+                    <i class="fas fa-layer-group me-2"></i>Centro de Inteligencia
+                </h2>
+                <span class="badge bg-info text-dark rounded-pill">Licorera San Roque M.B</span>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('reportes.historial_cierres') }}" class="btn btn-outline-primary rounded-pill px-4">Historial</a>
+                <form action="{{ url_for('reportes.ejecutar_cierre_caja') }}" method="POST">
+                    <button type="submit" class="btn btn-navy rounded-pill px-4" style="background: var(--navy); color: white;">
+                        Cierre del Día
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="metric-card-sky">
+                    <small class="text-uppercase fw-bold text-muted">Ingresos Entrantes</small>
+                    <h3 class="fw-bold text-sky mb-0">${{ total_diario | format_number }}</h3>
+                    <div class="progress mt-2" style="height: 4px;"><div class="progress-bar" style="width: 70%; background: var(--sky-dark)"></div></div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="metric-card-sky">
+                    <small class="text-uppercase fw-bold text-muted">Abonos Pagados</small>
+                    <h3 class="fw-bold text-danger mb-0">${{ egresos_dia | format_number }}</h3>
+                    <div class="progress mt-2" style="height: 4px;"><div class="progress-bar bg-danger" style="width: 30%"></div></div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="metric-card-sky">
+                    <small class="text-uppercase fw-bold text-muted">Efectivo Real</small>
+                    <h3 class="fw-bold text-navy mb-0">${{ saldo_caja_dia | format_number }}</h3>
+                    <div class="progress mt-2" style="height: 4px;"><div class="progress-bar bg-success" style="width: 100%"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-7">
+                <div class="bg-white p-4 rounded-4 shadow-sm h-100 border">
+                    <h5 class="fw-bold text-navy mb-4"><i class="fas fa-chart-area me-2"></i>Tendencia de Flujo</h5>
+                    <div style="height: 300px;"><canvas id="chartSky"></canvas></div>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="glass-card-report h-100">
+                    <h5 class="fw-bold text-navy mb-1">Solicitar Informe PDF</h5>
+                    <p class="text-muted small mb-4">Seleccione el rango de fechas comercial</p>
+                    
+                    <form action="{{ url_for('reportes.enviar_reporte_email') }}" method="POST">
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label class="small fw-bold text-navy">Desde:</label>
+                                <input type="date" name="fecha_inicio" class="form-control form-control-sky" value="{{ hoy }}" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="small fw-bold text-navy">Hasta:</label>
+                                <input type="date" name="fecha_fin" class="form-control form-control-sky" value="{{ hoy }}" required>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="small fw-bold text-navy">Enviar a:</label>
+                            <input type="email" name="email" class="form-control form-control-sky" placeholder="admin@sanroque.com" required>
+                        </div>
+                        <button type="submit" class="btn btn-sky w-100 shadow">
+                            <i class="fas fa-envelope-open-text me-2"></i> GENERAR Y ENVIAR
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const ctx = document.getElementById('chartSky').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ labels_grafico | tojson }},
+            datasets: [{
+                label: 'Flujo de Ventas',
+                data: {{ datos_ventas | tojson }},
+                borderColor: '#0284c7',
+                backgroundColor: 'rgba(2, 132, 199, 0.1)',
+                fill: true,
+                tension: 0.4,
+                borderWidth: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } } }
+        }
+    });
+});
+</script>
+{% endblock %}

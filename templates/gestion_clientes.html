@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Gestión de Clientes - San Roque M.B{% endblock %}
+
+{% block content %}
+<style>
+    .tabla-premium {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    }
+    .table-striped tbody tr:nth-of-type(even) { background-color: #f8fafc; }
+    .table-striped tbody tr:hover { background-color: #f1f5f9; }
+    .btn-edit { background: #1a3a5a; color: white; border-radius: 8px; }
+</style>
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-dark"><i class="fas fa-users me-2"></i> Directorio de Clientes</h2>
+        <button class="btn btn-primary fw-bold px-4 rounded-pill" data-bs-toggle="modal" data-bs-target="#addClienteModal">
+            <i class="fas fa-plus-circle me-1"></i> NUEVO CLIENTE
+        </button>
+    </div>
+
+    <div class="tabla-premium">
+        <table class="table table-striped align-middle text-center mb-0">
+            <thead class="bg-dark text-white">
+                <tr>
+                    <th>Nombre</th>
+                    <th>Documento</th>
+                    <th>Teléfono</th>
+                    <th>Correo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in clientes %}
+                <tr>
+                    <td class="text-start ps-4 fw-bold">{{ c.nombre }}</td>
+                    <td>{{ c.documento }}</td>
+                    <td>{{ c.telefono }}</td>
+                    <td>{{ c.email or 'N/A' }}</td>
+                    <td>
+                        <button class="btn btn-sm btn-edit" 
+                                onclick="prepareEditModal('{{ c.id }}', '{{ c.nombre }}', '{{ c.documento }}', '{{ c.telefono }}', '{{ c.email }}', '{{ c.direccion }}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="editClienteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <form id="editClienteForm" method="POST">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title fw-bold">EDITAR INFORMACIÓN DEL CLIENTE</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body bg-light">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">NOMBRE COMPLETO</label>
+                            <input type="text" name="nombre" id="edit_nombre" class="form-control" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-bold">DOCUMENTO/NIT</label>
+                            <input type="text" name="documento" id="edit_documento" class="form-control">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-bold">TELÉFONO</label>
+                            <input type="text" name="telefono" id="edit_telefono" class="form-control">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">CORREO ELECTRÓNICO</label>
+                            <input type="email" name="email" id="edit_email" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-white">
+                    <button type="submit" class="btn btn-primary w-100 fw-bold">GUARDAR CAMBIOS</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function prepareEditModal(id, nombre, documento, telefono, email, direccion) {
+    // 1. Cargamos los datos en los inputs del modal
+    document.getElementById('edit_nombre').value = nombre;
+    document.getElementById('edit_documento').value = documento;
+    document.getElementById('edit_telefono').value = telefono;
+    document.getElementById('edit_email').value = email;
+    
+    // 2. Ajustamos la URL del formulario para que apunte al ID correcto
+    document.getElementById('editClienteForm').action = "/clientes/editar/" + id;
+    
+    // 3. Mostramos el modal
+    var myModal = new bootstrap.Modal(document.getElementById('editClienteModal'));
+    myModal.show();
+}
+</script>
+{% endblock %}

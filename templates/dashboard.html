@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Premium - San Roque M.B{% endblock %}
+
+{% block content %}
+<div class="luxury-dashboard">
+    <div id="particles-container" class="fondo-particulas"></div>
+
+    <header class="welcome-header">
+        <div class="user-badge">
+            <span class="role-dot"></span> {{ current_user.rol | upper }}
+        </div>
+        <h1>Bienvenido, <span class="gradient-text">{{ current_user.username }}</span> 🥂</h1>
+        <p class="date-now" id="currentDate"></p>
+    </header>
+
+    <nav class="quick-access">
+        {% if es_admin %}
+            <a href="{{ url_for('reportes.reportes') }}" class="glass-btn btn-indigo">Informes</a>
+            <a href="{{ url_for('ventas.gestion_ventas') }}" class="glass-btn btn-ocean">Gestión</a>
+        {% endif %}
+        
+        <a href="{{ url_for('ventas.nueva_venta') }}" class="glass-btn btn-emerald">Nueva Venta</a>
+        <a href="{{ url_for('creditos.creditos_corto') }}" class="glass-btn btn-baby-blue">Cuentas/Fiar</a>
+        <a href="{{ url_for('creditos.creditos_largo') }}" class="glass-btn btn-baby-blue-alt">Créditos 15 Días</a>
+    </nav>
+
+    <main class="stats-grid">
+        <div class="premium-card baby-glow">
+            <p class="label">Ventas de Hoy</p>
+            <h2 class="val">$ {{ ventas_hoy | default(0) | format_number }}</h2>
+            <p class="sub">{% if es_admin %}Total Global{% else %}Mis ventas personales{% endif %}</p>
+        </div>
+
+        <div class="premium-card baby-glow">
+            <p class="label">Inventario Total</p>
+            <h2 class="val text-ocean">{{ total_inventario | default(0) }}</h2>
+            <p class="sub">unidades en stock</p>
+        </div>
+
+        <div class="premium-card highlight-baby">
+            <p class="label">Cartera de Clientes</p>
+            {% set deuda_clientes = (total_deuda_corto | default(0)) + (total_deuda_largo | default(0)) %}
+            <h2 class="val text-baby">$ {{ deuda_clientes | format_number }}</h2>
+            <p class="sub">Total por cobrar 📑</p>
+        </div>
+
+        {% if es_admin %}
+            <div class="premium-card highlight-indigo">
+                <p class="label">Saldos por Pagar</p>
+                {% set total_deuda_admin = (total_facturas_pendiente | default(0)) + (total_gastos_pendiente | default(0)) %}
+                <h2 class="val text-indigo">$ {{ total_deuda_admin | format_number }}</h2>
+                <p class="sub">Proveedores + Gastos 🛡️</p>
+            </div>
+
+            <div class="premium-card baby-glow">
+                <p class="label">Costo del Inventario</p>
+                <h2 class="val">$ {{ valor_interno_total | default(0) | format_number }}</h2>
+                <p class="sub">Inversión acumulada</p>
+            </div>
+
+            <div class="premium-card full-span sale-value">
+                <p class="label">Valor Proyectado de Venta</p>
+                <h2 class="val-large gradient-text-dark">$ {{ valor_venta_total | default(0) | format_number }}</h2>
+                <p class="sub">Total estimado en vitrina</p>
+            </div>
+        {% endif %}
+    </main>
+</div>
+
+<style>
+:root {
+    --indigo: #3f51b5;
+    --ocean: #0077b6;
+    --emerald: #06d6a0;
+    --baby-blue: #89CFF0; /* Azul Bebé Clásico */
+    --baby-blue-soft: #E1F5FE;
+    --baby-blue-dark: #5ebceb;
+}
+
+.luxury-dashboard {
+    min-height: 100vh;
+    padding: 30px 20px;
+    background: linear-gradient(180deg, #F0F8FF 0%, #FFFFFF 100%); /* Fondo AliceBlue muy suave */
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    overflow-x: hidden;
+}
+
+.welcome-header { text-align: center; margin-bottom: 25px; z-index: 2; }
+.gradient-text {
+    background: linear-gradient(90deg, var(--indigo), var(--baby-blue-dark));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+}
+
+.user-badge {
+    background: white;
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--ocean);
+    border: 1px solid var(--baby-blue);
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
+.quick-access { display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; justify-content: center; z-index: 2; }
+.glass-btn {
+    padding: 12px 20px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: white !important;
+    font-weight: 700;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: 0.3s;
+}
+
+.btn-indigo { background: #3949ab; }
+.btn-ocean { background: #039be5; }
+.btn-emerald { background: #00897b; }
+/* Botones en Azul Bebé */
+.btn-baby-blue { background: var(--baby-blue); color: #1a5276 !important; }
+.btn-baby-blue-alt { background: var(--baby-blue-dark); color: white !important; }
+
+.glass-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(137, 207, 240, 0.4); filter: brightness(1.05); }
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    width: 100%;
+    max-width: 1000px;
+    z-index: 2;
+}
+
+@media (max-width: 992px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr; } }
+
+.premium-card {
+    background: white;
+    padding: 25px;
+    border-radius: 20px;
+    text-align: center;
+    border: 1px solid var(--baby-blue-soft);
+    box-shadow: 0 4px 12px rgba(137, 207, 240, 0.1);
+}
+
+.baby-glow:hover {
+    box-shadow: 0 8px 24px rgba(137, 207, 240, 0.25);
+    border-color: var(--baby-blue);
+}
+
+.full-span { grid-column: 1 / -1; }
+.label { font-size: 10px; font-weight: 800; color: #78909c; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px; }
+.val { font-size: 1.8rem; font-weight: 800; color: #1e293b; margin: 0; }
+.val-large { font-size: 2.8rem; font-weight: 800; color: #0f172a; margin: 0; }
+
+.text-ocean { color: var(--ocean) !important; }
+.text-baby { color: #4aa3df !important; }
+.text-indigo { color: var(--indigo) !important; }
+.highlight-baby { border-top: 5px solid var(--baby-blue); }
+.highlight-indigo { border-top: 5px solid #818cf8; }
+
+.sale-value { background: linear-gradient(135deg, #ffffff 0%, var(--baby-blue-soft) 100%); }
+.sub { font-size: 11px; color: #94a3b8; margin-top: 5px; }
+
+/* Partículas corregidas */
+.fondo-particulas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.particula {
+    position: absolute;
+    opacity: 0;
+    animation: flotar linear infinite;
+    color: var(--baby-blue);
+}
+
+@keyframes flotar {
+    0% { transform: translateY(105vh) scale(0.5); opacity: 0; }
+    20% { opacity: 0.6; }
+    80% { opacity: 0.6; }
+    100% { transform: translateY(-10vh) scale(1.2) rotate(360deg); opacity: 0; }
+}
+</style>
+
+<script>
+document.getElementById('currentDate').innerText = new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+const container = document.getElementById('particles-container');
+const symbols = ['❄️', '🔹', '✨', '💧', '☁️'];
+
+function createParticle() {
+    const p = document.createElement('span');
+    p.classList.add('particula');
+    p.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.fontSize = (Math.random() * 15 + 10) + 'px';
+    
+    const duration = Math.random() * 8 + 7; // Un poco más rápidas
+    p.style.animationDuration = duration + 's';
+    
+    container.appendChild(p);
+    
+    setTimeout(() => { p.remove(); }, duration * 1000);
+}
+
+setInterval(createParticle, 1000); // Más frecuencia
+for(let i=0; i<10; i++) createParticle();
+</script>
+{% endblock %}

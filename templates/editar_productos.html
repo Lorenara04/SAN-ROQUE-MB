@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}Editar {{ producto.nombre }}{% endblock %}
+
+{% block content %}
+
+<h2 class="mb-4 text-center fw-bold" style="color:#1a3a5a;">🛡️ Gestión de Producto 🛡️</h2>
+
+<div class="row g-4">
+
+    <div class="col-md-7">
+        <div class="card shadow-lg p-4 border-0" 
+            style="border-radius:15px; background:#f0f7ff; border-left:6px solid #1a3a5a;">
+
+            <h3 class="fw-bold mb-3" style="color:#1a3a5a;">
+                📦 Detalles de Inventario
+            </h3>
+
+            <form action="{{ url_for('editar_producto', producto_id=producto.id) }}" method="POST">
+                
+                {% set es_admin = (current_user.rol.lower() == 'administrador') %}
+                {% set readonly = 'readonly' if not es_admin else '' %}
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold" style="color:#2c5282;">Código (SKU / Barras)</label>
+                    <input type="text" name="codigo" class="form-control shadow-sm border-0"
+                        value="{{ producto.codigo }}" required {{ readonly }} style="border-radius:8px;">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold" style="color:#2c5282;">Nombre del Licor / Producto</label>
+                    <input type="text" name="nombre" class="form-control shadow-sm border-0"
+                        value="{{ producto.nombre }}" required {{ readonly }} style="border-radius:8px;">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold" style="color:#2c5282;">Descripción / Notas</label>
+                    <textarea name="descripcion" class="form-control shadow-sm border-0" rows="3" {{ readonly }} style="border-radius:8px;">{{ producto.descripcion }}</textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold" style="color:#2c5282;">Stock Actual (Unidades)</label>
+                    <input type="number" name="cantidad" class="form-control shadow-sm border-0"
+                        value="{{ producto.cantidad }}" min="0" required {{ readonly }} style="border-radius:8px;">
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold" style="color:#2c5282;">Costo Interno ($)</label>
+                        <input type="number" name="valor_interno" class="form-control shadow-sm border-0"
+                            value="{{ producto.valor_interno }}" step="0.01" required {{ readonly }} style="border-radius:8px;">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold" style="color:#2c5282;">Precio de Venta ($)</label>
+                        <input type="number" name="valor_venta" class="form-control shadow-sm border-0"
+                            value="{{ producto.valor_venta }}" step="0.01" required {{ readonly }} style="border-radius:8px;">
+                    </div>
+                </div>
+
+                {% if es_admin %}
+                <button type="submit" class="btn w-100 mt-3 fw-bold text-white"
+                    style="background:#1a3a5a; border-radius:8px; padding: 12px;">
+                    <i class="fas fa-save"></i> Actualizar Registro
+                </button>
+                {% else %}
+                <div class="alert alert-warning mt-3 py-2 text-center" style="border-radius:8px;">
+                    <i class="fas fa-lock"></i> Solo administradores pueden editar.
+                </div>
+                {% endif %}
+
+                <a href="{{ url_for('inventario') }}" 
+                    class="btn btn-outline-secondary w-100 mt-2 fw-bold"
+                    style="border-radius:8px;">
+                    <i class="fas fa-arrow-left"></i> Regresar al Inventario
+                </a>
+            </form>
+        </div>
+    </div>
+
+
+    <div class="col-md-5">
+        <div class="card shadow-lg p-4 text-center border-0"
+            style="border-radius:15px; background:#ffffff; border-top:6px solid #b8860b;">
+
+            <h3 class="fw-bold mb-3" style="color:#1a3a5a;">🏷️ Etiqueta de Producto</h3>
+
+            {% if barcode_img %}
+            <div id="printArea" class="p-3" style="background: white; border: 1px solid #eee; border-radius: 10px;">
+                <img src="{{ barcode_img }}" class="w-100 mb-2">
+                <p class="fs-5 fw-bold mb-0" style="color:#1a3a5a; letter-spacing: 2px;">{{ producto.codigo }}</p>
+                <small class="text-muted">{{ producto.nombre }}</small>
+            </div>
+
+            <button type="button" class="btn w-100 mt-4 fw-bold text-white" 
+                onclick="imprimirEtiqueta()"
+                style="background:#000; border-radius:8px; padding: 12px;">
+                <i class="fas fa-print"></i> Generar Impresión
+            </button>
+
+            <script>
+            function imprimirEtiqueta() {
+                const formattedPrice = "{{ '{:,.0f}'.format(producto.valor_venta) }}"; 
+                
+                const printContent = `
+                    <div style="font-family: 'Segoe UI', sans-serif; padding: 15px; width: 280px; text-align: center; border: 1px solid #333;">
+                        <h3 style="margin: 0; color: #1a3a5a; text-transform: uppercase; font-size: 14px;">
+                            LICORES EL OLIMPO
+                        </h3>
+                        <hr style="border: 0; border-top: 1px solid #ccc; margin: 8px 0;">
+                        <img src="{{ barcode_img }}" style="width: 100%; max-width: 220px; margin: 5px 0;">
+                        <p style="margin: 5px 0; font-size: 13px; font-weight: 600;">{{ producto.nombre }}</p>
+                        <p style="margin: 0; font-weight: bold; font-size: 20px; color: #000;">
+                            $ ${formattedPrice}
+                        </p>
+                        <p style="margin-top: 5px; font-size: 9px; color: #666;">Calidad Garantizada</p>
+                    </div>
+                `;
+                
+                const printWindow = window.open('', '', 'width=400,height=400');
+                printWindow.document.write('<html><head><title>Etiqueta Licorera</title>');
+                printWindow.document.write('<style>body { margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }</style>');
+                printWindow.document.write('</head><body>');
+                printWindow.document.write(printContent);
+                printWindow.document.write('</body></html>');
+                
+                printWindow.document.close();
+                printWindow.focus();
+                setTimeout(() => {
+                    printWindow.print();
+                    printWindow.close();
+                }, 600); 
+            }
+            </script>
+
+            {% else %}
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i> Error al generar código.
+            </div>
+            {% endif %}
+            
+            <div class="mt-4 p-3 bg-light" style="border-radius: 10px; font-size: 12px; color: #666;">
+                <i class="fas fa-info-circle"></i> Use papel adhesivo de 8x5cm para mejores resultados en la estantería.
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

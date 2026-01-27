@@ -1,0 +1,402 @@
+{% extends "base.html" %}
+{% block title %}Inventario - SAN ROQUE M.B{% endblock %}
+{% block page %}Inventario{% endblock %}
+
+{% block content %}
+
+<style>
+:root {
+  --azul-olimpo: #1a3a5a;
+  --azul-premium: #2c5282;
+  --dorado-olimpo: #b8860b;
+  --slate-800: #1e293b;
+  --slate-50: #f8fafc;
+  --success-green: #15803d;
+  --warning-orange: #d97706;
+  --danger-red: #b91c1c;
+  --info-blue: #0369a1;
+  --rosa-tag: #28459e; 
+}
+
+/* Título e Identidad */
+.header-inventario {
+  background: linear-gradient(90deg, var(--azul-olimpo), var(--azul-premium));
+  color: white;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  margin-bottom: 30px;
+}
+
+/* Recepción Rápida */
+.card-recepcion-premium {
+  border-radius: 15px;
+  background: #fff;
+  border-left: 6px solid var(--dorado-olimpo);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+}
+
+/* Tabla Contenedor */
+.tabla-container {
+  background: white;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  border: 1px solid #7e8bd7;
+}
+
+.table thead th {
+  background: var(--azul-olimpo) !important;
+  color: #fff !important;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  padding: 18px;
+  border: none;
+}
+
+.table-striped-custom tbody tr:hover { 
+    background-color: #d1e3f5 !important; 
+    transition: 0.2s;
+}
+
+.badge-stock {
+  padding: 8px 14px;
+  border-radius: 50px;
+  font-weight: 800;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 120px;
+  justify-content: center;
+}
+
+.stock-top { background: #e0f2fe; color: var(--info-blue); }
+.stock-high { background: #dcfce7; color: var(--success-green); }
+.stock-medium { background: #fef3c7; color: var(--warning-orange); }
+.stock-low { background: #fee2e2; color: var(--danger-red); }
+
+/* ESTILOS PARA LA ETIQUETA */
+.card-etiqueta-print {
+    border: 2px solid #eee;
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    background: white;
+    max-width: 300px;
+    margin: 0 auto;
+}
+.precio-tag {
+    background: #f1f5f9;
+    color: #000;
+    font-size: 1.6rem;
+    font-weight: 900;
+    padding: 8px 15px;
+    border-radius: 10px;
+    display: inline-block;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+}
+.btn-imprimir-tag { background-color: #00d4ff; color: white; border: none; border-radius: 25px; padding: 10px 25px; font-weight: bold; }
+.btn-descargar-tag { background-color: var(--rosa-tag); color: white; border: none; border-radius: 25px; padding: 10px 25px; font-weight: bold; text-decoration: none; }
+
+.btn-action-base {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  border: none; color: #fff;
+  transition: 0.3s;
+}
+.btn-action-edit { background: var(--azul-olimpo); }
+.btn-action-delete { background: #c82525; }
+.btn-action-barcode { background: var(--rosa-tag); }
+
+/* ==========================================
+   CONFIGURACIÓN PARA IMPRESIÓN (SOLO ETIQUETA)
+   ========================================== */
+@media print {
+    /* Ocultar todo el cuerpo de la página */
+    body * {
+        visibility: hidden;
+    }
+    /* Mostrar solo el contenedor de la etiqueta y sus hijos */
+    #area-impresion, #area-impresion * {
+        visibility: visible;
+    }
+    /* Posicionar la etiqueta en la esquina superior izquierda al imprimir */
+    #area-impresion {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        border: none !important;
+    }
+    /* Eliminar fondos grises o sombras de modales en impresión */
+    .modal-backdrop, .modal-header, .modal-footer, .btn-imprimir-tag, .btn-descargar-tag {
+        display: none !important;
+    }
+    .modal {
+        position: absolute;
+        left: 0;
+        top: 0;
+        margin: 0;
+        padding: 0;
+        overflow: visible !important;
+    }
+    .card-etiqueta-print {
+        border: 1px solid #000 !important; /* Borde fino para corte */
+        box-shadow: none !important;
+    }
+}
+</style>
+
+<div class="container py-4">
+    <div class="header-inventario d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="mb-1 fw-bold"><i class="fas fa-wine-bottle me-2"></i> Gestión de Cava</h1>
+            <p class="mb-0 opacity-75">Licorera San Roque M.B - Inventario</p>
+        </div>
+        {% if current_user.rol.lower() == 'administrador' %}
+        <button class="btn btn-light fw-bold px-4 py-2 rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#addProductModal">
+            <i class="fas fa-plus-circle me-2 text-primary"></i> REGISTRAR PRODUCTO
+        </button>
+        {% endif %}
+    </div>
+
+    <div class="card-recepcion-premium p-4 mb-4">
+        <h5 class="fw-bold text-dark mb-3 small"><i class="fas fa-barcode me-2 text-primary"></i> RECEPCIÓN RÁPIDA (ESCÁNER)</h5>
+        <form action="{{ url_for('inventario.agregar_producto') }}" method="POST" class="row g-3">
+            <div class="col-md-7">
+                <input name="codigo_scanner" class="form-control" placeholder="Escanear o ingresar código..." required autofocus>
+            </div>
+            <div class="col-md-2">
+                <input name="cantidad_scanner" type="number" min="1" value="1" class="form-control text-center fw-bold">
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100 fw-bold">
+                   <i class="fas fa-plus me-1"></i> ACTUALIZAR STOCK
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="tabla-container">
+        <table class="table table-striped-custom text-center align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Ref. Código</th>
+                    <th class="text-start">Descripción del Producto</th>
+                    <th>Estado de Stock</th>
+                    <th>Precio Venta</th>
+                    <th>Gestión</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in productos_paginados.items %}
+                <tr>
+                    <td><code class="text-primary fw-bold">{{ p.codigo or 'N/A' }}</code></td>
+                    <td class="text-start">
+                        <div class="fw-bold text-dark">{{ p.nombre | upper }}</div>
+                        <div class="small text-muted text-uppercase" style="font-size: 0.7rem;">{{ p.marca }}</div>
+                    </td>
+                    <td>
+                        {% if p.cantidad > 10 %}
+                            <span class="badge-stock stock-top"><i class="fas fa-boxes"></i> {{ p.cantidad }} EXCELENTE</span>
+                        {% elif p.cantidad > 5 %}
+                            <span class="badge-stock stock-high"><i class="fas fa-check-circle"></i> {{ p.cantidad }} SALUDABLE</span>
+                        {% else %}
+                            <span class="badge-stock stock-low"><i class="fas fa-exclamation-triangle"></i> {{ p.cantidad }} CRÍTICO</span>
+                        {% endif %}
+                    </td>
+                    <td><span class="fw-bold text-dark">${{ p.valor_venta }}</span></td>
+                    <td>
+                        <div class="d-flex gap-2 justify-content-center">
+                            <button class="btn-action-base btn-action-barcode" title="Ver Etiqueta"
+                                onclick="verEtiqueta('{{ p.codigo }}', '{{ p.nombre|e }}', '{{ p.marca|e }}', '{{ p.valor_venta }}')">
+                                <i class="fas fa-barcode"></i>
+                            </button>
+
+                            <button class="btn-action-base btn-action-edit" title="Editar"
+                                onclick="openEditModal('{{ p.id }}', '{{ p.nombre|e }}', '{{ p.marca|e }}', '{{ p.codigo|e }}', '{{ p.descripcion|e }}', '{{ p.valor_interno }}', '{{ p.valor_venta }}', '{{ p.cantidad }}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            
+                            {% if current_user.rol.lower() == 'administrador' %}
+                            <a class="btn-action-base btn-action-delete" title="Eliminar"
+                               href="{{ url_for('inventario.eliminar_producto', producto_id=p.id) }}"
+                               onclick="return confirm('¿Seguro que desea eliminar este producto?')">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="barcodeModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0">
+            <div class="modal-header border-0 pb-0">
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="area-impresion">
+                    <div class="card-etiqueta-print">
+                        <img src="{{ url_for('static', filename='img/logo.png') }}" style="width: 50px;" alt="Logo">
+                        <h3 id="tag-nombre" style="color: var(--rosa-tag); margin-top: 10px; font-size: 1.4rem;">PRODUCTO</h3>
+                        <p id="tag-marca" style="color: #666; margin-bottom: 5px; font-size: 0.9rem;">Marca</p>
+                        <p class="fw-bold mb-1">Código: <span id="tag-codigo-texto">000</span></p>
+                        
+                        <div class="precio-tag" id="tag-precio">$0</div>
+                        
+                        <div class="mt-2" style="background: white; padding: 10px;">
+                            <img id="tag-barcode-img" src="" alt="Barras" style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-center gap-3 mt-4 no-print">
+                    <button class="btn-imprimir-tag" onclick="window.print()"><i class="fas fa-print"></i> IMPRIMIR</button>
+                    <a id="btn-descargar-link" href="#" download="etiqueta.png" class="btn-descargar-tag">
+                        <i class="fas fa-download"></i> DESCARGAR PNG
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addProductModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content shadow-lg border-0">
+      <form action="{{ url_for('inventario.crear_producto') }}" method="POST">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title fw-bold">NUEVO PRODUCTO</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body bg-light">
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <label class="form-label">Nombre</label>
+                    <input name="nombre" class="form-control" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Marca</label>
+                    <input name="marca" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Código</label>
+                    <input name="codigo" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label text-primary">Stock Inicial</label>
+                    <input name="cantidad" type="number" class="form-control fw-bold border-primary" value="0">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Costo</label>
+                    <input name="valor_interno" id="new_costo" type="number" step="0.01" class="form-control" oninput="autoCalcular('new_costo', 'new_venta')">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Precio Venta</label>
+                    <input name="valor_venta" id="new_venta" type="number" step="0.01" class="form-control fw-bold text-success">
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer bg-white">
+          <button type="submit" class="btn btn-primary px-5 fw-bold">GUARDAR</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="editProductModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content shadow-lg border-0">
+      <form method="POST" id="editForm">
+        <div class="modal-header bg-dark text-white">
+          <h5 class="modal-title fw-bold">MODIFICAR PRODUCTO</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body bg-light">
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <label class="form-label">Nombre</label>
+                    <input name="nombre" id="edit_nombre" class="form-control" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Marca</label>
+                    <input name="marca" id="edit_marca" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Código</label>
+                    <input name="codigo" id="edit_codigo" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label text-danger">Ajuste de Stock</label>
+                    <input name="cantidad" id="edit_cantidad" type="number" class="form-control fw-bold border-danger">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Costo</label>
+                    <input name="valor_interno" id="edit_costo" type="number" step="0.01" class="form-control" oninput="autoCalcular('edit_costo', 'edit_venta')">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Precio Venta</label>
+                    <input name="valor_venta" id="edit_venta" type="number" step="0.01" class="form-control fw-bold text-success">
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer bg-white">
+          <button type="submit" class="btn btn-dark px-5 fw-bold">ACTUALIZAR</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+function autoCalcular(idCosto, idVenta) {
+    const costo = document.getElementById(idCosto).value;
+    const ventaInput = document.getElementById(idVenta);
+    if (costo && costo > 0) {
+        const ventaSugerida = Math.round(parseFloat(costo) * 1.35);
+        ventaInput.value = ventaSugerida;
+    }
+}
+
+function openEditModal(id, nombre, marca, codigo, descripcion, costo, venta, cantidad) {
+  document.getElementById('edit_nombre').value = nombre;
+  document.getElementById('edit_marca').value = marca;
+  document.getElementById('edit_codigo').value = codigo;
+  document.getElementById('edit_costo').value = costo;
+  document.getElementById('edit_venta').value = venta;
+  document.getElementById('edit_cantidad').value = cantidad;
+  document.getElementById('editForm').action = `/inventario/editar/${id}`;
+  new bootstrap.Modal(document.getElementById('editProductModal')).show();
+}
+
+function verEtiqueta(codigo, nombre, marca, precio) {
+    document.getElementById('tag-nombre').innerText = nombre.toUpperCase();
+    document.getElementById('tag-marca').innerText = marca || 'Sin marca';
+    document.getElementById('tag-codigo-texto').innerText = codigo;
+    document.getElementById('tag-precio').innerText = '$' + precio;
+    
+    const urlImagen = `/generar_codigo/${codigo}`;
+    document.getElementById('tag-barcode-img').src = urlImagen;
+    
+    const btnDescarga = document.getElementById('btn-descargar-link');
+    btnDescarga.href = urlImagen;
+    btnDescarga.download = `Etiqueta_${codigo}.png`;
+
+    new bootstrap.Modal(document.getElementById('barcodeModal')).show();
+}
+</script>
+
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Editar Usuario - Licorera{% endblock %}
+
+{% block content %}
+
+<h2 class="text-center fw-bold mb-4" style="color:#1a3a5a;">
+    👤 Gestión de Colaboradores 👤
+</h2>
+
+<div class="card shadow-lg p-4 mx-auto border-0"
+     style="max-width:600px; border-radius:15px; background:#f0f7ff; border-top:6px solid #1a3a5a;">
+
+    <form method="POST">
+
+        <div class="mb-3">
+            <label class="form-label fw-bold" style="color:#2c5282;">Nombre de Usuario</label>
+            <input type="text" name="username" class="form-control shadow-sm border-0"
+                   value="{{ usuario.username }}" required style="border-radius:8px;">
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold" style="color:#2c5282;">Nombre</label>
+                <input type="text" name="nombre" class="form-control shadow-sm border-0"
+                       value="{{ usuario.nombre }}" required style="border-radius:8px;">
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold" style="color:#2c5282;">Apellido</label>
+                <input type="text" name="apellido" class="form-control shadow-sm border-0"
+                       value="{{ usuario.apellido }}" required style="border-radius:8px;">
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold" style="color:#2c5282;">Rol en el Sistema</label>
+            <select name="rol" class="form-select shadow-sm border-0" required style="border-radius:8px;">
+                <option value="Administrador" {% if usuario.rol=='Administrador' %}selected{% endif %}>
+                    Administrador (Acceso Total)
+                </option>
+                <option value="Vendedor" {% if usuario.rol in ['Vendedor', 'Vendedora'] %}selected{% endif %}>
+                    Vendedor (Punto de Venta)
+                </option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold" style="color:#2c5282;">Actualizar Contraseña</label>
+            <input type="password" name="password" class="form-control shadow-sm border-0"
+                   placeholder="Dejar en blanco para mantener la actual" style="border-radius:8px;">
+        </div>
+
+        <button type="submit"
+                class="btn w-100 fw-bold text-white mt-2"
+                style="background:#1a3a5a; border-radius:8px; padding: 12px;">
+            <i class="fas fa-user-check"></i> Guardar Cambios
+        </button>
+
+        <a href="{{ url_for('usuarios') }}"
+           class="btn btn-outline-secondary w-100 mt-3 fw-bold"
+           style="border-radius:8px;">
+            <i class="fas fa-times"></i> Cancelar Operación
+        </a>
+
+    </form>
+</div>
+
+<div class="mt-4 text-center">
+    <small class="text-muted">
+        <i class="fas fa-info-circle"></i> Los cambios de rol afectarán los permisos de acceso de inmediato.
+    </small>
+</div>
+
+{% endblock %}

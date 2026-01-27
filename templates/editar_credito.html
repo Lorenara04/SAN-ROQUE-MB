@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+<style>
+    /* Quitamos el flex del body para no afectar la navbar ni el footer */
+    .main-wrapper {
+        min-height: 80vh; /* Altura suficiente para que se vea centrado */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 40px 20px;
+        background: #f1f5f9; /* Color de fondo para esta sección */
+    }
+
+    .card-edit {
+        width: 100%;
+        max-width: 550px;
+        background: white;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        border-top: 6px solid #1e3a8a; /* Azul San Roque */
+    }
+
+    /* Estilos de formulario (se mantienen igual) */
+    .card-edit h2 {
+        text-align: center;
+        color: #0f172a;
+        margin-bottom: 30px;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+
+    .form-group { margin-bottom: 20px; }
+    
+    label {
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        display: block;
+        color: #334155;
+    }
+
+    input {
+        width: 100%;
+        padding: 12px 15px;
+        border-radius: 8px;
+        border: 2px solid #cbd5e1;
+    }
+
+    input:disabled { background-color: #f8fafc; color: #94a3b8; cursor: not-allowed; }
+
+    .row-dates {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .buttons-container {
+        display: flex;
+        gap: 15px;
+        margin-top: 35px;
+    }
+
+    .btn-pos {
+        flex: 1;
+        padding: 14px;
+        border-radius: 8px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        text-decoration: none;
+        border: none;
+    }
+
+    .btn-save { background: #1e3a8a; color: white; }
+    .btn-cancel { background: #f1f5f9; color: #475569; border: 2px solid #e2e8f0; }
+
+    .alert-info-pos {
+        margin-top: 20px;
+        background: #f0f7ff;
+        border-left: 4px solid #3b82f6;
+        padding: 15px;
+        border-radius: 6px;
+        font-size: 13px;
+        display: flex;
+        gap: 10px;
+    }
+</style>
+
+<div class="main-wrapper">
+    <div class="card-edit">
+        <form method="POST">
+            <h2><i class="bi bi-pencil-square me-2"></i>Edición de Crédito</h2>
+
+            <div class="form-group">
+                <label>Nombre del Cliente</label>
+                <input name="cliente" value="{{ credito.cliente }}" required>
+            </div>
+
+            <div class="row-dates">
+                <div class="form-group">
+                    <label>Fecha de Inicio</label>
+                    <input type="date" name="fecha_inicio" value="{{ credito.fecha_inicio }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Fecha Vencimiento</label>
+                    <input type="date" name="fecha_vencimiento" value="{{ credito.fecha_vencimiento }}">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Total de Consumo Acumulado</label>
+                <input type="text" value="${{ "{:,.0f}".format(credito.total_consumido) }}" disabled>
+            </div>
+
+            <div class="form-group">
+                <label>Total Abonado a la Fecha</label>
+                <input type="text" value="${{ "{:,.0f}".format(credito.abonado) }}" disabled>
+            </div>
+
+            <div class="alert-info-pos">
+                <i class="bi bi-info-circle-fill text-primary"></i>
+                <p class="m-0">Los valores de consumo y abono son protegidos. Se actualizan automáticamente mediante registros.</p>
+            </div>
+
+            <div class="buttons-container">
+                <button type="submit" class="btn-pos btn-save">
+                    <i class="bi bi-check-lg"></i> GUARDAR CAMBIOS
+                </button>
+
+                <a href="{{ url_for('creditos.creditos_corto') if credito.tipo == 'corto' else url_for('creditos.creditos_largo') }}" class="btn-pos btn-cancel">
+                    <i class="bi bi-x-lg"></i> CANCELAR
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

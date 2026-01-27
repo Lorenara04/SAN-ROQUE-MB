@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Personal - Licorera Olimpo{% endblock %}
+
+{% block content %}
+{% if current_user.rol.lower() == 'administrador' %}
+
+<style>
+/* 🥃 Paleta de colores Licorera Olimpo */
+:root {
+    --azul-olimpo: #1a3a5a;
+    --azul-premium: #2c5282;
+    --gris-fondo: #f1f5f9;
+    --rojo-eliminar: #be123c;
+    --slate-800: #1e293b;
+}
+
+/* Título Profesional */
+.titulo-seccion {
+    font-weight: 700;
+    color: var(--azul-olimpo);
+    text-align: center;
+    margin: 30px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Contenedor de tabla Estilo Dashboard */
+.tabla-container-olimpo {
+    border-radius: 12px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+/* Encabezados Azules */
+.table-olimpo thead th {
+    background: var(--azul-olimpo);
+    color: white !important;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: none;
+    padding: 16px;
+    text-transform: uppercase;
+}
+
+/* Filas Limpias */
+.table-olimpo tbody tr {
+    transition: background 0.2s;
+}
+.table-olimpo tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+/* Botón Crear Usuario (Premium Blue) */
+.btn-crear-olimpo {
+    background-color: var(--azul-olimpo);
+    border: none;
+    color: white;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 12px 24px;
+    transition: 0.3s;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+}
+.btn-crear-olimpo:hover {
+    background-color: var(--azul-premium);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(26, 58, 90, 0.2);
+}
+
+/* Botones de acción */
+.btn-edit-olimpo {
+    border: 1px solid var(--azul-premium);
+    color: var(--azul-premium);
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 6px 12px;
+    background: transparent;
+    text-decoration: none;
+    transition: 0.2s;
+    cursor: pointer;
+}
+.btn-edit-olimpo:hover {
+    background: var(--azul-premium);
+    color: white;
+}
+
+.btn-delete-olimpo {
+    background-color: var(--rojo-eliminar);
+    color: white;
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 6px 12px;
+    border: none;
+    transition: 0.2s;
+    text-decoration: none;
+    display: inline-block;
+}
+.btn-delete-olimpo:hover {
+    filter: brightness(1.2);
+}
+
+/* Badges Profesionales */
+.badge-admin { background: #1e293b; color: #f8fafc; border-radius: 4px; font-weight: 500; }
+.badge-colaborador { background: #e2e8f0; color: #1e293b; border-radius: 4px; font-weight: 500; border: 1px solid #cbd5e1; }
+
+/* Modales */
+.modal-olimpo { border-radius: 12px; border: none; }
+.modal-header-olimpo { background: var(--azul-olimpo); color: white; border-radius: 12px 12px 0 0; }
+</style>
+
+<div class="container py-4">
+    <h2 class="titulo-seccion"><i class="fas fa-users-cog me-2"></i> Administración de Personal</h2>
+
+    <div class="text-end mb-4 px-3">
+        <button type="button" class="btn btn-crear-olimpo shadow-sm" data-bs-toggle="modal" data-bs-target="#agregarUsuarioModal">
+            <i class="fas fa-user-plus me-2"></i> Alta de Nuevo Usuario
+        </button>
+    </div>
+
+    <div class="mx-3 mb-5 tabla-container-olimpo">
+        <table class="table table-hover table-olimpo align-middle text-center mb-0">
+            <thead>
+                <tr>
+                    <th>Usuario ID</th>
+                    <th>Nombre Completo</th>
+                    <th>Rol de Acceso</th>
+                    <th>Acciones Operativas</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for usuario in usuarios %}
+                <tr>
+                    <td class="fw-bold text-secondary">{{ usuario.username | upper }}</td>
+                    <td class="text-dark">{{ usuario.nombre }} {{ usuario.apellido }}</td>
+                    <td>
+                        {% if usuario.rol.lower() == 'administrador' %}
+                            <span class="badge badge-admin px-3 py-2">Administrador</span>
+                        {% else %}
+                            <span class="badge badge-colaborador px-3 py-2">Colaborador / Vendedor</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if usuario.id != current_user.id %}
+                        <div class="d-flex justify-content-center gap-2">
+                            <button type="button" class="btn-edit-olimpo btn-sm" 
+                                onclick="abrirModalEditar('{{ usuario.id }}', '{{ usuario.nombre }}', '{{ usuario.apellido }}', '{{ usuario.cedula }}', '{{ usuario.rol }}')">
+                                <i class="fas fa-user-edit me-1"></i> GESTIONAR
+                            </button>
+
+                            <a href="{{ url_for('admin.eliminar_usuario', usuario_id=usuario.id) }}" 
+                               class="btn-delete-olimpo btn-sm"
+                               onclick="return confirm('¿Confirmar baja definitiva del usuario {{ usuario.username }}?')">
+                                <i class="fas fa-user-minus me-1"></i> DAR DE BAJA
+                            </a>
+                        </div>
+                        {% else %}
+                        <span class="badge bg-light text-muted border px-3 py-2"><i class="fas fa-user-shield me-1"></i> Sesión Activa</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="agregarUsuarioModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-olimpo shadow-lg">
+      <form action="{{ url_for('admin.agregar_usuario') }}" method="POST">
+        <div class="modal-header modal-header-olimpo">
+          <h5 class="modal-title fw-bold"><i class="fas fa-user-shield me-2"></i> Registro de Nuevo Personal</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body p-4 bg-light">
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-muted">IDENTIFICADOR DE ACCESO (Username)</label>
+            <input type="text" class="form-control" name="username" placeholder="Ej: jrodriguez" required>
+          </div>
+          <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label small fw-bold text-muted">NOMBRE</label>
+                <input type="text" class="form-control" name="nombre" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label small fw-bold text-muted">APELLIDO</label>
+                <input type="text" class="form-control" name="apellido" required>
+              </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-muted">DOCUMENTO (Cédula)</label>
+            <input type="text" class="form-control" name="cedula" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-muted">NIVEL DE PRIVILEGIOS</label>
+            <select class="form-select" name="rol" required>
+              <option value="Administrador">Administrador (Acceso Total)</option>
+              <option value="Vendedor">Colaborador / Ventas</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-muted">CONTRASEÑA TEMPORAL</label>
+            <input type="password" class="form-control" name="password" required>
+          </div>
+        </div>
+
+        <div class="modal-footer border-0 bg-light rounded-bottom">
+          <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-crear-olimpo px-4">DAR DE ALTA</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="editUserModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-olimpo shadow-lg">
+            <form id="formEditarUsuario" method="POST">
+                <div class="modal-header bg-dark text-white rounded-top">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-user-edit me-2"></i> Modificar Personal</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4 bg-light">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold text-muted">NOMBRE</label>
+                            <input type="text" class="form-control" name="nombre" id="edit_nombre" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold text-muted">APELLIDO</label>
+                            <input type="text" class="form-control" name="apellido" id="edit_apellido" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">DOCUMENTO (Cédula)</label>
+                        <input type="text" class="form-control" name="cedula" id="edit_cedula" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">NIVEL DE PRIVILEGIOS</label>
+                        <select class="form-select" name="rol" id="edit_rol" required>
+                            <option value="Administrador">Administrador (Acceso Total)</option>
+                            <option value="Vendedor">Colaborador / Ventas</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">CONTRASEÑA (Dejar vacío para no cambiar)</label>
+                        <input type="password" class="form-control" name="password" placeholder="Nueva contraseña">
+                    </div>
+                </div>
+                <div class="modal-footer border-0 bg-light rounded-bottom">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-crear-olimpo px-4">ACTUALIZAR DATOS</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// ✅ CORRECCIÓN DE RUTA PARA BLUEPRINT 'admin'
+function abrirModalEditar(id, nombre, apellido, cedula, rol) {
+    // 1. Llenamos los campos del modal
+    document.getElementById('edit_nombre').value = nombre;
+    document.getElementById('edit_apellido').value = apellido;
+    document.getElementById('edit_cedula').value = cedula;
+    document.getElementById('edit_rol').value = rol;
+
+    // 2. ACTUALIZACIÓN CRÍTICA: La ruta debe ser absoluta y apuntar al endpoint de admin
+    // Usamos la URL que definiste en admin.py (/usuarios/editar/<id>)
+    document.getElementById('formEditarUsuario').action = "/usuarios/editar/" + id;
+
+    // 3. Mostramos el modal usando Bootstrap
+    var editModal = new bootstrap.Modal(document.getElementById('editUserModal'));
+    editModal.show();
+}
+</script>
+
+{% else %}
+<div class="container text-center mt-5">
+    <div class="p-5 bg-white shadow-sm rounded-3">
+        <i class="fas fa-user-lock fa-4x text-muted mb-3"></i>
+        <p class="text-muted fs-5">Acceso Restringido: Se requieren permisos de Administrador.</p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
