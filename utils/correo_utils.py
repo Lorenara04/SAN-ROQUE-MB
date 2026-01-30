@@ -7,7 +7,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 
-
+CORREO_INFORMES = os.getenv("CORREO_INFORMES", "licorerasanroque@gmail.com")
 # =========================
 # CONFIGURACIÓN DE CORREO
 # =========================
