@@ -102,18 +102,20 @@ def create_app():
         """Inyecta variables y funciones útiles en todas las plantillas"""
         return {
             'ahora_col': obtener_hora_colombia(),
-            'timedelta': timedelta  # Permite cálculos de fechas directamente en el HTML
+            'timedelta': timedelta 
         }
 
     return app
 
-if __name__ == '__main__':
-    app = create_app()
+# --- ESTA ES LA PARTE CLAVE PARA RENDER ---
+# Creamos la instancia de la aplicación fuera del bloque principal
+app = create_app()
 
+if __name__ == '__main__':
     with app.app_context():
-        # Crea las tablas si no existen basándose en los modelos corregidos
+        # Crea las tablas si no existen
         db.create_all()
         print("✅ Base de datos de San Roque M.B. verificada correctamente.")
 
-    # Ejecución del servidor
+    # Ejecución local (en Render se usa Gunicorn y esto se ignora)
     app.run(debug=True, port=5000)
