@@ -4,7 +4,7 @@ from database import db
 from models import Producto, Venta, VentaDetalle, Cliente, Factura, Gasto, Abono, Usuario, Credito
 from utils.time_utils import cerrar_turno_anterior_si_pendiente
 from sqlalchemy import func, or_
-from datetime import datetime, date
+from datetime import datetime, date, time
 import pytz
 import json
 import urllib.parse
@@ -15,55 +15,80 @@ import urllib.parse
 ventas_bp = Blueprint('ventas', __name__)
 
 # ======================================================
-# DASHBOARD CORREGIDO (CARTERA REAL)
+# DASHBOARD CORREGIDO (RESISTENTE A ERRORES DE FECHA)
 # ======================================================
 @ventas_bp.route('/dashboard')
 @login_required
 def dashboard():
     es_admin = current_user.rol.lower() in ['administrador', 'administradora']
+    
+    # Forzar zona horaria de Colombia para evitar desfases con el servidor
+    bogota_tz = pytz.timezone('America/Bogota')
+    ahora = datetime.now(bogota_tz)
+    inicio_dia = datetime.combine(ahora.date(), time.min)
+    fin_dia = datetime.combine(ahora.date(), time.max)
 
-    # 1. Ventas de Hoy
-    if es_admin:
-        v_hoy = db.session.query(func.sum(Venta.total)) \
-            .filter(func.date(Venta.fecha) == date.today()).scalar() or 0
-    else:
-        v_hoy = db.session.query(func.sum(Venta.total)) \
-            .filter(
-                func.date(Venta.fecha) == date.today(),
-                Venta.usuario_id == current_user.id
-            ).scalar() or 0
+    # 1. Obtener ventas del día por rango de tiempo
+    query_ventas = Venta.query.filter(Venta.fecha >= inicio_dia, Venta.fecha <= fin_dia)
+    if not es_admin:
+        query_ventas = query_ventas.filter(Venta.usuario_id == current_user.id)
+    
+    ventas_hoy_lista = query_ventas.all()
 
-    # 2. Inventario Total (Unidades)
+    # 2. Inicialización de contadores
+    v_hoy = 0
+    t_efectivo = 0
+    t_nequi = 0
+    t_daviplata = 0
+    t_tarjeta = 0
+    t_transferencia = 0
+
+    # 3. Procesar desglose desde el JSON detalle_pago
+    for v in ventas_hoy_lista:
+        v_hoy += v.total
+        if v.detalle_pago:
+            try:
+                # Validar si es string o ya es diccionario
+                p = json.loads(v.detalle_pago) if isinstance(v.detalle_pago, str) else v.detalle_pago
+                t_efectivo += float(p.get('Efectivo', 0))
+                t_nequi += float(p.get('Nequi', 0))
+                t_daviplata += float(p.get('Daviplata', 0))
+                t_tarjeta += float(p.get('Tarjeta/Bold', 0))
+                t_transferencia += float(p.get('Transferencia', 0))
+            except:
+                pass
+
+    # 4. Egresos Diarios (Abonos a Gastos realizados hoy)
+    egresos_hoy = db.session.query(func.sum(Abono.monto))\
+        .filter(Abono.fecha >= inicio_dia, Abono.fecha <= fin_dia, Abono.gasto_id.isnot(None)).scalar() or 0
+
+    # 5. Inventario y Cartera General
     inv_total = db.session.query(func.sum(Producto.cantidad)).scalar() or 0
-
-    # 3. CARTERA DE CLIENTES (CORRECCIÓN CRÍTICA)
-    # Usamos func.lower para que no falle si el estado es 'Abierto', 'abierto' o 'ABIERTO'
     total_deuda_clientes = db.session.query(func.sum(Credito.total_consumido - Credito.abonado))\
         .filter(func.lower(Credito.estado) == "abierto").scalar() or 0
 
     if es_admin:
-        # Valor del Inventario
         v_interno = db.session.query(func.sum(Producto.cantidad * Producto.valor_interno)).scalar() or 0
         v_venta = db.session.query(func.sum(Producto.cantidad * Producto.valor_venta)).scalar() or 0
         
-        # Deudas con Proveedores (Facturas)
-        total_facturas = db.session.query(func.sum(Factura.total)).scalar() or 0
-        total_abonos_facturas = db.session.query(func.sum(Abono.monto)).filter(Abono.factura_id.isnot(None)).scalar() or 0
-        saldos_proveedores = total_facturas - total_abonos_facturas
-
-        # Gastos Pendientes
-        total_gastos = db.session.query(func.sum(Gasto.total)).scalar() or 0
-        total_abonos_gastos = db.session.query(func.sum(Abono.monto)).filter(Abono.gasto_id.isnot(None)).scalar() or 0
-        saldos_gastos = total_gastos - total_abonos_gastos
-        
-        # Unificamos para el Dashboard
-        total_por_pagar = saldos_proveedores + saldos_gastos
+        # Cuentas por pagar (Facturas + Gastos pendientes)
+        s_prov = (db.session.query(func.sum(Factura.total)).scalar() or 0) - \
+                 (db.session.query(func.sum(Abono.monto)).filter(Abono.factura_id.isnot(None)).scalar() or 0)
+        s_gast = (db.session.query(func.sum(Gasto.total)).scalar() or 0) - \
+                 (db.session.query(func.sum(Abono.monto)).filter(Abono.gasto_id.isnot(None)).scalar() or 0)
+        total_por_pagar = s_prov + s_gast
     else:
         v_interno = v_venta = total_por_pagar = None
 
     return render_template(
         'dashboard.html',
         ventas_hoy=v_hoy,
+        pago_efectivo=t_efectivo,
+        pago_nequi=t_nequi,
+        pago_daviplata=t_daviplata,
+        pago_tarjeta=t_tarjeta,
+        pago_electronico=(t_nequi + t_daviplata + t_tarjeta + t_transferencia),
+        egresos_hoy=egresos_hoy,
         total_inventario=inv_total,
         valor_interno_total=v_interno,
         valor_venta_total=v_venta,

@@ -9,20 +9,28 @@ from utils.time_utils import (
 from sqlalchemy import func, and_
 from datetime import timedelta, datetime
 import json
+import pytz
 
 reportes_bp = Blueprint("reportes", __name__)
 
 # --------------------------------------------------
-# UTILIDADES DE FORMATO Y DISEÑO (MODERNO & PREMIUM)
+# FILTROS Y UTILIDADES
 # --------------------------------------------------
+
+@reportes_bp.app_template_filter('from_json')
+def from_json_filter(value):
+    """ Filtro para convertir texto JSON en diccionario dentro del HTML """
+    try:
+        if isinstance(value, dict): return value
+        return json.loads(value) if value else {}
+    except:
+        return {}
 
 def fmt(v):
     return f"$ {float(v or 0):,.0f}".replace(",", ".")
 
 def generar_html_reporte(f_ini, f_fin, datos):
-    """
-    Genera un diseño de informe ultra-moderno con estética minimalista.
-    """
+    """ Genera el diseño de informe premium para correos """
     return f"""
 <!DOCTYPE html>
 <html>
@@ -32,88 +40,45 @@ def generar_html_reporte(f_ini, f_fin, datos):
     <tr>
         <td align="center">
             <table width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff; border-radius:20px; overflow:hidden; box-shadow:0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);">
-                
                 <tr>
                     <td style="background-color:#1a202c; padding:45px 40px; text-align:center;">
-                        <table width="100%">
-                            <tr>
-                                <td align="center">
-                                    <div style="background-color:#2d3748; width:60px; height:60px; border-radius:15px; line-height:60px; font-size:30px; margin-bottom:15px;">📊</div>
-                                </td>
-                            </tr>
-                        </table>
-                        <h1 style="color:#ffffff; margin:0; font-size:30px; font-weight:700; letter-spacing:-0.5px;">San Roque M.B</h1>
-                        <p style="color:#a0aec0; margin:8px 0 0 0; font-size:14px; text-transform:uppercase; letter-spacing:2px;">Informe Ejecutivo de Gestión</p>
+                        <h1 style="color:#ffffff; margin:0; font-size:30px; font-weight:700;">San Roque M.B</h1>
+                        <p style="color:#a0aec0; margin:8px 0 0 0;">Informe Ejecutivo de Gestión</p>
                         <div style="display:inline-block; margin-top:20px; padding:6px 15px; background-color:#2d3748; border-radius:20px; color:#63b3ed; font-size:12px; font-weight:bold;">
                             {f_ini} — {f_fin}
                         </div>
                     </td>
                 </tr>
-
                 <tr>
-                    <td style="padding:40px 40px 20px 40px;">
-                        <table width="100%" cellpadding="0" cellspacing="0">
+                    <td style="padding:40px;">
+                        <table width="100%">
                             <tr>
                                 <td width="50%" style="padding-right:12px;">
                                     <div style="border:1px solid #e2e8f0; border-radius:16px; padding:25px; background-color:#f8fafc;">
-                                        <p style="color:#718096; font-size:11px; margin:0; font-weight:700; text-transform:uppercase;">Saldo Neto</p>
-                                        <h2 style="color:#2b6cb0; margin:8px 0 0 0; font-size:26px; font-weight:800;">{fmt(datos['saldo_neto'])}</h2>
+                                        <p style="color:#718096; font-size:11px; margin:0; font-weight:700;">SALDO NETO</p>
+                                        <h2 style="color:#2b6cb0; margin:8px 0 0 0;">{fmt(datos['saldo_neto'])}</h2>
                                     </div>
                                 </td>
-                                <td width="50%" style="padding-left:12px;">
+                                <td width="50%">
                                     <div style="border:1px solid #e2e8f0; border-radius:16px; padding:25px; background-color:#f8fafc;">
-                                        <p style="color:#718096; font-size:11px; margin:0; font-weight:700; text-transform:uppercase;">Egresos</p>
-                                        <h2 style="color:#e53e3e; margin:8px 0 0 0; font-size:26px; font-weight:800;">{fmt(datos['egresos'])}</h2>
+                                        <p style="color:#718096; font-size:11px; margin:0; font-weight:700;">EGRESOS</p>
+                                        <h2 style="color:#e53e3e; margin:8px 0 0 0;">{fmt(datos['egresos'])}</h2>
                                     </div>
                                 </td>
                             </tr>
                         </table>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td style="padding:0 40px 30px 40px;">
-                        <div style="background-color:#ffffff; border:1px solid #e2e8f0; border-radius:16px; padding:30px;">
-                            <h3 style="color:#2d3748; font-size:17px; margin:0 0 20px 0; font-weight:700;">Ingresos por Canal</h3>
-                            <table width="100%" cellpadding="0" cellspacing="0">
-                                <tr>
-                                    <td style="padding:15px 0; color:#4a5568; border-bottom:1px solid #edf2f7; font-size:15px;">Efectivo</td>
-                                    <td align="right" style="padding:15px 0; color:#1a202c; font-weight:700; border-bottom:1px solid #edf2f7; font-size:15px;">{fmt(datos['efectivo'])}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding:15px 0; color:#4a5568; border-bottom:1px solid #edf2f7; font-size:15px;">Nequi</td>
-                                    <td align="right" style="padding:15px 0; color:#1a202c; font-weight:700; border-bottom:1px solid #edf2f7; font-size:15px;">{fmt(datos['nequi'])}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding:15px 0; color:#4a5568; border-bottom:1px solid #edf2f7; font-size:15px;">Daviplata</td>
-                                    <td align="right" style="padding:15px 0; color:#1a202c; font-weight:700; border-bottom:1px solid #edf2f7; font-size:15px;">{fmt(datos['daviplata'])}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding:15px 0; color:#4a5568; font-size:15px;">Tarjeta de Crédito</td>
-                                    <td align="right" style="padding:15px 0; color:#1a202c; font-weight:700; font-size:15px;">{fmt(datos['tarjeta'])}</td>
-                                </tr>
+                        <div style="margin-top:30px; background-color:#ffffff; border:1px solid #e2e8f0; border-radius:16px; padding:20px;">
+                            <h3 style="color:#2d3748; font-size:17px; margin:0 0 15px 0;">Ingresos por Canal</h3>
+                            <table width="100%">
+                                <tr><td style="padding:8px 0; border-bottom:1px solid #edf2f7;">Efectivo</td><td align="right" style="font-weight:700;">{fmt(datos['efectivo'])}</td></tr>
+                                <tr><td style="padding:8px 0; border-bottom:1px solid #edf2f7;">Nequi</td><td align="right" style="font-weight:700;">{fmt(datos['nequi'])}</td></tr>
+                                <tr><td style="padding:8px 0; border-bottom:1px solid #edf2f7;">Daviplata</td><td align="right" style="font-weight:700;">{fmt(datos['daviplata'])}</td></tr>
+                                <tr><td style="padding:8px 0;">Tarjeta / Otros</td><td align="right" style="font-weight:700;">{fmt(datos['tarjeta'])}</td></tr>
                             </table>
                         </div>
                     </td>
                 </tr>
-
-                <tr>
-                    <td style="padding:0 40px 45px 40px;">
-                        <table width="100%" style="border-top:2px solid #edf2f7; padding-top:25px;">
-                            <tr>
-                                <td style="color:#718096; font-size:14px;">Total Ventas: <b style="color:#2d3748;">{datos['num_ventas']}</b></td>
-                                <td align="right" style="color:#718096; font-size:14px;">Ticket Promedio: <b style="color:#2d3748;">{fmt(datos['promedio'])}</b></td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td align="center" style="background-color:#f7fafc; padding:30px; color:#a0aec0; font-size:12px;">
-                        © 2026 San Roque M.B | Inteligencia de Negocios<br>
-                        <span style="margin-top:10px; display:inline-block;">Este reporte es confidencial y generado automáticamente.</span>
-                    </td>
-                </tr>
+                <tr><td align="center" style="background-color:#f7fafc; padding:20px; color:#a0aec0; font-size:11px;">© 2026 San Roque M.B</td></tr>
             </table>
         </td>
     </tr>
@@ -123,7 +88,7 @@ def generar_html_reporte(f_ini, f_fin, datos):
 """
 
 # --------------------------------------------------
-# LÓGICA DE RUTAS (ADMIN Y DASHBOARD)
+# RUTAS Y LOGICA
 # --------------------------------------------------
 
 @reportes_bp.before_request
@@ -138,29 +103,29 @@ def verificar_admin():
 def reportes():
     fecha_comercial, inicio_utc, fin_utc = obtener_rango_turno_colombia()
 
-    def sumar_por_tipo(tipo):
-        return db.session.query(func.sum(Venta.total)).filter(
-            and_(Venta.fecha >= inicio_utc, Venta.fecha <= fin_utc, Venta.tipo_pago == tipo)
-        ).scalar() or 0
+    # Obtener todas las ventas del turno
+    ventas_turno = Venta.query.filter(and_(Venta.fecha >= inicio_utc, Venta.fecha <= fin_utc)).all()
+    efectivo = nequi = daviplata = tarjeta = total_v = 0
 
-    def sumar_por_detalle(detalle):
-        return db.session.query(func.sum(Venta.total)).filter(
-            and_(Venta.fecha >= inicio_utc, Venta.fecha <= fin_utc, Venta.detalle_pago == detalle)
-        ).scalar() or 0
+    for v in ventas_turno:
+        total_v += v.total
+        if v.detalle_pago:
+            try:
+                p = json.loads(v.detalle_pago) if isinstance(v.detalle_pago, str) else v.detalle_pago
+                efectivo += float(p.get('Efectivo', 0))
+                nequi += float(p.get('Nequi', 0))
+                daviplata += float(p.get('Daviplata', 0))
+                # Sumamos Tarjeta, Bold y Transferencias aquí
+                tarjeta += float(p.get('Tarjeta/Bold', 0) or p.get('Tarjeta', 0) or p.get('Transferencia', 0))
+            except: pass
 
-    efectivo = float(sumar_por_tipo("Efectivo"))
-    nequi = float(sumar_por_detalle("Nequi"))
-    daviplata = float(sumar_por_detalle("Daviplata"))
-    tarjeta = float(sumar_por_detalle("Tarjeta"))
-
-    electronico = nequi + daviplata + tarjeta
     recaudo = float(db.session.query(func.sum(AbonoCredito.monto)).filter(AbonoCredito.fecha == fecha_comercial).scalar() or 0)
     egresos = float(db.session.query(func.sum(Abono.monto)).filter(Abono.fecha == fecha_comercial).scalar() or 0)
 
-    total_diario = efectivo + electronico + recaudo
-    saldo = total_diario - egresos
+    total_diario_completo = total_v + recaudo
+    saldo = total_diario_completo - egresos
 
-    # Gráfico de los últimos 7 días
+    # Gráfico 7 días
     labels_grafico, datos_ventas = [], []
     for i in range(6, -1, -1):
         dia = fecha_comercial - timedelta(days=i)
@@ -172,15 +137,11 @@ def reportes():
     caja_cerrada = CierreCaja.query.filter_by(fecha_cierre=fecha_comercial).first() is not None
 
     return render_template(
-        "reportes.html", hoy=fecha_comercial, total_diario=total_diario, efectivo=efectivo,
-        electronico=electronico, nequi=nequi, daviplata=daviplata, tarjeta=tarjeta,
-        egresos_dia=egresos, saldo_caja_dia=saldo, total_mensual=0, # Simplificado
+        "reportes.html", hoy=fecha_comercial, total_diario=total_v, efectivo=efectivo,
+        electronico=(nequi + daviplata + tarjeta), nequi=nequi, daviplata=daviplata, tarjeta=tarjeta,
+        egresos_dia=egresos, saldo_caja_dia=saldo, 
         caja_cerrada_hoy=caja_cerrada, labels_grafico=labels_grafico, datos_ventas=datos_ventas
     )
-
-# --------------------------------------------------
-# ENVÍO DE EMAIL (NUEVA GENERACIÓN)
-# --------------------------------------------------
 
 @reportes_bp.route("/enviar_reporte_email", methods=["POST"])
 @login_required
@@ -193,52 +154,78 @@ def enviar_reporte_email():
     inicio = datetime.strptime(f_ini, "%Y-%m-%d")
     fin = datetime.strptime(f_fin, "%Y-%m-%d") + timedelta(days=1)
 
-    # Cálculo de Datos para el Informe
     ventas = Venta.query.filter(Venta.fecha >= inicio, Venta.fecha < fin).all()
-    
-    efectivo = sum(v.total for v in ventas if v.tipo_pago == "Efectivo")
-    nequi = sum(v.total for v in ventas if v.detalle_pago == "Nequi")
-    daviplata = sum(v.total for v in ventas if v.detalle_pago == "Daviplata")
-    tarjeta = sum(v.total for v in ventas if v.detalle_pago == "Tarjeta")
+    e_efectivo = e_nequi = e_daviplata = e_tarjeta = 0
+    for v in ventas:
+        if v.detalle_pago:
+            try:
+                p = json.loads(v.detalle_pago) if isinstance(v.detalle_pago, str) else v.detalle_pago
+                e_efectivo += float(p.get('Efectivo', 0)); e_nequi += float(p.get('Nequi', 0))
+                e_daviplata += float(p.get('Daviplata', 0)); e_tarjeta += float(p.get('Tarjeta/Bold', 0) or p.get('Tarjeta', 0))
+            except: pass
     
     total_ingresos = sum(v.total for v in ventas)
-    num_ventas = len(ventas)
-    promedio = total_ingresos / num_ventas if num_ventas > 0 else 0
-
-    egresos = db.session.query(func.sum(Abono.monto)).filter(
-        and_(Abono.fecha >= f_ini, Abono.fecha <= f_fin)
-    ).scalar() or 0
+    egresos = db.session.query(func.sum(Abono.monto)).filter(and_(Abono.fecha >= f_ini, Abono.fecha <= f_fin)).scalar() or 0
 
     datos_informe = {
-        "saldo_neto": total_ingresos - egresos,
-        "egresos": egresos,
-        "efectivo": efectivo,
-        "nequi": nequi,
-        "daviplata": daviplata,
-        "tarjeta": tarjeta,
-        "num_ventas": num_ventas,
-        "promedio": promedio
+        "saldo_neto": total_ingresos - egresos, "egresos": egresos, "efectivo": e_efectivo,
+        "nequi": e_nequi, "daviplata": e_daviplata, "tarjeta": e_tarjeta,
+        "num_ventas": len(ventas), "promedio": total_ingresos / len(ventas) if len(ventas) > 0 else 0
     }
 
     html = generar_html_reporte(f_ini, f_fin, datos_informe)
-
-    # Envío final del correo
     enviar_correo(email, f"Reporte de Gestión San Roque - {f_ini}", html, [])
-
     flash("✅ Informe premium enviado correctamente", "success")
     return redirect(url_for("reportes.reportes"))
-
-# --------------------------------------------------
-# FUNCIONES DE CIERRE Y HISTORIAL
-# --------------------------------------------------
 
 @reportes_bp.route("/ejecutar_cierre_caja", methods=["POST"])
 @login_required
 def ejecutar_cierre_caja():
     fecha_comercial, inicio_utc, fin_utc = obtener_rango_turno_colombia()
-    # Lógica de cierre similar al dashboard...
-    # (Mantenemos tu lógica de base de datos)
-    flash("✅ Cierre guardado", "success")
+    
+    if CierreCaja.query.filter_by(fecha_cierre=fecha_comercial).first():
+        flash("⚠️ Ya existe un cierre registrado para hoy.", "warning")
+        return redirect(url_for("reportes.reportes"))
+
+    ventas_turno = Venta.query.filter(and_(Venta.fecha >= inicio_utc, Venta.fecha <= fin_utc)).all()
+    t_efectivo = t_nequi = t_daviplata = t_tarjeta = t_venta = 0
+    for v in ventas_turno:
+        t_venta += v.total
+        if v.detalle_pago:
+            try:
+                p = json.loads(v.detalle_pago) if isinstance(v.detalle_pago, str) else v.detalle_pago
+                t_efectivo += float(p.get('Efectivo', 0)); t_nequi += float(p.get('Nequi', 0))
+                t_daviplata += float(p.get('Daviplata', 0))
+                t_tarjeta += float(p.get('Tarjeta/Bold', 0) or p.get('Tarjeta', 0) or p.get('Transferencia', 0))
+            except: pass
+
+    abonos_hoy = Abono.query.filter(Abono.fecha == fecha_comercial).all()
+    egresos_hoy = sum(a.monto for a in abonos_hoy)
+    
+    detalle_dict = {
+        "DESGLOSE_PAGOS": {"Efectivo": t_efectivo, "Nequi": t_nequi, "Daviplata": t_daviplata, "Tarjeta": t_tarjeta},
+        "EGRESOS_TOTAL": egresos_hoy,
+        "DETALLE_EGRESOS": [{"concepto": a.gasto_relacionado.concepto if a.gasto_relacionado else "Gasto", "monto": a.monto} for a in abonos_hoy],
+        "HORA_CIERRE": datetime.now(pytz.timezone('America/Bogota')).strftime('%H:%M:%S')
+    }
+
+    nuevo_cierre = CierreCaja(
+        fecha_cierre=fecha_comercial,
+        usuario_id=current_user.id,
+        total_venta=t_venta,
+        total_efectivo=t_efectivo,
+        total_electronico=(t_nequi + t_daviplata + t_tarjeta),
+        detalles_json=json.dumps(detalle_dict)
+    )
+    
+    try:
+        db.session.add(nuevo_cierre)
+        db.session.commit()
+        flash("✅ Cierre guardado exitosamente.", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"❌ Error al cerrar: {str(e)}", "danger")
+
     return redirect(url_for("reportes.reportes"))
 
 @reportes_bp.route("/cierre_caja/historial")

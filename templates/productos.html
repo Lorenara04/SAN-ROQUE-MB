@@ -4,6 +4,8 @@
 
 {% block content %}
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <style>
 :root {
   --azul-olimpo: #1a3a5a;
@@ -76,9 +78,19 @@
 .stock-top { background: #e0f2fe; color: var(--info-blue); }
 .stock-high { background: #dcfce7; color: var(--success-green); }
 .stock-medium { background: #fef3c7; color: var(--warning-orange); }
-.stock-low { background: #fee2e2; color: var(--danger-red); }
+.stock-low { 
+    background: #fee2e2; 
+    color: var(--danger-red);
+    animation: pulse-danger 2s infinite; 
+}
 
-/* Estilos de Etiqueta (Vista en pantalla) */
+@keyframes pulse-danger {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(185, 28, 28, 0.4); }
+    70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(185, 28, 28, 0); }
+    100% { transform: scale(1); }
+}
+
+/* Estilos de Etiqueta e Impresión */
 .card-etiqueta-print {
     border: 2px solid #eee;
     border-radius: 15px;
@@ -114,53 +126,19 @@
 .btn-action-delete { background: #c82525; }
 .btn-action-barcode { background: var(--rosa-tag); }
 
-/* --- CORRECCIÓN DEFINITIVA IMPRESIÓN 1 HOJA --- */
 @media print {
-    @page {
-        size: auto;
-        margin: 0; /* Elimina bordes del navegador */
-    }
-    html, body {
-        height: 100%;
-        overflow: hidden; /* Evita que se cree una segunda hoja por scroll */
-    }
+    @page { size: auto; margin: 0; }
+    html, body { height: 100%; overflow: hidden; }
     body * { visibility: hidden; }
-    
     #area-impresion-barcode, #area-impresion-barcode * { visibility: visible; }
-    
     #area-impresion-barcode { 
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        display: flex !important;
-        align-items: center;
-        justify-content: center;
+        position: absolute; left: 0; top: 0; width: 100%; height: 100%; 
+        display: flex !important; align-items: center; justify-content: center;
     }
-
     .no-print-label { display: none !important; }
-
-    .card-etiqueta-print { 
-        border: none !important; 
-        box-shadow: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        width: 250px; /* Tamaño controlado, ni muy grande ni muy pequeño */
-    }
-
-    .barcode-only-section img {
-        width: 100% !important;
-        height: auto !important;
-    }
-
-    .barcode-only-section p {
-        font-family: monospace;
-        font-size: 14px !important;
-        margin-top: 5px !important;
-        text-align: center;
-    }
-
+    .card-etiqueta-print { border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; width: 250px; }
+    .barcode-only-section img { width: 100% !important; height: auto !important; }
+    .barcode-only-section p { font-family: monospace; font-size: 14px !important; margin-top: 5px !important; text-align: center; }
     .modal-backdrop, .modal-header, .modal-footer, .no-print { display: none !important; }
 }
 </style>
@@ -196,7 +174,7 @@
     </div>
 
     <div class="tabla-container">
-        <table class="table table-striped-custom text-center align-middle mb-0">
+        <table class="table table-striped-custom text-center align-middle mb-0" id="tabla-productos">
             <thead>
                 <tr>
                     <th>Ref. Código</th>
@@ -211,16 +189,16 @@
                 <tr>
                     <td><code class="text-primary fw-bold">{{ p.codigo or 'N/A' }}</code></td>
                     <td class="text-start">
-                        <div class="fw-bold text-dark">{{ p.nombre | upper }}</div>
+                        <div class="fw-bold text-dark nombre-p">{{ p.nombre | upper }}</div>
                         <div class="small text-muted text-uppercase" style="font-size: 0.7rem;">{{ p.marca }}</div>
                     </td>
                     <td>
                         {% if p.cantidad > 10 %}
-                            <span class="badge-stock stock-top"><i class="fas fa-boxes"></i> {{ p.cantidad }} EXCELENTE</span>
+                            <span class="badge-stock stock-top"><i class="fas fa-boxes"></i> <span>{{ p.cantidad }}</span> EXCELENTE</span>
                         {% elif p.cantidad > 5 %}
-                            <span class="badge-stock stock-high"><i class="fas fa-check-circle"></i> {{ p.cantidad }} SALUDABLE</span>
+                            <span class="badge-stock stock-high"><i class="fas fa-check-circle"></i> <span>{{ p.cantidad }}</span> SALUDABLE</span>
                         {% else %}
-                            <span class="badge-stock stock-low"><i class="fas fa-exclamation-triangle"></i> {{ p.cantidad }} CRÍTICO</span>
+                            <span class="badge-stock stock-low critico-trigger"><i class="fas fa-exclamation-triangle"></i> <span>{{ p.cantidad }}</span> CRÍTICO</span>
                         {% endif %}
                     </td>
                     <td><span class="fw-bold text-dark">${{ p.valor_venta }}</span></td>
@@ -240,7 +218,7 @@
                             <a class="btn-action-base btn-action-delete" title="Eliminar"
                                href="{{ url_for('inventario.eliminar_producto', producto_id=p.id) }}"
                                onclick="return confirm('¿Seguro que desea eliminar este producto?')">
-                                <i class="fas fa-trash-alt"></i>
+                                 <i class="fas fa-trash-alt"></i>
                             </a>
                             {% endif %}
                         </div>
@@ -267,7 +245,6 @@
                             <p id="tag-marca" style="color: #666; margin-bottom: 5px; font-size: 0.9rem;">Marca</p>
                             <div class="precio-tag" id="tag-precio">$0</div>
                         </div>
-
                         <div class="barcode-only-section">
                             <img id="tag-barcode-img" src="" alt="Barras">
                             <p class="fw-bold"><span id="tag-codigo-texto">000</span></p>
@@ -382,6 +359,42 @@
 </div>
 
 <script>
+// LÓGICA DE ALERTAS DE STOCK CRÍTICO (UNA VEZ POR SESIÓN)
+document.addEventListener("DOMContentLoaded", function() {
+    // Revisar si ya se mostró la alerta en esta pestaña abierta
+    const alertaMostrada = sessionStorage.getItem('alerta_stock_visto');
+    
+    const productosCriticos = document.querySelectorAll(".critico-trigger");
+    let listaNotificacion = [];
+
+    productosCriticos.forEach(item => {
+        const nombre = item.closest("tr").querySelector(".nombre-p").innerText;
+        const cantidad = item.querySelector("span").innerText;
+        listaNotificacion.push(`<li><b>${nombre}</b> (Quedan: ${cantidad})</li>`);
+    });
+
+    if (listaNotificacion.length > 0 && !alertaMostrada) {
+        // Sonido
+        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+        audio.play().catch(e => console.log("Audio esperando interacción"));
+
+        // Alerta
+        Swal.fire({
+            title: '¡STOCK CRÍTICO!',
+            html: `<div style="text-align: left;">
+                    <p>Los siguientes productos tienen 5 unidades o menos:</p>
+                    <ul>${listaNotificacion.join('')}</ul>
+                   </div>`,
+            icon: 'warning',
+            confirmButtonText: 'ENTENDIDO',
+            confirmButtonColor: '#b91c1c'
+        });
+
+        // Guardar que ya se mostró
+        sessionStorage.setItem('alerta_stock_visto', 'true');
+    }
+});
+
 function autoCalcular(idCosto, idVenta) {
     const costo = document.getElementById(idCosto).value;
     const ventaInput = document.getElementById(idVenta);

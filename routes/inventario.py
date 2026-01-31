@@ -94,7 +94,7 @@ def crear_producto():
         valor_interno = float(request.form.get('valor_interno', 0))
         valor_venta_input = request.form.get('valor_venta', '').strip()
 
-        # Lógica automática de ganancia 35%
+        # Lógica automática de ganancia 35% si el campo de venta está vacío
         if not valor_venta_input or float(valor_venta_input) == 0:
             valor_venta = round(valor_interno * 1.35)
         else:
@@ -114,7 +114,7 @@ def crear_producto():
         db.session.add(producto)
         db.session.flush()
 
-        # Si no se puso código, generamos uno con ceros basado en el ID
+        # Si no se puso código manual, generamos uno basado en el ID
         if not producto.codigo:
             producto.codigo = str(producto.id).zfill(8)
 
@@ -132,7 +132,7 @@ def crear_producto():
 
 
 # =========================================================
-# SUMAR STOCK RÁPIDO (ESCÁNER / BUSCADOR)
+# SUMAR STOCK RÁPIDO (ESCÁNER / BUSCADOR MANUAL)
 # =========================================================
 @inventario_bp.route('/inventario/agregar', methods=['POST'])
 @login_required
@@ -172,6 +172,7 @@ def editar_producto(producto_id):
     try:
         nuevo_codigo = request.form.get('codigo', '').strip() or None
 
+        # Validación para evitar códigos duplicados al editar
         if nuevo_codigo and nuevo_codigo != producto.codigo:
             existe = Producto.query.filter_by(codigo=nuevo_codigo).first()
             if existe:
@@ -225,7 +226,7 @@ def eliminar_producto(producto_id):
 
 
 # =========================================================
-# API BÚSQUEDA (VENTAS)
+# API BÚSQUEDA (USADO EN VENTAS)
 # =========================================================
 @inventario_bp.route('/api/productos/buscar')
 @login_required

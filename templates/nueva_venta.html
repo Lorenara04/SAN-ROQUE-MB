@@ -49,7 +49,6 @@
 
     .ref-box { background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; display: none; margin-top: 10px; }
     
-    /* Estilos para que el buscador se vea pro */
     .select2-results__option { font-size: 13px; border-bottom: 1px solid #f1f1f1; padding: 10px; }
     .select2-product-title { font-weight: bold; color: var(--azul-sanroque); display: block; }
     .select2-product-desc { font-size: 11px; color: #666; display: block; font-style: italic; }
@@ -88,8 +87,8 @@
                 <select id="manual_producto" class="form-select mb-3">
                     <option value="">-- Buscar producto --</option>
                     {% for p in productos %}
-                        <option value="{{ p.id }}" data-marca="{{ p.marca }}" data-precio="{{ p.valor_venta }}">
-                            {{ p.nombre | upper }} | {{ p.marca | upper if p.marca else 'S.M' }} | ${{ "{:,.0f}".format(p.valor_venta) }}
+                        <option value="{{ p.id }}">
+                            {{ p.nombre | upper }} | {{ p.marca | upper if p.marca else 'S.M' }}
                         </option>
                     {% endfor %}
                 </select>
@@ -130,10 +129,11 @@
                 <div class="card-pos-header" style="background: #be123c;">REGISTRO DE PAGO</div>
                 <div class="card-pos-body">
                     <div class="row g-3">
-                        <div class="col-6"><label class="form-label">EFECTIVO</label><input type="number" name="pago_efectivo" id="pago_efectivo" class="form-control form-control-pos pago-input" value="0"></div>
-                        <div class="col-6"><label class="form-label">NEQUI</label><input type="number" name="pago_nequi" id="pago_nequi" class="form-control form-control-pos pago-input" value="0"></div>
-                        <div class="col-6"><label class="form-label">DAVIPLATA</label><input type="number" name="pago_daviplata" id="pago_daviplata" class="form-control form-control-pos pago-input" value="0"></div>
-                        <div class="col-6"><label class="form-label">TARJETA</label><input type="number" name="pago_tarjeta" id="pago_tarjeta" class="form-control form-control-pos pago-input" value="0"></div>
+                        <div class="col-6"><label class="form-label">EFECTIVO</label><input type="number" step="any" name="pago_efectivo" id="pago_efectivo" class="form-control form-control-pos pago-input" value="0"></div>
+                        <div class="col-6"><label class="form-label">NEQUI</label><input type="number" step="any" name="pago_nequi" id="pago_nequi" class="form-control form-control-pos pago-input" value="0"></div>
+                        <div class="col-6"><label class="form-label">DAVIPLATA</label><input type="number" step="any" name="pago_daviplata" id="pago_daviplata" class="form-control form-control-pos pago-input" value="0"></div>
+                        <div class="col-6"><label class="form-label">TARJETA</label><input type="number" step="any" name="pago_tarjeta" id="pago_tarjeta" class="form-control form-control-pos pago-input" value="0"></div>
+                        <div class="col-12"><label class="form-label">TRANSFERENCIA</label><input type="number" step="any" name="pago_transferencia" id="pago_transferencia" class="form-control form-control-pos pago-input" value="0"></div>
                     </div>
 
                     <div class="vuelto-container mt-3">
@@ -175,26 +175,21 @@
         renderizarCarrito();
     }
 
-    // LECTOR DE CÓDIGO DE BARRAS
     document.getElementById('barcode_input').addEventListener('keypress',function(e){
         if(e.key === 'Enter'){
             e.preventDefault();
             const codigo = this.value.trim();
             if(!codigo) return;
-
             const p = productData.find(x => x.codigo === codigo);
             if(!p){ alert("Producto no encontrado"); return; }
-
             const cat = getCategoriaActual();
             const precio = (cat === 'premium') ? p.precio_costo : p.precio_venta;
-
             if(carrito[p.id]){
                 carrito[p.id].cantidad++;
                 carrito[p.id].precio = precio;
             }else{
                 carrito[p.id] = {id:p.id, nombre:p.nombre, marca:p.marca, precio:precio, cantidad:1};
             }
-
             renderizarCarrito();
             this.value='';
         }
@@ -202,10 +197,14 @@
 
     function actualizarPagos() {
         let totalPagado = 0;
-        ['nequi', 'daviplata', 'tarjeta'].forEach(m => {
-            let monto = parseFloat(document.getElementById(`pago_${m}`).value) || 0;
-            totalPagado += monto;
-            document.getElementById(`ref-${m}`).style.display = monto > 0 ? 'block' : 'none';
+        ['nequi', 'daviplata', 'tarjeta', 'transferencia'].forEach(m => {
+            let el = document.getElementById(`pago_${m}`);
+            if(el){
+                let monto = parseFloat(el.value) || 0;
+                totalPagado += monto;
+                let refBox = document.getElementById(`ref-${m}`);
+                if(refBox) refBox.style.display = monto > 0 ? 'block' : 'none';
+            }
         });
         totalPagado += parseFloat(document.getElementById('pago_efectivo').value) || 0;
         const totalCarrito = parseFloat(document.getElementById('total-final').dataset.rawTotal) || 0;
@@ -236,14 +235,13 @@
             carrito[id] = { id:p.id, nombre:p.nombre, marca:p.marca, precio:precio, cantidad:cant };
         }
         renderizarCarrito();
-        $('#manual_producto').val('').trigger('change'); // Limpiar buscador
+        $('#manual_producto').val('').trigger('change');
     }
 
     function renderizarCarrito() {
         const body = document.getElementById('carrito-body');
         body.innerHTML = '';
         let total = 0;
-
         for (const key in carrito) {
             const item = carrito[key];
             const sub = item.precio * item.cantidad;
@@ -260,7 +258,6 @@
                     <td><button type="button" class="btn btn-sm text-danger" onclick="delete carrito[${key}]; renderizarCarrito();">×</button></td>
                 </tr>`;
         }
-
         document.getElementById('total-final').innerText = formatCurrency(total);
         document.getElementById('total-final').dataset.rawTotal = total;
         actualizarPagos();
@@ -281,32 +278,22 @@
         document.getElementById('total_venta_hidden').value = totalCarrito;
         document.getElementById('cliente_id_hidden').value = $('#cliente_id_select').val();
         document.getElementById('referencias_pago_json').value = JSON.stringify({
-            Nequi: $('#codigo_nequi').val(),
-            Daviplata: $('#codigo_daviplata').val(),
-            Tarjeta: $('#codigo_tarjeta').val()
+            Nequi: $('#codigo_nequi').val() || '',
+            Daviplata: $('#codigo_daviplata').val() || '',
+            Tarjeta: $('#codigo_tarjeta').val() || ''
         });
         document.getElementById('form_venta').submit();
     }
 
     $(document).ready(() => {
-        // PERSONALIZACIÓN DEL BUSCADOR SELECT2
         $('#manual_producto').select2({
             theme: 'bootstrap-5',
             templateResult: function(data) {
                 if (!data.id) return data.text;
-                // Obtenemos los datos del JSON
                 const p = productData.find(x => x.id == data.id);
-                const $result = $(
-                    '<span>' +
-                        '<span class="select2-product-price">$' + formatCurrency(p.precio_venta) + '</span>' +
-                        '<span class="select2-product-title">' + p.nombre.toUpperCase() + '</span>' +
-                        '<span class="select2-product-desc">' + (p.marca ? p.marca.toUpperCase() : 'SIN DESCRIPCIÓN') + ' | STOCK: ' + p.stock + '</span>' +
-                    '</span>'
-                );
-                return $result;
+                return $(`<span><span class="select2-product-price">$${formatCurrency(p.precio_venta)}</span><span class="select2-product-title">${p.nombre.toUpperCase()}</span><span class="select2-product-desc">${p.marca ? p.marca.toUpperCase() : 'S.M'} | STOCK: ${p.stock}</span></span>`);
             }
         });
-        
         $('#cliente_id_select').select2({ theme: 'bootstrap-5' });
         $('.pago-input').on('input', actualizarPagos);
     });
