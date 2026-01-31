@@ -41,28 +41,31 @@
     .vuelto-container { background: #0f172a; border-radius: 12px; padding: 15px; text-align: center; color: white; margin-bottom: 20px; }
     .vuelto-val { font-size: 1.8rem; font-weight: 800; color: #38bdf8; display: block; }
 
-    .btn-finalizar { background: #166534; color: white; border: none; border-radius: 10px; padding: 18px; width: 100%; font-weight: 800; font-size: 1.2rem; text-transform: uppercase; transition: 0.3s; }
+    .btn-finalizar { background: #166534; color: white; border: none; border-radius: 10px; padding: 18px; width: 100%; font-weight: 800; font-size: 1.2rem; text-transform: uppercase; transition: 0.3s; cursor: pointer;}
     .btn-finalizar:hover { background: #14534c; transform: translateY(-2px); }
 
     .table-pos tbody tr:nth-child(even) { background-color: #f8fafc; }
     .table-pos thead th { font-size: 0.7rem; border-bottom: 2px solid var(--border-color); }
 
     .ref-box { background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; display: none; margin-top: 10px; }
+    
+    /* Estilos para que el buscador se vea pro */
+    .select2-results__option { font-size: 13px; border-bottom: 1px solid #f1f1f1; padding: 10px; }
+    .select2-product-title { font-weight: bold; color: var(--azul-sanroque); display: block; }
+    .select2-product-desc { font-size: 11px; color: #666; display: block; font-style: italic; }
+    .select2-product-price { font-weight: bold; color: #2e7d32; float: right; }
 </style>
 
 <script id="product-data" type="application/json">
-    [{% for p in productos %}{"id":{{p.id}},"nombre":{{p.nombre|tojson}},"codigo":"{{p.codigo}}","precio_venta":{{p.valor_venta}},"precio_costo":{{p.valor_interno}},"stock":{{p.cantidad}}}{% if not loop.last %},{% endif %}{% endfor %}]
+    [{% for p in productos %}{"id":{{p.id}},"nombre":{{p.nombre|tojson}},"marca":{{p.marca|tojson if p.marca else '""'}},"codigo":"{{p.codigo}}","precio_venta":{{p.valor_venta}},"precio_costo":{{p.valor_interno}},"stock":{{p.cantidad}}}{% if not loop.last %},{% endif %}{% endfor %}]
 </script>
 
 <div class="venta-wrapper">
     <div class="col-left">
-
-        <!-- NUEVO: ESCANEAR -->
         <div class="card-pos">
             <div class="card-pos-header">ESCANEAR CÓDIGO</div>
             <div class="card-pos-body">
-                <input type="text" id="barcode_input" class="form-control form-control-pos"
-                       placeholder="Escanee código y presione Enter">
+                <input type="text" id="barcode_input" class="form-control form-control-pos" placeholder="Escanee código y presione Enter">
             </div>
         </div>
 
@@ -81,9 +84,14 @@
         <div class="card-pos">
             <div class="card-pos-header">PRODUCTOS</div>
             <div class="card-pos-body">
-                <select id="manual_producto" class="form-select select2-pos mb-3">
+                <label class="form-label">Buscar por nombre o marca</label>
+                <select id="manual_producto" class="form-select mb-3">
                     <option value="">-- Buscar producto --</option>
-                    {% for p in productos %}<option value="{{ p.id }}">{{ p.nombre | upper }}</option>{% endfor %}
+                    {% for p in productos %}
+                        <option value="{{ p.id }}" data-marca="{{ p.marca }}" data-precio="{{ p.valor_venta }}">
+                            {{ p.nombre | upper }} | {{ p.marca | upper if p.marca else 'S.M' }} | ${{ "{:,.0f}".format(p.valor_venta) }}
+                        </option>
+                    {% endfor %}
                 </select>
                 <div class="row g-2">
                     <div class="col-8">
@@ -167,7 +175,7 @@
         renderizarCarrito();
     }
 
-    // NUEVO LECTOR
+    // LECTOR DE CÓDIGO DE BARRAS
     document.getElementById('barcode_input').addEventListener('keypress',function(e){
         if(e.key === 'Enter'){
             e.preventDefault();
@@ -184,7 +192,7 @@
                 carrito[p.id].cantidad++;
                 carrito[p.id].precio = precio;
             }else{
-                carrito[p.id] = {id:p.id,nombre:p.nombre,precio:precio,cantidad:1};
+                carrito[p.id] = {id:p.id, nombre:p.nombre, marca:p.marca, precio:precio, cantidad:1};
             }
 
             renderizarCarrito();
@@ -194,15 +202,12 @@
 
     function actualizarPagos() {
         let totalPagado = 0;
-
         ['nequi', 'daviplata', 'tarjeta'].forEach(m => {
             let monto = parseFloat(document.getElementById(`pago_${m}`).value) || 0;
             totalPagado += monto;
             document.getElementById(`ref-${m}`).style.display = monto > 0 ? 'block' : 'none';
         });
-
         totalPagado += parseFloat(document.getElementById('pago_efectivo').value) || 0;
-
         const totalCarrito = parseFloat(document.getElementById('total-final').dataset.rawTotal) || 0;
         const diff = totalPagado - totalCarrito;
 
@@ -213,7 +218,6 @@
             document.querySelector('.vuelto-label').innerText = 'FALTAN';
             document.getElementById('vuelto-monto').innerText = `$ ${formatCurrency(Math.abs(diff))}`;
         }
-
         return { totalPagado, totalCarrito };
     }
 
@@ -229,9 +233,10 @@
             carrito[id].cantidad += cant;
             carrito[id].precio = precio;
         } else {
-            carrito[id] = { id:p.id, nombre:p.nombre, precio:precio, cantidad:cant };
+            carrito[id] = { id:p.id, nombre:p.nombre, marca:p.marca, precio:precio, cantidad:cant };
         }
         renderizarCarrito();
+        $('#manual_producto').val('').trigger('change'); // Limpiar buscador
     }
 
     function renderizarCarrito() {
@@ -245,10 +250,13 @@
             total += sub;
             body.innerHTML += `
                 <tr>
-                    <td class="text-start ps-3 fw-bold">${item.nombre}</td>
+                    <td class="text-start ps-3">
+                        <span class="fw-bold d-block" style="font-size: 0.9rem;">${item.nombre.toUpperCase()}</span>
+                        <span class="text-muted" style="font-size: 0.7rem;">${item.marca ? item.marca.toUpperCase() : 'S.M'}</span>
+                    </td>
                     <td>${item.cantidad}</td>
                     <td class="text-muted small">$${formatCurrency(item.precio)}</td>
-                    <td class="text-end pe-3">$${formatCurrency(sub)}</td>
+                    <td class="text-end pe-3 fw-bold">$${formatCurrency(sub)}</td>
                     <td><button type="button" class="btn btn-sm text-danger" onclick="delete carrito[${key}]; renderizarCarrito();">×</button></td>
                 </tr>`;
         }
@@ -261,7 +269,6 @@
     function validarYEnviar(e) {
         e.preventDefault();
         const { totalPagado, totalCarrito } = actualizarPagos();
-
         if (totalCarrito <= 0) return alert("Carrito vacío");
         if (totalPagado < totalCarrito) return alert("Pago insuficiente");
 
@@ -278,12 +285,29 @@
             Daviplata: $('#codigo_daviplata').val(),
             Tarjeta: $('#codigo_tarjeta').val()
         });
-
         document.getElementById('form_venta').submit();
     }
 
     $(document).ready(() => {
-        $('.select2-pos').select2({ theme: 'bootstrap-5' });
+        // PERSONALIZACIÓN DEL BUSCADOR SELECT2
+        $('#manual_producto').select2({
+            theme: 'bootstrap-5',
+            templateResult: function(data) {
+                if (!data.id) return data.text;
+                // Obtenemos los datos del JSON
+                const p = productData.find(x => x.id == data.id);
+                const $result = $(
+                    '<span>' +
+                        '<span class="select2-product-price">$' + formatCurrency(p.precio_venta) + '</span>' +
+                        '<span class="select2-product-title">' + p.nombre.toUpperCase() + '</span>' +
+                        '<span class="select2-product-desc">' + (p.marca ? p.marca.toUpperCase() : 'SIN DESCRIPCIÓN') + ' | STOCK: ' + p.stock + '</span>' +
+                    '</span>'
+                );
+                return $result;
+            }
+        });
+        
+        $('#cliente_id_select').select2({ theme: 'bootstrap-5' });
         $('.pago-input').on('input', actualizarPagos);
     });
 </script>

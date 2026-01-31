@@ -3,10 +3,11 @@ from flask_login import login_required, current_user
 from database import db
 from models import Producto, Venta, VentaDetalle, Cliente, Factura, Gasto, Abono, Usuario, Credito
 from utils.time_utils import cerrar_turno_anterior_si_pendiente
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from datetime import datetime, date
 import pytz
 import json
+import urllib.parse
 
 # ==============================
 # Blueprint
@@ -14,13 +15,14 @@ import json
 ventas_bp = Blueprint('ventas', __name__)
 
 # ======================================================
-# DASHBOARD
+# DASHBOARD CORREGIDO (CARTERA REAL)
 # ======================================================
 @ventas_bp.route('/dashboard')
 @login_required
 def dashboard():
     es_admin = current_user.rol.lower() in ['administrador', 'administradora']
 
+    # 1. Ventas de Hoy
     if es_admin:
         v_hoy = db.session.query(func.sum(Venta.total)) \
             .filter(func.date(Venta.fecha) == date.today()).scalar() or 0
@@ -31,21 +33,33 @@ def dashboard():
                 Venta.usuario_id == current_user.id
             ).scalar() or 0
 
+    # 2. Inventario Total (Unidades)
     inv_total = db.session.query(func.sum(Producto.cantidad)).scalar() or 0
 
+    # 3. CARTERA DE CLIENTES (CORRECCIÓN CRÍTICA)
+    # Usamos func.lower para que no falle si el estado es 'Abierto', 'abierto' o 'ABIERTO'
+    total_deuda_clientes = db.session.query(func.sum(Credito.total_consumido - Credito.abonado))\
+        .filter(func.lower(Credito.estado) == "abierto").scalar() or 0
+
     if es_admin:
+        # Valor del Inventario
         v_interno = db.session.query(func.sum(Producto.cantidad * Producto.valor_interno)).scalar() or 0
         v_venta = db.session.query(func.sum(Producto.cantidad * Producto.valor_venta)).scalar() or 0
         
+        # Deudas con Proveedores (Facturas)
         total_facturas = db.session.query(func.sum(Factura.total)).scalar() or 0
         total_abonos_facturas = db.session.query(func.sum(Abono.monto)).filter(Abono.factura_id.isnot(None)).scalar() or 0
         saldos_proveedores = total_facturas - total_abonos_facturas
 
+        # Gastos Pendientes
         total_gastos = db.session.query(func.sum(Gasto.total)).scalar() or 0
         total_abonos_gastos = db.session.query(func.sum(Abono.monto)).filter(Abono.gasto_id.isnot(None)).scalar() or 0
         saldos_gastos = total_gastos - total_abonos_gastos
+        
+        # Unificamos para el Dashboard
+        total_por_pagar = saldos_proveedores + saldos_gastos
     else:
-        v_interno = v_venta = saldos_proveedores = saldos_gastos = None
+        v_interno = v_venta = total_por_pagar = None
 
     return render_template(
         'dashboard.html',
@@ -53,8 +67,8 @@ def dashboard():
         total_inventario=inv_total,
         valor_interno_total=v_interno,
         valor_venta_total=v_venta,
-        total_facturas_pendiente=saldos_proveedores,
-        total_gastos_pendiente=saldos_gastos,
+        total_facturas_pendiente=total_por_pagar,
+        cartera_clientes=total_deuda_clientes,
         es_admin=es_admin
     )
 
@@ -169,20 +183,29 @@ def eliminar_venta(venta_id):
 @ventas_bp.route('/ventas/comprobante/<int:venta_id>')
 @login_required
 def encomprobante_final(venta_id):
-    # 1. Obtener la venta
     venta = Venta.query.get_or_404(venta_id)
-    
-    # 2. Obtener detalles incluyendo el objeto producto para marca/descripción
     detalles = VentaDetalle.query.filter_by(venta_id=venta_id).all()
-    
-    # 3. Obtener los datos del cliente de forma independiente
     cliente_obj = Cliente.query.get(venta.cliente_id)
+
+    lista_productos = ""
+    for d in detalles:
+        nombre_p = d.producto.nombre if d.producto else "Producto"
+        lista_productos += f"- {d.cantidad}x {nombre_p} (${d.subtotal:,.0f})\n"
+
+    mensaje_texto = (
+        f"Hola *{cliente_obj.nombre if cliente_obj else 'Cliente'}*, gracias por tu compra en *San Roque M.B* 🥂\n\n"
+        f"*Resumen de tu compra:* \n{lista_productos}\n"
+        f"*TOTAL:* ${venta.total:,.0f}\n\n"
+        f"Puedes ver tu comprobante aquí: {request.url_root.rstrip('/')}{url_for('ventas.encomprobante_final', venta_id=venta.id)}"
+    )
     
-    # 4. Aseguramos que la fecha sea local antes de enviar
+    mensaje_wa_encoded = urllib.parse.quote(mensaje_texto)
+    
     return render_template('comprobante.html', 
                            venta=venta, 
                            detalles=detalles, 
-                           cliente=cliente_obj)
+                           cliente=cliente_obj,
+                           mensaje_wa=mensaje_wa_encoded)
 
 # ======================================================
 # API PARA EDICIÓN Y GESTIÓN DE CRÉDITOS
@@ -218,26 +241,16 @@ def editar_info_venta(venta_id):
     try:
         data = request.json
         venta = Venta.query.get_or_404(venta_id)
-        
         venta.usuario_id = data.get('vendedor_id')
         venta.cliente_id = data.get('cliente_id')
         cliente_nuevo = Cliente.query.get(venta.cliente_id)
-        
         pagos = data.get('pagos')
         tipo_cuenta = data.get('tipo_cuenta', 'contado') 
         
         if tipo_cuenta in ['corto', 'largo'] and cliente_nuevo:
             cred = Credito.query.filter(Credito.producto.like(f"Venta #{venta.id}%")).first()
             if not cred:
-                cred = Credito(
-                    cliente=cliente_nuevo.nombre,
-                    producto=f"Venta #{venta.id}",
-                    cantidad=1,
-                    total_consumido=venta.total,
-                    abonado=0,
-                    estado="ABIERTO",
-                    fecha=venta.fecha
-                )
+                cred = Credito(cliente=cliente_nuevo.nombre, producto=f"Venta #{venta.id}", cantidad=1, total_consumido=venta.total, abonado=0, estado="ABIERTO", fecha=venta.fecha)
                 db.session.add(cred)
             else:
                 cred.cliente = cliente_nuevo.nombre
@@ -256,36 +269,21 @@ def editar_items_venta(venta_id):
     try:
         data = request.json
         venta = Venta.query.get_or_404(venta_id)
-        
-        # Devolver stock anterior
         for d in venta.detalles:
             prod = Producto.query.get(d.producto_id)
             if prod: prod.cantidad += d.cantidad
-        
         VentaDetalle.query.filter_by(venta_id=venta.id).delete()
-        
         nuevo_total = 0
         for item in data.get('items'):
             prod = Producto.query.get(item['id'])
             if not prod: continue
-            
-            nuevo_d = VentaDetalle(
-                venta_id=venta.id, 
-                producto_id=prod.id,
-                cantidad=int(item['cantidad']), 
-                precio_unitario=float(item['precio']),
-                subtotal=float(item['subtotal'])
-            )
+            nuevo_d = VentaDetalle(venta_id=venta.id, producto_id=prod.id, cantidad=int(item['cantidad']), precio_unitario=float(item['precio']), subtotal=float(item['subtotal']))
             prod.cantidad -= int(item['cantidad'])
             nuevo_total += nuevo_d.subtotal
             db.session.add(nuevo_d)
-            
         venta.total = nuevo_total
-        
         cred = Credito.query.filter(Credito.producto.like(f"Venta #{venta.id}%")).first()
-        if cred:
-            cred.total_consumido = nuevo_total
-
+        if cred: cred.total_consumido = nuevo_total
         db.session.commit()
         return jsonify({'ok': True})
     except Exception as e:
@@ -296,5 +294,15 @@ def editar_items_venta(venta_id):
 @login_required
 def buscar_productos_api():
     q = request.args.get('q', '').lower()
-    productos = Producto.query.filter(Producto.nombre.ilike(f'%{q}%')).limit(10).all()
-    return jsonify([{'id': p.id, 'nombre': p.nombre, 'precio': p.valor_venta} for p in productos])
+    productos = Producto.query.filter(
+        or_(
+            Producto.nombre.ilike(f'%{q}%'),
+            Producto.marca.ilike(f'%{q}%')
+        )
+    ).limit(10).all()
+    
+    return jsonify([{
+        'id': p.id, 
+        'nombre': f"{p.nombre.upper()} | {p.marca.upper() if p.marca else 'S.M'} | ${p.valor_venta:,.0f}", 
+        'precio': p.valor_venta
+    } for p in productos])

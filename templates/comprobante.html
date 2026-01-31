@@ -102,7 +102,6 @@
         .btn-ws { background: var(--whatsapp); }
         .btn-outline { border: 1px solid var(--azul-principal); color: var(--azul-principal); background: transparent; }
 
-        /* --- AJUSTE CRÍTICO: FORZAR UNA SOLA HOJA --- */
         @media print {
             @page { 
                 size: auto; 
@@ -110,7 +109,7 @@
             }
             html, body { 
                 height: 100vh; 
-                overflow: hidden !important; /* Bloquea la segunda página */
+                overflow: hidden !important;
                 background: white;
             }
             body * { visibility: hidden; }
@@ -119,7 +118,7 @@
                 position: absolute; 
                 left: 50%; 
                 top: 50%;
-                transform: translate(-50%, -50%); /* Centrado absoluto */
+                transform: translate(-50%, -50%);
                 margin: 0 !important; 
                 box-shadow: none; 
                 border: 1px solid #eee;
@@ -202,8 +201,16 @@
     </div>
 
     <div class="no-print">
-        <button onclick="window.print()" class="btn btn-blue"><i class="bi bi-printer"></i> Imprimir</button>
-        <a href="https://wa.me/{{ cliente.telefono if cliente and cliente.telefono else '' }}?text=Comprobante #{{ venta.id }} - San Roque M.B" target="_blank" class="btn btn-ws"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+        <button onclick="window.print()" class="btn btn-blue">
+            <i class="bi bi-printer"></i> Imprimir
+        </button>
+        
+        <a href="https://wa.me/{{ cliente.telefono if cliente and cliente.telefono else '' }}?text={{ mensaje_wa }}" 
+           target="_blank" 
+           class="btn btn-ws">
+            <i class="fab fa-whatsapp"></i> WhatsApp
+        </a>
+
         <a href="{{ url_for('ventas.nueva_venta') }}" class="btn btn-outline">Nueva Venta</a>
     </div>
 </div>
