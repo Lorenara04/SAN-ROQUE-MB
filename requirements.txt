@@ -1,9 +1,19 @@
 flask
 flask-sqlalchemy
 flask-login
+flask-bcrypt
+flask-wtf
+flask-cors
 fpdf
 gunicorn
 python-dotenv
+psycopg2-binary
+pandas
+openpyxl
+sqlalchemy
+WTForms
+python-barcode
+reportlab
 
 Flask==3.0.3
 Werkzeug==3.0.3
