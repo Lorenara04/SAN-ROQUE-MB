@@ -78,7 +78,7 @@
 .stock-medium { background: #fef3c7; color: var(--warning-orange); }
 .stock-low { background: #fee2e2; color: var(--danger-red); }
 
-/* ESTILOS PARA LA ETIQUETA */
+/* Estilos de Etiqueta (Vista en pantalla) */
 .card-etiqueta-print {
     border: 2px solid #eee;
     border-radius: 15px;
@@ -114,42 +114,54 @@
 .btn-action-delete { background: #c82525; }
 .btn-action-barcode { background: var(--rosa-tag); }
 
-/* ==========================================
-   CONFIGURACIÓN PARA IMPRESIÓN (SOLO ETIQUETA)
-   ========================================== */
+/* --- CORRECCIÓN DEFINITIVA IMPRESIÓN 1 HOJA --- */
 @media print {
-    /* Ocultar todo el cuerpo de la página */
-    body * {
-        visibility: hidden;
+    @page {
+        size: auto;
+        margin: 0; /* Elimina bordes del navegador */
     }
-    /* Mostrar solo el contenedor de la etiqueta y sus hijos */
-    #area-impresion, #area-impresion * {
-        visibility: visible;
+    html, body {
+        height: 100%;
+        overflow: hidden; /* Evita que se cree una segunda hoja por scroll */
     }
-    /* Posicionar la etiqueta en la esquina superior izquierda al imprimir */
-    #area-impresion {
+    body * { visibility: hidden; }
+    
+    #area-impresion-barcode, #area-impresion-barcode * { visibility: visible; }
+    
+    #area-impresion-barcode { 
         position: absolute;
         left: 0;
         top: 0;
         width: 100%;
-        border: none !important;
+        height: 100%;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
     }
-    /* Eliminar fondos grises o sombras de modales en impresión */
-    .modal-backdrop, .modal-header, .modal-footer, .btn-imprimir-tag, .btn-descargar-tag {
-        display: none !important;
-    }
-    .modal {
-        position: absolute;
-        left: 0;
-        top: 0;
-        margin: 0;
-        padding: 0;
-        overflow: visible !important;
-    }
-    .card-etiqueta-print {
-        border: 1px solid #000 !important; /* Borde fino para corte */
+
+    .no-print-label { display: none !important; }
+
+    .card-etiqueta-print { 
+        border: none !important; 
         box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 250px; /* Tamaño controlado, ni muy grande ni muy pequeño */
     }
+
+    .barcode-only-section img {
+        width: 100% !important;
+        height: auto !important;
+    }
+
+    .barcode-only-section p {
+        font-family: monospace;
+        font-size: 14px !important;
+        margin-top: 5px !important;
+        text-align: center;
+    }
+
+    .modal-backdrop, .modal-header, .modal-footer, .no-print { display: none !important; }
 }
 </style>
 
@@ -177,7 +189,7 @@
             </div>
             <div class="col-md-3">
                 <button type="submit" class="btn btn-primary w-100 fw-bold">
-                   <i class="fas fa-plus me-1"></i> ACTUALIZAR STOCK
+                    <i class="fas fa-plus me-1"></i> ACTUALIZAR STOCK
                 </button>
             </div>
         </form>
@@ -247,21 +259,21 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <div id="area-impresion">
+                <div id="area-impresion-barcode">
                     <div class="card-etiqueta-print">
-                        <img src="{{ url_for('static', filename='img/logo.png') }}" style="width: 50px;" alt="Logo">
-                        <h3 id="tag-nombre" style="color: var(--rosa-tag); margin-top: 10px; font-size: 1.4rem;">PRODUCTO</h3>
-                        <p id="tag-marca" style="color: #666; margin-bottom: 5px; font-size: 0.9rem;">Marca</p>
-                        <p class="fw-bold mb-1">Código: <span id="tag-codigo-texto">000</span></p>
-                        
-                        <div class="precio-tag" id="tag-precio">$0</div>
-                        
-                        <div class="mt-2" style="background: white; padding: 10px;">
-                            <img id="tag-barcode-img" src="" alt="Barras" style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
+                        <div class="no-print-label">
+                            <img src="{{ url_for('static', filename='img/logo.png') }}" style="width: 50px;" alt="Logo">
+                            <h3 id="tag-nombre" style="color: var(--rosa-tag); margin-top: 10px; font-size: 1.4rem;">PRODUCTO</h3>
+                            <p id="tag-marca" style="color: #666; margin-bottom: 5px; font-size: 0.9rem;">Marca</p>
+                            <div class="precio-tag" id="tag-precio">$0</div>
+                        </div>
+
+                        <div class="barcode-only-section">
+                            <img id="tag-barcode-img" src="" alt="Barras">
+                            <p class="fw-bold"><span id="tag-codigo-texto">000</span></p>
                         </div>
                     </div>
                 </div>
-                
                 <div class="d-flex justify-content-center gap-3 mt-4 no-print">
                     <button class="btn-imprimir-tag" onclick="window.print()"><i class="fas fa-print"></i> IMPRIMIR</button>
                     <a id="btn-descargar-link" href="#" download="etiqueta.png" class="btn-descargar-tag">
@@ -284,33 +296,37 @@
         <div class="modal-body bg-light">
             <div class="row g-3">
                 <div class="col-md-8">
-                    <label class="form-label">Nombre</label>
-                    <input name="nombre" class="form-control" required>
+                    <label class="form-label text-dark fw-bold">Nombre del Producto</label>
+                    <input name="nombre" class="form-control" placeholder="Ej: Aguardiente Néctar 750ml" required>
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label">Marca</label>
-                    <input name="marca" class="form-control">
+                    <label class="form-label text-dark fw-bold">Marca</label>
+                    <input name="marca" class="form-control" placeholder="Ej: Néctar">
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label text-dark fw-bold">Descripción / Detalles</label>
+                    <textarea name="descripcion" class="form-control" rows="2" placeholder="Notas adicionales del producto..."></textarea>
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label">Código</label>
+                    <label class="form-label text-dark fw-bold">Código de Barras / Referencia</label>
                     <input name="codigo" class="form-control">
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label text-primary">Stock Inicial</label>
+                    <label class="form-label text-primary fw-bold">Stock Inicial</label>
                     <input name="cantidad" type="number" class="form-control fw-bold border-primary" value="0">
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label">Costo</label>
+                    <label class="form-label text-dark fw-bold">Costo Unitario (Interno)</label>
                     <input name="valor_interno" id="new_costo" type="number" step="0.01" class="form-control" oninput="autoCalcular('new_costo', 'new_venta')">
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label">Precio Venta</label>
+                    <label class="form-label text-success fw-bold">Precio de Venta</label>
                     <input name="valor_venta" id="new_venta" type="number" step="0.01" class="form-control fw-bold text-success">
                 </div>
             </div>
         </div>
         <div class="modal-footer bg-white">
-          <button type="submit" class="btn btn-primary px-5 fw-bold">GUARDAR</button>
+          <button type="submit" class="btn btn-primary px-5 fw-bold rounded-pill">GUARDAR PRODUCTO</button>
         </div>
       </form>
     </div>
@@ -328,33 +344,37 @@
         <div class="modal-body bg-light">
             <div class="row g-3">
                 <div class="col-md-8">
-                    <label class="form-label">Nombre</label>
+                    <label class="form-label text-dark fw-bold">Nombre</label>
                     <input name="nombre" id="edit_nombre" class="form-control" required>
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label">Marca</label>
+                    <label class="form-label text-dark fw-bold">Marca</label>
                     <input name="marca" id="edit_marca" class="form-control">
                 </div>
+                <div class="col-md-12">
+                    <label class="form-label text-dark fw-bold">Descripción / Detalles</label>
+                    <textarea name="descripcion" id="edit_descripcion" class="form-control" rows="2"></textarea>
+                </div>
                 <div class="col-md-6">
-                    <label class="form-label">Código</label>
+                    <label class="form-label text-dark fw-bold">Código</label>
                     <input name="codigo" id="edit_codigo" class="form-control">
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label text-danger">Ajuste de Stock</label>
+                    <label class="form-label text-danger fw-bold">Stock Actual</label>
                     <input name="cantidad" id="edit_cantidad" type="number" class="form-control fw-bold border-danger">
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label">Costo</label>
+                    <label class="form-label text-dark fw-bold">Costo</label>
                     <input name="valor_interno" id="edit_costo" type="number" step="0.01" class="form-control" oninput="autoCalcular('edit_costo', 'edit_venta')">
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label">Precio Venta</label>
+                    <label class="form-label text-success fw-bold">Precio Venta</label>
                     <input name="valor_venta" id="edit_venta" type="number" step="0.01" class="form-control fw-bold text-success">
                 </div>
             </div>
         </div>
         <div class="modal-footer bg-white">
-          <button type="submit" class="btn btn-dark px-5 fw-bold">ACTUALIZAR</button>
+          <button type="submit" class="btn btn-dark px-5 fw-bold rounded-pill">ACTUALIZAR CAMBIOS</button>
         </div>
       </form>
     </div>
@@ -375,10 +395,11 @@ function openEditModal(id, nombre, marca, codigo, descripcion, costo, venta, can
   document.getElementById('edit_nombre').value = nombre;
   document.getElementById('edit_marca').value = marca;
   document.getElementById('edit_codigo').value = codigo;
+  document.getElementById('edit_descripcion').value = descripcion; 
   document.getElementById('edit_costo').value = costo;
   document.getElementById('edit_venta').value = venta;
   document.getElementById('edit_cantidad').value = cantidad;
-  document.getElementById('editForm').action = `/inventario/editar/${id}`;
+  document.getElementById('editForm').action = "/inventario/editar/" + id;
   new bootstrap.Modal(document.getElementById('editProductModal')).show();
 }
 

@@ -1,94 +1,170 @@
 {% extends "base.html" %}
-{% block title %}Reportes Inteligentes - San Roque{% endblock %}
+{% block title %}Business Intelligence - San Roque{% endblock %}
 
 {% block content %}
 <style>
-    :root {
-        --sky-bg: #f0f9ff;
-        --sky-light: #e0f2fe;
-        --sky-medium: #7dd3fc;
-        --sky-dark: #0284c7;
-        --navy: #1e3a8a;
-        --emerald: #10b981;
-    }
+:root {
+    --sky-bg: #f8fafc;
+    --sky-light: #e0f2fe;
+    --sky-medium: #7dd3fc;
+    --sky-dark: #0284c7;
+    --navy: #1e3a8a;
+    --slate-600: #475569;
+}
 
-    body { background-color: #f8fafc; }
+body { background: var(--sky-bg); font-family: 'Inter', sans-serif; }
 
-    .report-container {
-        background-color: var(--sky-bg);
-        border-radius: 24px;
-        padding: 2rem;
-        border: 1px solid var(--sky-light);
-    }
+/* Contenedor Maestro */
+.report-container {
+    background: rgb(213, 219, 240);
+    border-radius: 30px;
+    padding: 2.5rem;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.03);
+    border: 1px solid rgba(0,0,0,0.05);
+}
 
-    /* Tarjetas de Métricas Estilo Sky */
-    .metric-card-sky {
-        background: white;
-        border-radius: 20px;
-        padding: 1.5rem;
-        border: 1px solid var(--sky-light);
-        transition: transform 0.2s;
-        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-    }
-    .metric-card-sky:hover { transform: translateY(-5px); }
+/* Tarjetas de Métricas Premium */
+.metric-card-sky {
+    background: rgb(255, 255, 255);
+    border-radius: 24px;
+    padding: 1.8rem;
+    border: 1px solid #98b5d3;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+}
 
-    .text-navy { color: var(--navy); }
-    .text-sky { color: var(--sky-dark); }
+.metric-card-sky:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(2, 132, 199, 0.1);
+    border-color: var(--sky-medium);
+}
 
-    /* Estilo del Formulario de Informe */
-    .glass-card-report {
-        background: white;
-        border-radius: 20px;
-        padding: 2rem;
-        border: 2px solid var(--sky-medium);
-    }
+.metric-card-sky small {
+    color: var(--slate-600);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    display: block;
+    margin-bottom: 0.5rem;
+}
 
-    .form-control-sky {
-        border: 1px solid var(--sky-medium);
-        border-radius: 10px;
-        padding: 10px;
-        color: var(--navy);
-    }
+.metric-card-sky h3 {
+    font-weight: 900;
+    font-size: 1.9rem;
+    margin-bottom: 0;
+    letter-spacing: -1px;
+}
 
-    .btn-sky {
-        background: linear-gradient(135deg, var(--sky-dark), var(--navy));
-        color: white;
-        border: none;
-        border-radius: 12px;
-        padding: 12px;
-        font-weight: bold;
-        transition: 0.3s;
-    }
-    .btn-sky:hover { opacity: 0.9; transform: scale(1.02); color: white; }
+/* Decoración Sutil */
+.metric-card-sky::before {
+    content: "";
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 80px;
+    height: 80px;
+    background: var(--sky-light);
+    border-radius: 50%;
+    opacity: 0.4;
+    z-index: 0;
+}
 
-    /* Tabla de Detalles */
-    .table-sky {
-        background: white;
-        border-radius: 15px;
-        overflow: hidden;
-        border: 1px solid var(--sky-light);
-    }
-    .table-sky thead {
-        background-color: var(--sky-dark);
-        color: white;
-    }
+.metric-card-sky * { position: relative; z-index: 1; }
+
+/* Botonera Superior */
+.btn-premium {
+    background: var(--navy);
+    color: white !important;
+    border-radius: 15px;
+    padding: 12px 28px;
+    font-weight: 700;
+    transition: 0.3s;
+    border: none;
+    box-shadow: 0 4px 15px rgba(30, 58, 138, 0.2);
+}
+
+.btn-premium:hover {
+    background: #1e40af;
+    transform: scale(1.03);
+    box-shadow: 0 10px 25px rgba(30, 58, 138, 0.3);
+}
+
+/* Sección de Formulario (Glassmorphism) */
+.glass-card-report {
+    background: #f8fafc;
+    border-radius: 25px;
+    padding: 2.2rem;
+    border: 2px solid var(--sky-light);
+    height: 100%;
+}
+
+.form-control-sky {
+    border: 2px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 12px 18px;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+.form-control-sky:focus {
+    border-color: var(--sky-dark);
+    box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.1);
+}
+
+.btn-sky {
+    background: linear-gradient(135deg, var(--sky-dark), var(--navy));
+    color: white !important;
+    border: none;
+    border-radius: 15px;
+    padding: 15px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 6px 20px rgba(2, 132, 199, 0.3);
+}
+
+.btn-sky:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px rgba(2, 132, 199, 0.4);
+}
+
+/* Estilo Gráfico */
+.chart-container {
+    background: white;
+    padding: 2rem;
+    border-radius: 25px;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+}
 </style>
 
-<div class="container py-4">
-    <div class="report-container shadow-sm">
+<div class="container py-5">
+    <div class="report-container">
         
-        <div class="d-flex justify-content-between align-items-center mb-5 flex-wrap">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
             <div>
-                <h2 class="fw-bold text-navy mb-0">
-                    <i class="fas fa-layer-group me-2"></i>Centro de Inteligencia
-                </h2>
-                <span class="badge bg-info text-dark rounded-pill">Licorera San Roque M.B</span>
+                <span class="badge mb-2 px-3 py-2 rounded-pill" style="background: var(--sky-light); color: var(--sky-dark); font-weight: 800; font-size: 0.75rem;">
+                    SAN ROQUE M.B - SISTEMA DE INTELIGENCIA
+                </span>
+                <h1 class="fw-bold text-navy mb-0" style="letter-spacing: -1.5px; font-size: 2.6rem;">
+                               Informes
+                
+                </h1>
             </div>
+
             <div class="d-flex gap-2">
-                <a href="{{ url_for('reportes.historial_cierres') }}" class="btn btn-outline-primary rounded-pill px-4">Historial</a>
+                <a href="{{ url_for('reportes.historial_cierres') }}"
+                   class="btn btn-light rounded-pill px-4 fw-bold border bg-white shadow-sm">
+                   <i class="fas fa-history me-2 text-primary"></i>Historial
+                </a>
+
                 <form action="{{ url_for('reportes.ejecutar_cierre_caja') }}" method="POST">
-                    <button type="submit" class="btn btn-navy rounded-pill px-4" style="background: var(--navy); color: white;">
-                        Cierre del Día
+                    <button class="btn btn-premium">
+                        <i class="fas fa-lock me-2"></i>Cierre de Caja
                     </button>
                 </form>
             </div>
@@ -97,57 +173,70 @@
         <div class="row g-4 mb-5">
             <div class="col-md-4">
                 <div class="metric-card-sky">
-                    <small class="text-uppercase fw-bold text-muted">Ingresos Entrantes</small>
-                    <h3 class="fw-bold text-sky mb-0">${{ total_diario | format_number }}</h3>
-                    <div class="progress mt-2" style="height: 4px;"><div class="progress-bar" style="width: 70%; background: var(--sky-dark)"></div></div>
+                    <small><i class="fas fa-coins text-success me-1"></i>Ingresos Totales</small>
+                    <h3 class="text-navy">{{ total_diario | format_number }}</h3>
                 </div>
             </div>
+
             <div class="col-md-4">
                 <div class="metric-card-sky">
-                    <small class="text-uppercase fw-bold text-muted">Abonos Pagados</small>
-                    <h3 class="fw-bold text-danger mb-0">${{ egresos_dia | format_number }}</h3>
-                    <div class="progress mt-2" style="height: 4px;"><div class="progress-bar bg-danger" style="width: 30%"></div></div>
+                    <small><i class="fas fa-file-invoice-dollar text-danger me-1"></i>Egresos Operativos</small>
+                    <h3 class="text-danger">{{ egresos_dia | format_number }}</h3>
                 </div>
             </div>
+
             <div class="col-md-4">
-                <div class="metric-card-sky">
-                    <small class="text-uppercase fw-bold text-muted">Efectivo Real</small>
-                    <h3 class="fw-bold text-navy mb-0">${{ saldo_caja_dia | format_number }}</h3>
-                    <div class="progress mt-2" style="height: 4px;"><div class="progress-bar bg-success" style="width: 100%"></div></div>
+                <div class="metric-card-sky" style="border-bottom: 5px solid var(--sky-dark);">
+                    <small><i class="fas fa-wallet text-sky me-1"></i>Saldo en Caja</small>
+                    <h3 class="text-sky">{{ saldo_caja_dia | format_number }}</h3>
                 </div>
             </div>
         </div>
 
         <div class="row g-4">
+            
             <div class="col-lg-7">
-                <div class="bg-white p-4 rounded-4 shadow-sm h-100 border">
-                    <h5 class="fw-bold text-navy mb-4"><i class="fas fa-chart-area me-2"></i>Tendencia de Flujo</h5>
-                    <div style="height: 300px;"><canvas id="chartSky"></canvas></div>
+                <div class="chart-container h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold text-navy mb-0"><i class="fas fa-chart-line me-2 text-sky"></i>Tendencia Semanal</h5>
+                        <i class="fas fa-sync-alt text-muted small"></i>
+                    </div>
+                    <div style="height:340px">
+                        <canvas id="chartSky"></canvas>
+                    </div>
                 </div>
             </div>
 
             <div class="col-lg-5">
-                <div class="glass-card-report h-100">
-                    <h5 class="fw-bold text-navy mb-1">Solicitar Informe PDF</h5>
-                    <p class="text-muted small mb-4">Seleccione el rango de fechas comercial</p>
-                    
+                <div class="glass-card-report shadow-sm h-100">
+                    <div class="text-center mb-4">
+                        <div class="icon-circle bg-white shadow-sm d-inline-flex align-items-center justify-content-center mb-3" 
+                             style="width:70px; height:70px; border-radius:20px; color: var(--sky-dark);">
+                            <i class="fas fa-envelope-open-text fa-2x"></i>
+                        </div>
+                        <h5 class="fw-bold text-navy">Exportación PDF</h5>
+                        <p class="text-muted small">Genera el reporte y recíbelo en tu correo</p>
+                    </div>
+
                     <form action="{{ url_for('reportes.enviar_reporte_email') }}" method="POST">
-                        <div class="row g-2 mb-3">
+                        <div class="row g-3 mb-4">
                             <div class="col-6">
-                                <label class="small fw-bold text-navy">Desde:</label>
+                                <label class="form-label small fw-bold text-navy">Desde</label>
                                 <input type="date" name="fecha_inicio" class="form-control form-control-sky" value="{{ hoy }}" required>
                             </div>
                             <div class="col-6">
-                                <label class="small fw-bold text-navy">Hasta:</label>
+                                <label class="form-label small fw-bold text-navy">Hasta</label>
                                 <input type="date" name="fecha_fin" class="form-control form-control-sky" value="{{ hoy }}" required>
                             </div>
                         </div>
+
                         <div class="mb-4">
-                            <label class="small fw-bold text-navy">Enviar a:</label>
-                            <input type="email" name="email" class="form-control form-control-sky" placeholder="admin@sanroque.com" required>
+                            <label class="form-label small fw-bold text-navy">Correo Electrónico</label>
+                            <input type="email" name="email" class="form-control form-control-sky" placeholder="ejemplo@correo.com" required>
                         </div>
-                        <button type="submit" class="btn btn-sky w-100 shadow">
-                            <i class="fas fa-envelope-open-text me-2"></i> GENERAR Y ENVIAR
+
+                        <button class="btn btn-sky w-100 py-3 mt-2">
+                            <i class="fas fa-paper-plane me-2"></i>Generar y Enviar
                         </button>
                     </form>
                 </div>
@@ -155,33 +244,67 @@
         </div>
     </div>
 </div>
-
 {% endblock %}
 
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    const ctx = document.getElementById('chartSky').getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
+document.addEventListener("DOMContentLoaded", function(){
+    const ctx = document.getElementById("chartSky").getContext('2d');
+    
+    // Gradiente dinámico
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(2, 132, 199, 0.4)');
+    gradient.addColorStop(1, 'rgba(2, 132, 199, 0.0)');
+
+    new Chart(ctx,{
+        type: "line",
         data: {
-            labels: {{ labels_grafico | tojson }},
-            datasets: [{
-                label: 'Flujo de Ventas',
-                data: {{ datos_ventas | tojson }},
-                borderColor: '#0284c7',
-                backgroundColor: 'rgba(2, 132, 199, 0.1)',
-                fill: true,
-                tension: 0.4,
-                borderWidth: 3
+            labels:{{ labels_grafico|tojson if labels_grafico else'[]'}},
+            datasets:[{
+                label: "Ventas ($)",
+                data: {{ datos_ventas|tojson if datos_ventas else'[]'}},
+                borderColor:"#0284c7",
+                borderWidth:4,
+                pointBackgroundColor:"#ffffff",
+                pointBorderColor:"#0284c7",
+                pointBorderWidth:3,
+                pointRadius:6,
+                backgroundColor:gradient,
+                fill:true,
+                tension:0.4
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } } }
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor:'#1e3a8a',
+                    padding: 15,
+                    titleFont: { size: 14, weight: 'bold' },
+                    bodyFont: { size: 13 },
+                    displayColors: false,
+                    callbacks: {
+                        label: function(context) {
+                            return 'Ventas: $' + context.parsed.y.toLocaleString();
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid:{ color: '#f1f5f9' },
+                    ticks: {
+                        callback: (v) => '$' + v.toLocaleString()
+                    }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
         }
     });
 });

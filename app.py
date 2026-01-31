@@ -4,27 +4,48 @@ from datetime import timedelta
 from flask import Flask, redirect, url_for
 from flask_login import LoginManager
 from flask_cors import CORS
+from dotenv import load_dotenv
 
 from database import db
 from config import Config
 from models import Usuario
 from utils.time_utils import obtener_hora_colombia
 
+# Cargar variables de entorno del archivo .env
+load_dotenv()
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    # 🔐 Clave secreta (Garantiza que las sesiones funcionen)
+    # --------------------------------------------------
+    # 🔐 CONFIGURACIÓN DE SEGURIDAD
+    # --------------------------------------------------
     if not app.config.get('SECRET_KEY'):
-        app.config['SECRET_KEY'] = 'licorera-san-roque-mb-2026'
+        app.config['SECRET_KEY'] = os.getenv(
+            'SECRET_KEY',
+            'licorera-san-roque-mb-2026'
+        )
 
-    # Inicializar extensiones
+    # --------------------------------------------------
+    # 📧 VARIABLES DE CORREO (solo para correo_utils.py)
+    # --------------------------------------------------
+    app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
+    app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 465))
+    app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'false').lower() == 'true'
+    app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+    app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+    app.config['CORREO_INFORMES'] = os.getenv('CORREO_INFORMES')
+
+    # --------------------------------------------------
+    # EXTENSIONES
+    # --------------------------------------------------
     CORS(app)
     db.init_app(app)
 
-    # -------------------------
-    # Login Manager
-    # -------------------------
+    # --------------------------------------------------
+    # LOGIN MANAGER
+    # --------------------------------------------------
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'
     login_manager.login_message = "Por favor inicia sesión para acceder."
@@ -35,43 +56,39 @@ def create_app():
     def load_user(user_id):
         return Usuario.query.get(int(user_id))
 
-    # -------------------------
-    # Filtros personalizados para Jinja2
-    # -------------------------
-    
+    # --------------------------------------------------
+    # FILTROS JINJA
+    # --------------------------------------------------
     @app.template_filter('from_json')
     def from_json_filter(value):
-        """Convierte una cadena JSON de la DB en un diccionario de Python"""
         try:
             if value:
                 return json.loads(value)
             return {}
-        except (ValueError, TypeError):
+        except Exception:
             return {}
 
     @app.template_filter('format_number')
     def format_number(value):
-        """Formato de moneda profesional: $ 1.250"""
         try:
             if value is None or value == "":
                 return "$ 0"
             return f"$ {float(value):,.0f}".replace(",", ".")
-        except (ValueError, TypeError):
+        except Exception:
             return "$ 0"
 
     @app.template_filter('fecha_co')
     def fecha_co(value):
-        """Formatea objetos de fecha al estándar colombiano"""
         if not value:
             return ""
         try:
             return value.strftime('%d/%m/%Y')
-        except AttributeError:
+        except Exception:
             return str(value)
 
-    # -----------------------------------------------------------
-    # Registro de Blueprints
-    # -----------------------------------------------------------
+    # --------------------------------------------------
+    # BLUEPRINTS
+    # --------------------------------------------------
     from routes.auth import auth_bp
     from routes.inventario import inventario_bp
     from routes.ventas import ventas_bp
@@ -90,32 +107,34 @@ def create_app():
     app.register_blueprint(proveedores_gastos_bp)
     app.register_blueprint(creditos_bp)
 
-    # -------------------------
-    # Rutas globales y Context Processors
-    # -------------------------
+    # --------------------------------------------------
+    # RUTA PRINCIPAL
+    # --------------------------------------------------
     @app.route('/')
     def index():
         return redirect(url_for('ventas.dashboard'))
 
+    # --------------------------------------------------
+    # CONTEXT PROCESSOR GLOBAL
+    # --------------------------------------------------
     @app.context_processor
     def inject_utilities():
-        """Inyecta variables y funciones útiles en todas las plantillas"""
         return {
             'ahora_col': obtener_hora_colombia(),
-            'timedelta': timedelta 
+            'timedelta': timedelta
         }
 
     return app
 
-# --- ESTA ES LA PARTE CLAVE PARA RENDER ---
-# Creamos la instancia de la aplicación fuera del bloque principal
+
+# --------------------------------------------------
+# INSTANCIA DE APLICACIÓN
+# --------------------------------------------------
 app = create_app()
 
 if __name__ == '__main__':
     with app.app_context():
-        # Crea las tablas si no existen
         db.create_all()
-        print("✅ Base de datos de San Roque M.B. verificada correctamente.")
+        print("✅ Sistema San Roque M.B. iniciado correctamente")
 
-    # Ejecución local (en Render se usa Gunicorn y esto se ignora)
     app.run(debug=True, port=5000)

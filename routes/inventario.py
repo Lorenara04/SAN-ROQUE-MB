@@ -16,21 +16,21 @@ inventario_bp = Blueprint('inventario', __name__)
 @inventario_bp.route('/generar_codigo/<codigo>')
 @login_required
 def generar_codigo(codigo):
-    """Genera una imagen PNG del código de barras en memoria."""
+    """Genera una imagen PNG manteniendo ceros a la izquierda."""
     try:
-        # Usamos Code128 porque permite letras y números (alfanumérico)
+        # Forzamos el código a string para no perder ceros
+        codigo_texto = str(codigo).strip()
         CODIGO_B = barcode.get_barcode_class('code128')
         
-        # Configuración estética del código de barras
         writer_options = {
-            'module_height': 18.0,  # Altura de las barras
-            'font_size': 10,        # Tamaño del texto inferior
-            'text_distance': 4.0,   # Espacio entre barras y texto
-            'quiet_zone': 2.0       # Margen lateral
+            'module_height': 18.0,
+            'font_size': 10,
+            'text_distance': 4.0,
+            'quiet_zone': 2.0
         }
         
         buffer = io.BytesIO()
-        instancia = CODIGO_B(codigo, writer=ImageWriter())
+        instancia = CODIGO_B(codigo_texto, writer=ImageWriter())
         instancia.write(buffer, options=writer_options)
         buffer.seek(0)
         
@@ -81,22 +81,20 @@ def crear_producto():
         return redirect(url_for('inventario.inventario'))
 
     try:
-        codigo = request.form.get('codigo')
-        codigo = codigo.strip() if codigo else None
+        # Tratamos el código siempre como String
+        codigo = request.form.get('codigo', '').strip() or None
 
-        # 🔒 Evitar duplicados
         if codigo:
             existe = Producto.query.filter_by(codigo=codigo).first()
             if existe:
                 flash('❌ Ya existe un producto con ese código.', 'danger')
                 return redirect(url_for('inventario.inventario'))
 
-        # Captura de valores numéricos
         cantidad_inicial = int(request.form.get('cantidad', 0))
         valor_interno = float(request.form.get('valor_interno', 0))
         valor_venta_input = request.form.get('valor_venta', '').strip()
 
-        # ✅ LÓGICA AUTOMÁTICA DE GANANCIA 35%
+        # Lógica automática de ganancia 35%
         if not valor_venta_input or float(valor_venta_input) == 0:
             valor_venta = round(valor_interno * 1.35)
         else:
@@ -116,16 +114,16 @@ def crear_producto():
         db.session.add(producto)
         db.session.flush()
 
-        # Generar código automático si no se ingresó (usa el ID para que sea único)
+        # Si no se puso código, generamos uno con ceros basado en el ID
         if not producto.codigo:
             producto.codigo = str(producto.id).zfill(8)
 
         db.session.commit()
-        flash(f'✅ Producto "{producto.nombre}" creado con {cantidad_inicial} unidades.', 'success')
+        flash(f'✅ Producto "{producto.nombre}" creado exitosamente.', 'success')
 
     except IntegrityError:
         db.session.rollback()
-        flash('❌ El código ya existe (restricción BD).', 'danger')
+        flash('❌ Error de integridad: El código ya existe.', 'danger')
     except Exception as e:
         db.session.rollback()
         flash(f'❌ Error al crear producto: {e}', 'danger')
@@ -149,13 +147,13 @@ def agregar_producto():
     producto = Producto.query.filter(Producto.codigo == codigo).first()
 
     if not producto:
-        flash('❌ Producto no encontrado. Usa "Nuevo Producto".', 'danger')
+        flash('❌ Producto no encontrado.', 'danger')
         return redirect(url_for('inventario.inventario'))
 
     producto.cantidad += cantidad
     db.session.commit()
 
-    flash(f'✅ Se agregaron {cantidad} unidades a {producto.nombre}.', 'success')
+    flash(f'✅ Stock actualizado: {producto.nombre} (+{cantidad}).', 'success')
     return redirect(url_for('inventario.inventario'))
 
 
@@ -172,8 +170,7 @@ def editar_producto(producto_id):
     producto = Producto.query.get_or_404(producto_id)
 
     try:
-        nuevo_codigo = request.form.get('codigo')
-        nuevo_codigo = nuevo_codigo.strip() if nuevo_codigo else None
+        nuevo_codigo = request.form.get('codigo', '').strip() or None
 
         if nuevo_codigo and nuevo_codigo != producto.codigo:
             existe = Producto.query.filter_by(codigo=nuevo_codigo).first()
@@ -181,7 +178,6 @@ def editar_producto(producto_id):
                 flash('❌ Ya existe otro producto con ese código.', 'danger')
                 return redirect(url_for('inventario.inventario'))
 
-        # Actualización de campos
         producto.nombre = request.form.get('nombre')
         producto.marca = request.form.get('marca')
         producto.codigo = nuevo_codigo
@@ -190,7 +186,6 @@ def editar_producto(producto_id):
         v_interno = float(request.form.get('valor_interno', 0))
         v_venta_input = request.form.get('valor_venta', '').strip()
 
-        # ✅ LÓGICA AUTOMÁTICA DE GANANCIA 35%
         if not v_venta_input or float(v_venta_input) == 0:
             v_venta = round(v_interno * 1.35)
         else:

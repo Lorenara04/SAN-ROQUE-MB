@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comprobante Venta #{{ venta.id }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
@@ -14,7 +15,6 @@
             --azul-medio: #90caf9;     
             --azul-acento: #42a5f5;    
             --whatsapp: #25d366;
-            --gmail: #ea4335;
             --blanco: #ffffff;
             --negro: #212121;
         }
@@ -28,205 +28,132 @@
         }
 
         .main-wrapper {
-            max-width: 450px;
-            margin: 40px auto;
-            padding: 40px;
+            max-width: 400px;
+            margin: 20px auto;
+            padding: 20px;
             background: var(--blanco);
-            border-radius: 8px;
-            border-top: 10px solid var(--azul-principal);
+            border-radius: 12px;
+            border-top: 8px solid var(--azul-principal);
             box-shadow: 0 10px 30px rgba(26, 58, 90, 0.1);
             position: relative;
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
+        .header { text-align: center; margin-bottom: 10px; }
         .header h3 {
             font-family: 'Playfair Display', serif;
-            font-size: 2.2em;
+            font-size: 1.4em;
             margin: 0;
             color: var(--azul-principal);
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
-        .header .store-info {
-            font-size: 13px;
-            color: #5a6b7d;
-            line-height: 1.5;
-            margin-top: 5px;
-        }
+        .header .store-info { font-size: 10.5px; color: #5a6b7d; line-height: 1.2; }
 
         .divider {
-            display: flex;
-            align-items: center;
-            text-align: center;
-            margin: 20px 0;
-            color: var(--azul-medio);
+            display: flex; align-items: center; text-align: center;
+            margin: 5px 0; color: var(--azul-medio);
         }
-        .divider::before, .divider::after {
-            content: '';
-            flex: 1;
-            border-bottom: 1px solid var(--azul-medio);
-        }
-        .divider i { padding: 0 10px; }
+        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--azul-medio); }
+        .divider i { padding: 0 8px; font-size: 10px; }
 
         .info-details {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            font-size: 13px;
-            background: var(--azul-pastel);
-            padding: 15px;
-            border-radius: 4px;
-            border: 1px solid var(--azul-medio);
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 2px; font-size: 9.5px; background: var(--azul-pastel);
+            padding: 8px; border-radius: 6px; border: 1px solid var(--azul-medio);
         }
         .info-details div b { color: var(--azul-principal); }
 
         .client-box {
-            grid-column: span 2;
-            border-top: 1px solid var(--azul-medio);
-            padding-top: 8px;
-            margin-top: 5px;
-            text-align: center;
-            font-weight: 600;
+            grid-column: span 2; border-top: 1px solid var(--azul-medio);
+            padding-top: 4px; margin-top: 2px; line-height: 1.2;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-
+        table { width: 100%; border-collapse: collapse; margin: 8px 0; }
         thead th {
-            text-align: left;
-            font-size: 11px;
-            text-transform: uppercase;
-            color: var(--azul-principal);
-            border-bottom: 2px solid var(--azul-medio);
-            padding: 10px 5px;
+            text-align: left; font-size: 8.5px; text-transform: uppercase;
+            color: var(--azul-principal); border-bottom: 2px solid var(--azul-medio); padding: 4px 2px;
         }
 
-        tbody td {
-            padding: 12px 5px;
-            font-size: 13px;
-            border-bottom: 1px solid #f0f4f8;
-        }
+        tbody td { padding: 4px 2px; font-size: 10px; border-bottom: 1px solid #f0f4f8; }
 
-        .prod-name { font-weight: 600; display: block; color: var(--azul-principal); }
+        .prod-name { font-weight: 600; display: block; color: var(--azul-principal); text-transform: uppercase; font-size: 10px; }
+        .prod-brand { font-size: 8.5px; color: #78909c; font-style: italic; }
 
-        .summary-box {
-            text-align: right;
-            margin-top: 10px;
-        }
-        .total-label { font-size: 11px; font-weight: 700; color: #5a6b7d; }
-        .total-amount {
-            font-size: 32px;
-            font-weight: 800;
-            color: var(--azul-principal);
-            display: block;
-        }
+        .summary-box { text-align: right; padding: 5px 0; }
+        .total-label { font-size: 9px; font-weight: 700; color: #5a6b7d; }
+        .total-amount { font-size: 22px; font-weight: 800; color: var(--azul-principal); display: block; }
 
         .payment-card {
-            background: #fafafa;
-            padding: 15px;
-            border-left: 4px solid var(--azul-acento);
-            border-radius: 4px;
-            margin-top: 20px;
+            background: #fafafa; padding: 6px; border-left: 3px solid var(--azul-acento);
+            border-radius: 4px; margin-top: 4px;
         }
-        .payment-card .title {
-            font-size: 11px;
-            font-weight: 800;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-            display: block;
-            color: var(--azul-principal);
-        }
+        .payment-card .title { font-size: 8.5px; font-weight: 800; text-transform: uppercase; color: var(--azul-principal); }
 
-        .footer {
-            text-align: center;
-            margin-top: 30px;
-            font-size: 12px;
-        }
-        .slogan {
-            font-family: 'Playfair Display', serif;
-            font-style: italic;
-            font-size: 15px;
-            color: var(--azul-principal);
-            margin: 10px 0;
-        }
+        .footer { text-align: center; margin-top: 10px; font-size: 8.5px; }
+        .slogan { font-family: 'Playfair Display', serif; font-style: italic; font-size: 11px; color: var(--azul-principal); }
 
-        /* ----- BOTONES DIGITALES ----- */
-        .no-print {
-            margin-top: 30px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
+        .no-print { margin-top: 15px; display: grid; gap: 6px; }
         .btn {
-            padding: 12px 10px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 12px;
-            transition: 0.3s;
-            cursor: pointer;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            color: white;
+            padding: 8px; border-radius: 50px; text-decoration: none;
+            font-weight: bold; font-size: 11px; cursor: pointer; border: none;
+            display: flex; align-items: center; justify-content: center; gap: 5px; color: white;
         }
+        .btn-blue { background: var(--azul-principal); }
         .btn-ws { background: var(--whatsapp); }
-        .btn-mail { background: var(--gmail); }
-        .btn-blue { background: var(--azul-principal); grid-column: span 2; }
-        .btn-outline { border: 1px solid var(--azul-principal); color: var(--azul-principal); background: transparent; grid-column: span 2; }
-        
-        .btn:hover { opacity: 0.8; transform: translateY(-1px); color: white; }
-        .btn-outline:hover { background: var(--azul-pastel); color: var(--azul-principal); }
+        .btn-outline { border: 1px solid var(--azul-principal); color: var(--azul-principal); background: transparent; }
 
-        /* Ocultar botones en impresión y PDF */
+        /* --- AJUSTE CRÍTICO: FORZAR UNA SOLA HOJA --- */
         @media print {
-            body { background: white; padding: 0; }
-            .main-wrapper { margin: 0; box-shadow: none; border: 1px solid #eee; width: 100%; max-width: 100%; }
+            @page { 
+                size: auto; 
+                margin: 0 !important; 
+            }
+            html, body { 
+                height: 100vh; 
+                overflow: hidden !important; /* Bloquea la segunda página */
+                background: white;
+            }
+            body * { visibility: hidden; }
+            .main-wrapper, .main-wrapper * { visibility: visible; }
+            .main-wrapper { 
+                position: absolute; 
+                left: 50%; 
+                top: 50%;
+                transform: translate(-50%, -50%); /* Centrado absoluto */
+                margin: 0 !important; 
+                box-shadow: none; 
+                border: 1px solid #eee;
+                width: 350px !important; 
+                padding: 15px !important;
+            }
             .no-print { display: none !important; }
         }
-        
-        /* Regla para wkhtmltopdf */
-        .pdf-mode .no-print { display: none !important; }
     </style>
 </head>
-<body class="{% if es_pdf %}pdf-mode{% endif %}">
+<body>
 
 <div class="main-wrapper">
     <div class="header">
-        <h3>BAR LICORERA SAN ROQUE M.B  </h3>
+        <h3>BAR LICORERA SAN ROQUE M.B</h3>
         <div class="store-info">
             <i class="bi bi-geo-alt"></i> Avenida Calle 145 128 40 Local 18<br>
-            <i class="bi bi-telephone"></i> 3227089110  | NIT: 1.019.133.801-4 
+            <i class="bi bi-telephone"></i> 3227089110 | NIT: 1.019.133.801-4 
         </div>
     </div>
 
-    <div class="divider"><i class="bi bi-water"></i></div>
+    <div class="divider"><i class="bi bi-stars"></i></div>
 
     <div class="info-details">
         <div><b>Recibo:</b> #{{ venta.id }}</div>
-        <div style="text-align: right;"><b>Registro:</b></div>
-        <div colspan="2" style="grid-column: span 2; text-align: center; font-weight: bold; color: #d32f2f;">
-            {{ fecha_local }}
-        </div>
-        
-        <div style="grid-column: span 2; border-top: 1px solid var(--azul-medio); padding-top: 5px; margin-top: 5px;">
+        <div style="text-align: right;"><b>Fecha:</b> {{ venta.fecha.strftime('%d/%m/%Y %H:%M') }}</div>
+        <div style="grid-column: span 2; border-top: 1px solid var(--azul-medio); padding-top: 3px;">
             <b>Atendió:</b> {{ venta.usuario.username if venta.usuario else 'Sistema' }}
         </div>
-
         <div class="client-box">
-            <i class="bi bi-person-check"></i> Cliente: 
-            {% if venta.cliente_id and venta.cliente_id != 1 %}
-                {{ venta.cliente.nombre if venta.cliente else 'Cliente Registrado' }}
+            <i class="bi bi-person-heart"></i> <b>CLIENTE</b><br>
+            {% if cliente and cliente.id != 1 %}
+                {{ cliente.nombre }} | CC: {{ cliente.cedula or 'N/A' }}<br>
+                Tel: {{ cliente.telefono or 'N/A' }}
             {% else %}
                 Consumidor Final
             {% endif %}
@@ -242,56 +169,42 @@
             </tr>
         </thead>
         <tbody>
-            {% for detalle in detalles %}
+            {% for d in detalles %}
             <tr>
                 <td>
-                    <span class="prod-name">{{ detalle.producto.nombre }}</span>
+                    <span class="prod-name">{{ d.producto.nombre }}</span>
+                    {% if d.producto.marca %}<span class="prod-brand">{{ d.producto.marca }}</span>{% endif %}
                 </td>
-                <td style="text-align: center;">{{ detalle.cantidad }}</td>
-                <td style="text-align: right;">${{ "{:,.0f}".format(detalle.subtotal) }}</td>
+                <td style="text-align: center;">{{ d.cantidad }}</td>
+                <td style="text-align: right;">${{ "{:,.0f}".format(d.subtotal) }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 
     <div class="summary-box">
-        <span class="total-label">TOTAL NETO</span>
+        <span class="total-label">TOTAL A PAGAR</span>
         <span class="total-amount">${{ "{:,.0f}".format(venta.total) }}</span>
     </div>
 
     <div class="payment-card">
-        <span class="title">Estado de Pago</span>
-        <p style="font-size: 11px; margin: 0; color: #546e7a;">
-            Venta procesada exitosamente. Verifique sus productos antes de retirarse.
-        </p>
+        <span class="title">✨ Estado</span>
+        <p style="font-size: 8.5px; margin: 0; color: #546e7a;">Venta procesada. Verifique su mercancía antes de salir.</p>
     </div>
 
     <div class="footer">
-        <div class="divider"><i class="bi bi-shield-check"></i></div>
+        <div class="divider"><i class="bi bi-suit-heart-fill"></i></div>
         <div class="slogan">Calidad garantizada en cada gota</div>
-        <p style="margin-top: 10px;"><b>¡Gracias por preferirnos!</b></p>
-        <p style="font-size: 10px; color: #90a4ae; margin-top: 20px;">
-            Software POS diseñado por Lorena Rodriguez<br>
-            Soporte: 322 282 3687
+        <p style="margin-top: 4px; font-weight: bold; color: var(--azul-principal);">¡Vuelva pronto!</p>
+        <p style="font-size: 7.5px; color: #90a4ae; margin-top: 5px;">
+            Software por Lorena Rodriguez | Soporte: 322 282 3687
         </p>
     </div>
 
     <div class="no-print">
-        <a href="https://wa.me/{{ telefono_cliente }}?text={{ mensaje_url }}" target="_blank" class="btn btn-ws">
-            <i class="fab fa-whatsapp"></i> WhatsApp
-        </a>
-        
-        <a href="mailto:{{ cliente_email }}?subject=Recibo de Venta #{{ venta.id }} - Licorera San Roque M.B&body=Hola! Adjuntamos el enlace para descargar tu recibo de compra por valor de ${{ "{:,.0f}".format(venta.total) }}: {{ pdf_link }}" class="btn btn-mail">
-            <i class="far fa-envelope"></i> Correo
-        </a>
-
-        <button onclick="window.print()" class="btn btn-blue">
-            <i class="bi bi-printer"></i> Imprimir Recibo
-        </button>
-
-        <a href="{{ url_for('ventas.nueva_venta') }}" class="btn btn-outline">
-            <i class="bi bi-cart-plus"></i> Nueva Venta
-        </a>
+        <button onclick="window.print()" class="btn btn-blue"><i class="bi bi-printer"></i> Imprimir</button>
+        <a href="https://wa.me/{{ cliente.telefono if cliente and cliente.telefono else '' }}?text=Comprobante #{{ venta.id }} - San Roque M.B" target="_blank" class="btn btn-ws"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+        <a href="{{ url_for('ventas.nueva_venta') }}" class="btn btn-outline">Nueva Venta</a>
     </div>
 </div>
 

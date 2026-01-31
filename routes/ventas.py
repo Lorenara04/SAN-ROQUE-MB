@@ -38,7 +38,7 @@ def dashboard():
         v_venta = db.session.query(func.sum(Producto.cantidad * Producto.valor_venta)).scalar() or 0
         
         total_facturas = db.session.query(func.sum(Factura.total)).scalar() or 0
-        total_abonos_facturas = db.session.query(func.sum(Abono.monto)).filter(Abono.gasto_id.isnot(None)).scalar() or 0
+        total_abonos_facturas = db.session.query(func.sum(Abono.monto)).filter(Abono.factura_id.isnot(None)).scalar() or 0
         saldos_proveedores = total_facturas - total_abonos_facturas
 
         total_gastos = db.session.query(func.sum(Gasto.total)).scalar() or 0
@@ -169,10 +169,20 @@ def eliminar_venta(venta_id):
 @ventas_bp.route('/ventas/comprobante/<int:venta_id>')
 @login_required
 def encomprobante_final(venta_id):
+    # 1. Obtener la venta
     venta = Venta.query.get_or_404(venta_id)
+    
+    # 2. Obtener detalles incluyendo el objeto producto para marca/descripción
     detalles = VentaDetalle.query.filter_by(venta_id=venta_id).all()
-    cliente = Cliente.query.get(venta.cliente_id)
-    return render_template('comprobante.html', venta=venta, detalles=detalles, cliente=cliente)
+    
+    # 3. Obtener los datos del cliente de forma independiente
+    cliente_obj = Cliente.query.get(venta.cliente_id)
+    
+    # 4. Aseguramos que la fecha sea local antes de enviar
+    return render_template('comprobante.html', 
+                           venta=venta, 
+                           detalles=detalles, 
+                           cliente=cliente_obj)
 
 # ======================================================
 # API PARA EDICIÓN Y GESTIÓN DE CRÉDITOS
@@ -183,10 +193,10 @@ def obtener_venta_api(venta_id):
     try:
         venta = Venta.query.get_or_404(venta_id)
         items = [{
-            'producto_id': d.producto_id,
-            'producto_nombre': d.producto.nombre if d.producto else "Eliminado",
+            'id': d.producto_id,
+            'nombre': d.producto.nombre if d.producto else "Eliminado",
             'cantidad': d.cantidad,
-            'precio_unitario': d.precio_unitario,
+            'precio': d.precio_unitario,
             'subtotal': d.subtotal
         } for d in venta.detalles]
         
@@ -209,24 +219,15 @@ def editar_info_venta(venta_id):
         data = request.json
         venta = Venta.query.get_or_404(venta_id)
         
-        # Guardar nombre del cliente anterior para limpieza de créditos si aplica
-        nombre_cliente_ant = venta.comprador.nombre if venta.comprador else None
-        
-        # Actualizar Venta
         venta.usuario_id = data.get('vendedor_id')
         venta.cliente_id = data.get('cliente_id')
         cliente_nuevo = Cliente.query.get(venta.cliente_id)
         
         pagos = data.get('pagos')
-        tipo_cuenta = data.get('tipo_cuenta', 'contado') # 'contado', 'corto', 'largo'
+        tipo_cuenta = data.get('tipo_cuenta', 'contado') 
         
-        # Si era crédito antes, podrías querer manejar la limpieza aquí según tu lógica de negocio
-        # Por simplicidad, si es crédito nuevo o actualizado:
-        if tipo_cuenta in ['corto', 'largo']:
-            # Crear o Actualizar en la tabla Credito
-            # Buscamos si ya existe un crédito vinculado a esta venta (usando el campo producto como referencia)
+        if tipo_cuenta in ['corto', 'largo'] and cliente_nuevo:
             cred = Credito.query.filter(Credito.producto.like(f"Venta #{venta.id}%")).first()
-            
             if not cred:
                 cred = Credito(
                     cliente=cliente_nuevo.nombre,
@@ -256,7 +257,7 @@ def editar_items_venta(venta_id):
         data = request.json
         venta = Venta.query.get_or_404(venta_id)
         
-        # Devolver stock
+        # Devolver stock anterior
         for d in venta.detalles:
             prod = Producto.query.get(d.producto_id)
             if prod: prod.cantidad += d.cantidad
@@ -266,9 +267,13 @@ def editar_items_venta(venta_id):
         nuevo_total = 0
         for item in data.get('items'):
             prod = Producto.query.get(item['id'])
+            if not prod: continue
+            
             nuevo_d = VentaDetalle(
-                venta_id=venta.id, producto_id=prod.id,
-                cantidad=int(item['cantidad']), precio_unitario=float(item['precio']),
+                venta_id=venta.id, 
+                producto_id=prod.id,
+                cantidad=int(item['cantidad']), 
+                precio_unitario=float(item['precio']),
                 subtotal=float(item['subtotal'])
             )
             prod.cantidad -= int(item['cantidad'])
@@ -277,7 +282,6 @@ def editar_items_venta(venta_id):
             
         venta.total = nuevo_total
         
-        # Si la venta está vinculada a un crédito, actualizar el total del crédito también
         cred = Credito.query.filter(Credito.producto.like(f"Venta #{venta.id}%")).first()
         if cred:
             cred.total_consumido = nuevo_total
