@@ -5,94 +5,150 @@
     /* Estética Unificada y Profesional para San Roque M.B. */
     :root {
         --btn-size: 38px;
-        --san-roque-dark: #1a365d;
+        --san-roque-dark: #1e293b;
         --san-roque-emerald: #10b981;
-        --san-roque-sapphire: #2563eb;
-        --san-roque-ruby: #dc2626;
+        --san-roque-sapphire: #3b82f6;
+        --san-roque-ruby: #ef4444;
+        --bg-main: #f8fafc;
     }
 
+    body {
+        background-color: var(--bg-main);
+    }
+
+    /* Botones de Acción Ultra-Profesionales con Tooltips */
     .btn-action-pro {
-        width: var(--btn-size);
+        width: auto(--btn-size);
         height: var(--btn-size);
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        border-radius: 10px;
-        transition: all 0.3s ease;
+        border-radius: 8px; 
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         border: none;
-        padding: 0;
+        padding: 0 15px;
         font-size: 1.1rem;
-        background: white;
+        background: #ffffff;
         cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        position: relative;
+        text-decoration: none !important;
     }
 
     .btn-action-pro:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.1);
     }
 
-    /* Títulos en Negro */
-    .text-negro-pro {
-        color: #000000 !important;
-        font-weight: 800;
+    /* Tooltip personalizado */
+    .btn-action-pro::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 125%;
+        left: 50%;
+        transform: translateX(-50%) translateY(10px);
+        background: var(--san-roque-dark);
+        color: white;
+        padding: 5px 10px;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        z-index: 100;
     }
 
-    .btn-abonar-prof { border: 2px solid var(--san-roque-emerald); color: var(--san-roque-emerald); }
+    .btn-action-pro:hover::after {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(-50%) translateY(0);
+    }
+
+    /* Variantes de botones con colores vibrantes */
+    .btn-abonar-prof { border: 1px solid #d1fae5; color: var(--san-roque-emerald); }
     .btn-abonar-prof:hover { background: var(--san-roque-emerald); color: white; }
 
-    .btn-edit-prof { border: 2px solid var(--san-roque-sapphire); color: var(--san-roque-sapphire); }
+    .btn-edit-prof { border: 1px solid #dbeafe; color: var(--san-roque-sapphire); }
     .btn-edit-prof:hover { background: var(--san-roque-sapphire); color: white; }
 
-    .btn-delete-prof { border: 2px solid var(--san-roque-ruby); color: var(--san-roque-ruby); }
+    .btn-delete-prof { border: 1px solid #fee2e2; color: var(--san-roque-ruby); }
     .btn-delete-prof:hover { background: var(--san-roque-ruby); color: white; }
 
+    /* Cards y Tabla */
     .card-luxury {
-        border-radius: 20px;
-        border: none;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-        background: rgba(255, 255, 255, 0.98);
+        border-radius: 16px;
+        border: 1px solid rgba(0,0,0,0.05);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        background: #ffffff;
     }
 
-    .table-historial {
-        font-size: 0.85rem;
-        background: white;
-        border-radius: 10px;
-        overflow: hidden;
+    .text-negro-pro {
+        color: #0f172a !important;
+        font-weight: 700;
+    }
+
+    .table thead th {
+        background: #f1f5f9;
+        color: #64748b;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        border: none;
+        padding: 15px;
+    }
+
+    .table tbody td {
+        padding: 18px 15px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    /* Badge de Estado */
+    .badge-status {
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.75rem;
+    }
+
+    .bg-pagado { background: #dcfce7; color: #15803d; }
+    .text-saldo-pendiente { color: var(--san-roque-ruby); font-weight: 700; }
+
+    .shadow-inner-soft {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
     }
 </style>
 
-<div class="container-fluid mt-4 px-4" style="background-color: #f1f5f9; min-height: 100vh; font-family: 'Poppins', sans-serif; position: relative;">
+<div class="container-fluid mt-4 px-4" style="position: relative; z-index: 1;">
     
-    <div class="fondo-particulas"></div>
-
-    <div class="row mb-4" style="position: relative; z-index: 1;">
+    <div class="row mb-4">
         <div class="col-12">
-            <div class="p-4 shadow-sm card-luxury d-flex justify-content-between align-items-center" 
-                 style="border-left: 8px solid var(--san-roque-dark);">
+            <div class="p-4 card-luxury d-flex justify-content-between align-items-center">
                 <div>
-                    <h2 class="text-negro-pro" style="margin: 0;">📉 Gestión de Gastos y Egresos</h2>
-                    <p class="text-muted mb-0 fw-medium">Control financiero y seguimiento de egresos — San Roque M.B.</p>
+                    <h2 class="text-negro-pro mb-1">📉 Gestión de Gastos y Egresos</h2>
+                    <p class="text-muted mb-0">Control financiero y seguimiento — <strong>San Roque M.B.</strong></p>
                 </div>
                 <div class="d-flex gap-2">
-                    <a href="{{ url_for('ventas.dashboard') }}" class="btn btn-outline-secondary fw-bold rounded-pill px-4">Dashboard</a>
-                    <a href="{{ url_for('proveedores_gastos.exportar_proveedores') }}" class="btn btn-success fw-bold rounded-pill px-4 shadow-sm">Exportar</a>
+                    <a href="{{ url_for('ventas.dashboard') }}" class="btn btn-light fw-bold border px-4 rounded-3">Dashboard</a>
+                    <a href="{{ url_for('proveedores_gastos.exportar_proveedores') }}" class="btn btn-dark fw-bold px-4 rounded-3 shadow-sm">Exportar Reporte</a>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row" style="position: relative; z-index: 1;">
-
+    <div class="row">
         <div class="col-lg-4 mb-4">
-            <div class="card shadow-sm card-luxury p-4">
-                <h4 class="mb-4 fw-bold text-negro-pro" style="border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
-                    📝 Registro de Gasto
-                </h4>
+            <div class="card card-luxury p-4 h-100">
+                <h5 class="mb-4 text-negro-pro d-flex align-items-center">
+                    <span class="me-2 text-primary">●</span> Nuevo Gasto Operativo
+                </h5>
 
                 <form method="POST" action="{{ url_for('proveedores_gastos.gastos') }}">
                     <div class="mb-3">
-                        <label class="form-label fw-bold small text-uppercase text-muted">Categoría</label>
-                        <select name="categoria" class="form-select border-0 bg-light" required style="border-radius: 10px; padding: 10px;">
+                        <label class="form-label small fw-bold text-muted">CATEGORÍA</label>
+                        <select name="categoria" class="form-select border-0 bg-light p-3 rounded-3" required>
                             <option value="">Seleccionar...</option>
                             <option>Arriendo</option>
                             <option>Servicios Públicos</option>
@@ -104,128 +160,147 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-bold small text-uppercase text-muted">Concepto Detallado</label>
-                        <input type="text" name="concepto" class="form-control border-0 bg-light" placeholder="Ej: Pago de Luz Enero" required style="border-radius: 10px; padding: 10px;">
+                        <label class="form-label small fw-bold text-muted">CONCEPTO DETALLADO</label>
+                        <input type="text" name="concepto" class="form-control border-0 bg-light p-3 rounded-3" placeholder="Ej: Pago de Luz Enero" required>
                     </div>
 
-                    <div class="row mb-3">
+                    <div class="row mb-4">
                         <div class="col-md-6">
-                            <label class="form-label fw-bold small text-uppercase text-muted">Valor Total ($)</label>
-                            <input type="number" step="0.01" name="total" class="form-control border-0 bg-light" placeholder="0.00" required style="border-radius: 10px; padding: 10px;">
+                            <label class="form-label small fw-bold text-muted">VALOR TOTAL ($)</label>
+                            <input type="number" step="0.01" name="total" class="form-control border-0 bg-light p-3 rounded-3" placeholder="0.00" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-bold small text-uppercase text-muted">Fecha Gasto</label>
-                            <input type="date" name="fecha" class="form-control border-0 bg-light" style="border-radius: 10px; padding: 10px;" value="{{ ahora_col.strftime('%Y-%m-%d') }}">
+                            <label class="form-label small fw-bold text-muted">FECHA</label>
+                            <input type="date" name="fecha" class="form-control border-0 bg-light p-3 rounded-3" value="{{ hoy }}">
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary w-100 fw-bold py-3 rounded-pill shadow">
-                        <i class="fas fa-check-circle me-2"></i>REGISTRAR EGRESO
+                    <button type="submit" class="btn btn-primary w-100 fw-bold py-3 rounded-3 shadow-sm">
+                        <i class="bi bi-save me-2"></i>REGISTRAR EGRESO
                     </button>
                 </form>
             </div>
         </div>
 
         <div class="col-lg-8">
-            <div class="card shadow-sm card-luxury overflow-hidden border-0">
-                <div class="p-3 bg-white border-bottom d-flex justify-content-between align-items-center">
-                    <h4 class="m-0 text-negro-pro">📋 Historial Contable</h4>
+            <div class="card card-luxury overflow-hidden">
+                <div class="p-4 bg-white border-bottom">
+                    <h5 class="m-0 text-negro-pro">📋 Historial de Movimientos</h5>
                 </div>
 
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
-                        <thead class="text-white" style="background: var(--san-roque-dark);">
+                        <thead>
                             <tr>
-                                <th class="ps-4 py-3">FECHA</th>
-                                <th class="py-3">CATEGORÍA / CONCEPTO</th>
-                                <th class="py-3 text-white">MONTO TOTAL</th>
-                                <th class="py-3 text-negro-pro bg-light">ABONADO</th>
-                                <th class="py-3 text-negro-pro bg-light">SALDO</th>
-                                <th class="text-center py-3">GESTIÓN</th>
+                                <th class="ps-4">Fecha</th>
+                                <th>Concepto / Categoría</th>
+                                <th>Monto</th>
+                                <th>Abonado</th>
+                                <th>Saldo Actual</th>
+                                <th class="text-center">Acciones</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white">
+                        <tbody>
                             {% for g in gastos %}
                             <tr>
-                                <td class="ps-4 small text-muted">{{ g.fecha.strftime('%d/%m/%Y') if g.fecha else '—' }}</td>
+                                <td class="ps-4 text-muted small">{{ g.fecha.strftime('%d/%m/%Y') if g.fecha else '—' }}</td>
                                 <td>
-                                    <span class="fw-bold d-block">{{ g.categoria }}</span>
+                                    <span class="fw-bold d-block text-dark">{{ g.categoria }}</span>
                                     <small class="text-muted">{{ g.concepto }}</small>
                                 </td>
-                                <td class="fw-bold text-dark">{{ g.total | format_number }}</td>
-                                <td class="text-dark fw-bold">{{ g.abonado | format_number }}</td>
-                                <td class="text-dark fw-bold">{{ g.saldo | format_number }}</td>
+                                <td class="fw-bold text-dark">${{ "{:,.0f}".format(g.total) }}</td>
+                                <td class="text-success fw-bold">${{ "{:,.0f}".format(g.abonado) }}</td>
+                                <td>
+                                    {% if g.saldo <= 0 %}
+                                        <span class="badge-status bg-pagado">PAGADO</span>
+                                    {% else %}
+                                        <span class="text-saldo-pendiente">${{ "{:,.0f}".format(g.saldo) }}</span>
+                                    {% endif %}
+                                </td>
                                 <td class="text-center">
                                     <div class="d-flex justify-content-center gap-2">
-                                        <button class="btn-action-pro btn-abonar-prof shadow-sm" 
-                                                data-bs-toggle="collapse" data-bs-target="#abonoG{{ g.id }}" title="Ver Historial / Abonar">
-                                            💰
+                                        <button class="btn-action-pro btn-abonar-prof" 
+                                                data-bs-toggle="collapse" data-bs-target="#abonoG{{ g.id }}" 
+                                                data-tooltip="Abonar / Historial">
+                                            <i <button class="btn-action-prof btn-abonar-prof" data-bs-toggle="collapse" data-bs-target="#abonoG{{ g.id }}">ABONAR</button> </i>
                                         </button>
                                         
-                                        <button class="btn-action-pro btn-edit-prof shadow-sm" 
-                                                data-bs-toggle="modal" data-bs-target="#editGasto{{ g.id }}" title="Editar">
-                                            ✏️
+                                        <button class="btn-action-pro btn-edit-prof" 
+                                                data-bs-toggle="modal" data-bs-target="#editGasto{{ g.id }}" 
+                                                data-tooltip="Editar Registro">
+                                            editar
                                         </button>
 
-                                        <form method="POST" action="{{ url_for('proveedores_gastos.eliminar_gasto', gasto_id=g.id) }}" style="display:inline;">
-                                            <button type="submit" class="btn-action-pro btn-delete-prof shadow-sm" 
-                                                    onclick="return confirm('¿Eliminar este egreso y sus abonos permanentemente?')">
-                                                🗑️
-                                            </button>
-                                        </form>
+                                        <a href="{{ url_for('proveedores_gastos.eliminar_gasto', gasto_id=g.id) }}" 
+                                           class="btn-action-pro btn-delete-prof" 
+                                           data-tooltip="Eliminar"
+                                           onclick="return confirm('¿Eliminar gasto y su historial?')">
+                                            eliminar
+                                        </a>
                                     </div>
                                 </td>
                             </tr>
 
                             <tr class="collapse" id="abonoG{{ g.id }}">
                                 <td colspan="6" class="p-0 border-0">
-                                    <div class="p-4 mx-4 mb-3 rounded-4 shadow-inner" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                                    <div class="p-4 mx-4 my-2 shadow-inner-soft">
                                         <div class="row">
-                                            <div class="col-md-5 border-end">
-                                                <h6 class="fw-bold mb-3 text-negro-pro">💵 Registrar Nuevo Abono</h6>
+                                            <div class="col-md-5 border-end pe-4">
+                                                <h6 class="fw-bold mb-3"><i class="bi bi-plus-circle me-2"></i>Nuevo Abono</h6>
+                                                {% if g.saldo > 0 %}
                                                 <form action="{{ url_for('proveedores_gastos.abonar') }}" method="POST">
                                                     <input type="hidden" name="gasto_id" value="{{ g.id }}">
-                                                    <div class="mb-2">
-                                                        <label class="small fw-bold">Monto del Abono</label>
-                                                        <input type="number" name="monto" class="form-control form-control-sm" placeholder="0.00" required>
-                                                    </div>
-                                                    <div class="mb-2">
-                                                        <label class="small fw-bold">Fecha del Abono</label>
-                                                        <input type="date" name="fecha_abono" class="form-control form-control-sm" value="{{ ahora_col.strftime('%Y-%m-%d') }}" required>
+                                                    <div class="mb-3">
+                                                        <input type="number" step="0.01" name="monto" max="{{ g.saldo }}" class="form-control rounded-3" placeholder="Monto a pagar..." required>
+                                                        <div class="form-text text-end">Saldo pendiente: ${{ "{:,.0f}".format(g.saldo) }}</div>
                                                     </div>
                                                     <div class="mb-3">
-                                                        <label class="small fw-bold">Medio de Pago</label>
-                                                        <select name="medio" class="form-select form-select-sm">
+                                                        <select name="medio" class="form-select rounded-3">
                                                             <option value="Efectivo">Efectivo</option>
                                                             <option value="Nequi">Nequi</option>
                                                             <option value="Daviplata">Daviplata</option>
                                                             <option value="Transferencia">Transferencia</option>
                                                         </select>
                                                     </div>
-                                                    <button type="submit" class="btn btn-success btn-sm w-100 fw-bold">GUARDAR ABONO</button>
+                                                    <div class="mb-3">
+                                                        <input type="date" name="fecha_abono" class="form-control rounded-3" value="{{ hoy }}">
+                                                    </div>
+                                                    <button type="submit" class="btn btn-success w-100 fw-bold">PROCESAR PAGO</button>
                                                 </form>
+                                                {% else %}
+                                                <div class="alert alert-light border text-success text-center fw-bold py-4">
+                                                    <i class="bi bi-check-all fs-4 d-block"></i> CUENTA SALDADA
+                                                </div>
+                                                {% endif %}
                                             </div>
-                                            <div class="col-md-7">
-                                                <h6 class="fw-bold mb-3 text-negro-pro">📜 Historial de Pagos</h6>
-                                                <div class="table-responsive">
-                                                    <table class="table table-sm table-historial mb-0">
-                                                        <thead class="table-dark">
-                                                            <tr>
-                                                                <th>Fecha</th>
-                                                                <th>Monto</th>
-                                                                <th>Medio</th>
+                                            <div class="col-md-7 ps-4">
+                                                <h6 class="fw-bold mb-3"><i class="bi bi-clock-history me-2"></i>Historial de Pagos</h6>
+                                                <div class="table-responsive" style="max-height: 200px;">
+                                                    <table class="table table-sm table-borderless">
+                                                        <thead class="border-bottom">
+                                                            <tr class="text-muted" style="font-size: 0.7rem;">
+                                                                <th>FECHA</th>
+                                                                <th>MONTO</th>
+                                                                <th>MEDIO</th>
+                                                                <th class="text-end">BORRAR</th>
                                                             </tr>
                                                         </thead>
-                                                        <tbody>
+                                                        <tbody style="font-size: 0.85rem;">
                                                             {% for abono in g.lista_abonos %}
                                                             <tr>
                                                                 <td>{{ abono.fecha.strftime('%d/%m/%Y') }}</td>
-                                                                <td class="fw-bold text-success">{{ abono.monto | format_number }}</td>
-                                                                <td>{{ abono.medio_pago }}</td>
+                                                                <td class="fw-bold text-dark">${{ "{:,.0f}".format(abono.monto) }}</td>
+                                                                <td><span class="badge bg-light text-dark">{{ abono.medio_pago }}</span></td>
+                                                                <td class="text-end">
+                                                                    <a href="{{ url_for('proveedores_gastos.eliminar_abono_proveedor', abono_id=abono.id) }}" 
+                                                                       class="text-danger" onclick="return confirm('¿Borrar pago?')">
+                                                                        <i class="bi bi-trash-fill"></i>
+                                                                    </a>
+                                                                </td>
                                                             </tr>
                                                             {% else %}
                                                             <tr>
-                                                                <td colspan="3" class="text-center text-muted py-3">No hay abonos registrados</td>
+                                                                <td colspan="4" class="text-center py-4 text-muted small italic">No hay pagos registrados</td>
                                                             </tr>
                                                             {% endfor %}
                                                         </tbody>
@@ -238,9 +313,8 @@
                             </tr>
                             {% else %}
                             <tr>
-                                <td colspan="6" class="text-center py-5 text-muted">
-                                    <i class="fas fa-folder-open fa-3x mb-3"></i>
-                                    <p>No se han registrado gastos operativos recientemente.</p>
+                                <td colspan="6" class="text-center py-5">
+                                    <p class="text-muted m-0">No se encontraron gastos registrados.</p>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -253,67 +327,46 @@
 </div>
 
 {% for g in gastos %}
-<div class="modal fade" id="editGasto{{ g.id }}" tabindex="-1" aria-hidden="true" style="z-index: 1060;">
+<div class="modal fade" id="editGasto{{ g.id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <form method="POST" action="{{ url_for('proveedores_gastos.editar_gasto', gasto_id=g.id) }}" class="modal-content border-0 shadow-lg" style="border-radius: 25px;">
-            <div class="modal-header p-4 border-0" style="background: var(--san-roque-dark); color: white; border-radius: 25px 25px 0 0;">
-                <h5 class="modal-title fw-bold">✏️ Editar Gasto Operativo</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <form method="POST" action="{{ url_for('proveedores_gastos.editar_gasto', gasto_id=g.id) }}" class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header border-0 p-4 pb-0">
+                <h5 class="modal-title fw-bold">Editar Registro</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-4">
                 <div class="mb-3">
                     <label class="small fw-bold text-muted mb-1 text-uppercase">Categoría</label>
-                    <select name="categoria" class="form-select bg-light border-0">
-                        <option value="Arriendo" {% if g.categoria == 'Arriendo' %}selected{% endif %}>Arriendo</option>
-                        <option value="Servicios Públicos" {% if g.categoria == 'Servicios Públicos' %}selected{% endif %}>Servicios Públicos</option>
-                        <option value="Mantenimiento" {% if g.categoria == 'Mantenimiento' %}selected{% endif %}>Mantenimiento</option>
-                        <option value="Nómina / Personal" {% if g.categoria == 'Nómina / Personal' %}selected{% endif %}>Nómina / Personal</option>
-                        <option value="Insumos Bodega" {% if g.categoria == 'Insumos Bodega' %}selected{% endif %}>Insumos Bodega</option>
-                        <option value="Otros" {% if g.categoria == 'Otros' %}selected{% endif %}>Otros</option>
+                    <select name="categoria" class="form-select bg-light border-0 p-3">
+                        <option {% if g.categoria == 'Arriendo' %}selected{% endif %}>Arriendo</option>
+                        <option {% if g.categoria == 'Servicios Públicos' %}selected{% endif %}>Servicios Públicos</option>
+                        <option {% if g.categoria == 'Mantenimiento' %}selected{% endif %}>Mantenimiento</option>
+                        <option {% if g.categoria == 'Nómina / Personal' %}selected{% endif %}>Nómina / Personal</option>
+                        <option {% if g.categoria == 'Insumos Bodega' %}selected{% endif %}>Insumos Bodega</option>
+                        <option {% if g.categoria == 'Otros' %}selected{% endif %}>Otros</option>
                     </select>
                 </div>
                 <div class="mb-3">
-                    <label class="small fw-bold text-muted mb-1 text-uppercase">Concepto Detallado</label>
-                    <input type="text" name="concepto" value="{{ g.concepto }}" class="form-control bg-light border-0" required>
+                    <label class="small fw-bold text-muted mb-1 text-uppercase">Concepto</label>
+                    <input type="text" name="concepto" value="{{ g.concepto }}" class="form-control bg-light border-0 p-3" required>
                 </div>
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="small fw-bold text-muted mb-1 text-uppercase">Valor Total ($)</label>
-                        <input type="number" step="0.01" name="total" value="{{ g.total }}" class="form-control bg-light border-0" required>
+                        <label class="small fw-bold text-muted mb-1 text-uppercase">Total ($)</label>
+                        <input type="number" step="0.01" name="total" value="{{ g.total }}" class="form-control bg-light border-0 p-3" required>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="small fw-bold text-muted mb-1 text-uppercase">Fecha Registro</label>
-                        <input type="date" name="fecha" value="{{ g.fecha.strftime('%Y-%m-%d') if g.fecha else '' }}" class="form-control bg-light border-0">
+                        <label class="small fw-bold text-muted mb-1 text-uppercase">Fecha</label>
+                        <input type="date" name="fecha" value="{{ g.fecha.strftime('%Y-%m-%d') if g.fecha else '' }}" class="form-control bg-light border-0 p-3">
                     </div>
                 </div>
             </div>
-            <div class="modal-footer p-4 border-0 pt-0">
-                <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">CANCELAR</button>
-                <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow">GUARDAR CAMBIOS</button>
+            <div class="modal-footer border-0 p-4 pt-0">
+                <button type="submit" class="btn btn-primary w-100 fw-bold py-3 rounded-3 shadow-sm">Actualizar Gasto</button>
             </div>
         </form>
     </div>
 </div>
 {% endfor %}
 
-<style>
-    .fondo-particulas { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.1; }
-    .fondo-particulas span { position: absolute; animation: flotar 15s infinite ease-in-out; }
-    @keyframes flotar { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
-    .shadow-inner { box-shadow: inset 0 2px 10px rgba(0,0,0,0.05); }
-</style>
-
-<script>
-    const fondo = document.querySelector('.fondo-particulas');
-    const emojis = ['📊','🧾','💸','💼'];
-    for (let i = 0; i < 15; i++) {
-        const span = document.createElement('span');
-        span.innerText = emojis[Math.floor(Math.random() * emojis.length)];
-        span.style.left = Math.random() * 100 + 'vw';
-        span.style.top = Math.random() * 100 + 'vh';
-        span.style.fontSize = '20px';
-        span.style.animationDelay = Math.random() * 5 + 's';
-        fondo.appendChild(span);
-    }
-</script>
 {% endblock %}

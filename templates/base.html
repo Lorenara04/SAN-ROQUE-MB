@@ -8,7 +8,6 @@
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/LOGO.png') }}">
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   
@@ -35,6 +34,11 @@
       background: var(--fondo-gris);
       font-family: 'Inter', sans-serif;
       color: var(--texto-oscuro);
+    }
+
+    /* MEJORA: Todo lo que escriba se verá en MAYÚSCULAS visualmente */
+    input, textarea {
+      text-transform: uppercase;
     }
 
     .content-wrapper {
@@ -76,7 +80,6 @@
       color: var(--azul-primario) !important;
     }
 
-    /* Punto de notificación para stock bajo */
     .notif-badge {
       position: absolute;
       top: 0;
@@ -85,7 +88,7 @@
       height: 8px;
       background-color: var(--danger-red);
       border-radius: 50%;
-      display: none; /* Se activa con JS en productos.html */
+      display: none;
       box-shadow: 0 0 5px var(--danger-red);
     }
 
@@ -231,10 +234,59 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
+  // 1. Notificaciones (Original)
   function mostrarPuntoNotificacion() {
     const punto = document.getElementById('alerta-punto');
     if (punto) punto.style.display = 'block';
   }
+
+  // 2. MAYÚSCULAS AUTOMÁTICAS (Valor real del dato)
+  document.addEventListener('input', function (e) {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        e.target.value = e.target.value.toUpperCase();
+    }
+  });
+
+  // 3. NAVEGACIÓN GLOBAL CON TECLADO
+  document.addEventListener('keydown', function(e) {
+    const selectores = 'input:not([type="hidden"]):not([disabled]), select:not([disabled]), button:not([disabled]), textarea:not([disabled])';
+    
+    // ENTER funciona como TABULADOR
+    if (e.key === 'Enter') {
+        // No aplicamos si el usuario ya está en un botón o es un submit
+        if (e.target.type !== 'submit' && e.target.tagName !== 'BUTTON') {
+            const inputs = Array.from(document.querySelectorAll(selectores));
+            const index = inputs.indexOf(e.target);
+            if (index > -1 && index < inputs.length - 1) {
+                e.preventDefault();
+                inputs[index + 1].focus();
+            }
+        }
+    }
+
+    // FLECHAS para moverse entre campos
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        const inputs = Array.from(document.querySelectorAll(selectores));
+        const index = inputs.indexOf(e.target);
+        if (index > -1) {
+            if (e.key === 'ArrowDown' && index < inputs.length - 1) {
+                e.preventDefault();
+                inputs[index + 1].focus();
+            } else if (e.key === 'ArrowUp' && index > 0) {
+                e.preventDefault();
+                inputs[index - 1].focus();
+            }
+        }
+    }
+  });
+
+  // 4. FOCO AUTOMÁTICO AL CARGAR
+  window.addEventListener('DOMContentLoaded', (event) => {
+    const primerInput = document.querySelector('input:not([type="hidden"]):not([disabled])');
+    if (primerInput) {
+        primerInput.focus();
+    }
+  });
 </script>
 
 {% block scripts %}{% endblock %}

@@ -23,7 +23,7 @@ class Usuario(UserMixin, db.Model):
         return check_password_hash(self.password, password_texto)
 
 # =================================================================
-# 2. CLIENTES Y PRODUCTOS
+# 2. CLIENTES, PRODUCTOS Y MOVIMIENTOS
 # =================================================================
 class Cliente(db.Model):
     __tablename__ = 'cliente'
@@ -50,6 +50,17 @@ class Producto(db.Model):
     precio_costo = db.Column(db.Float)
     stock_minimo = db.Column(db.Integer, default=5)
 
+class MovimientoStock(db.Model):
+    __tablename__ = 'movimientos_stock'
+    id = db.Column(db.Integer, primary_key=True)
+    producto_id = db.Column(db.Integer, db.ForeignKey('producto.id'), nullable=False)
+    cantidad = db.Column(db.Integer, nullable=False) 
+    tipo = db.Column(db.String(50)) 
+    usuario = db.Column(db.String(100)) 
+    fecha = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Cambiamos el nombre aquí para que el HTML lo encuentre fácil
+    producto = db.relationship('Producto', backref=db.backref('movimientos', lazy=True))
 # =================================================================
 # 3. VENTAS
 # =================================================================
@@ -78,17 +89,14 @@ class VentaDetalle(db.Model):
     producto = db.relationship("Producto")
 
 # =================================================================
-# 4. CIERRES Y REPORTES (RESTABLECIDOS)
+# 4. CIERRES Y REPORTES
 # =================================================================
 class CierreCaja(db.Model):
     __tablename__ = 'cierre_caja'
     id = db.Column(db.Integer, primary_key=True)
     fecha_cierre = db.Column(db.Date)
-    # Cambiado a DateTime local si usas Colombia, o mantén utcnow
     hora_cierre = db.Column(db.DateTime, default=datetime.utcnow)
-
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'))
-    
     total_venta = db.Column(db.Float)
     total_efectivo = db.Column(db.Float)
     total_electronico = db.Column(db.Float)
@@ -103,7 +111,7 @@ class AcumuladoMensual(db.Model):
     total_venta = db.Column(db.Float, default=0)
 
 # =================================================================
-# 5. PROVEEDORES Y GASTOS (RESTABLECIDOS)
+# 5. PROVEEDORES Y GASTOS
 # =================================================================
 class Factura(db.Model):
     __tablename__ = "facturas"
@@ -112,6 +120,7 @@ class Factura(db.Model):
     proveedor = db.Column(db.String(150), nullable=False)
     total = db.Column(db.Float, nullable=False)
     fecha = db.Column(db.Date, default=date.today)
+    
 
 class Gasto(db.Model):
     __tablename__ = "gastos"
@@ -128,12 +137,11 @@ class Abono(db.Model):
     factura_id = db.Column(db.Integer, db.ForeignKey("facturas.id"), nullable=True)
     gasto_id = db.Column(db.Integer, db.ForeignKey("gastos.id"), nullable=True)
     monto = db.Column(db.Float)
-    monto = db.Column(db.Float)
     medio_pago = db.Column(db.String(50))
     fecha = db.Column(db.Date, default=date.today)
 
 # =================================================================
-# 6. CREDITOS (CON RELACIONES VINCULADAS)
+# 6. CREDITOS
 # =================================================================
 class Credito(db.Model):
     __tablename__ = 'credito'
@@ -149,7 +157,6 @@ class Credito(db.Model):
     abonado = db.Column(db.Float, default=0)
     fecha_ultimo_abono = db.Column(db.Date)
 
-    # 🔥 Estas relaciones permiten ver la información en el HTML
     items = db.relationship('CreditoItem', backref='credito_padre', lazy=True, cascade="all, delete-orphan")
     abonos = db.relationship('AbonoCredito', backref='credito_padre', lazy=True, cascade="all, delete-orphan")
 

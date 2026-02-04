@@ -1,51 +1,46 @@
 import sqlite3
 import os
 
-def encontrar_y_reparar():
-    # Lista de posibles nombres y rutas de tu base de datos
-    posibles_rutas = [
-        os.path.join(os.getcwd(), 'instance', 'database.db'),
-        os.path.join(os.getcwd(), 'database.db'),
-        os.path.join(os.getcwd(), 'instance', 'licorera.db'),
-        os.path.join(os.getcwd(), 'licorera.db')
+def reparacion_forzada():
+    # 1. Identificar rutas
+    base_dir = os.path.abspath(os.getcwd())
+    rutas_a_reparar = [
+        os.path.join(base_dir, 'licorera.db'),
+        os.path.join(base_dir, 'instance', 'licorera.db')
     ]
-    
-    db_encontrada = None
-    for ruta in posibles_rutas:
-        if os.path.exists(ruta):
-            db_encontrada = ruta
-            break
-            
-    if not db_encontrada:
-        print("❌ No se encontró ningún archivo .db. Verifica el nombre de tu base de datos.")
-        return
 
-    print(f"🔍 Base de datos encontrada en: {db_encontrada}")
+    print(f"--- INICIANDO REPARACIÓN INTEGRAL ---")
     
-    try:
-        conn = sqlite3.connect(db_encontrada)
-        cursor = conn.cursor()
-        
-        # Columnas faltantes detectadas en los errores
-        columnas = [
-            'ALTER TABLE producto ADD COLUMN codigo_barra VARCHAR(100)',
-            'ALTER TABLE producto ADD COLUMN precio_unit FLOAT',
-            'ALTER TABLE producto ADD COLUMN precio_costo FLOAT'
-        ]
-        
-        for sql in columnas:
+    for ruta in rutas_a_reparar:
+        if os.path.exists(ruta):
+            print(f"\n📂 Reparando base de datos en: {ruta}")
             try:
-                cursor.execute(sql)
-                print(f"✅ Columna agregada.")
-            except sqlite3.OperationalError:
-                print(f"ℹ️ La columna ya existía, saltando...")
-        
-        conn.commit()
-        conn.close()
-        print("🚀 ¡LISTO! Ya puedes volver a ejecutar app.py y editar tus ventas.")
-        
-    except Exception as e:
-        print(f"❌ Error: {e}")
+                conn = sqlite3.connect(ruta)
+                cursor = conn.cursor()
+                
+                # Intentar agregar la columna a facturas
+                try:
+                    cursor.execute("ALTER TABLE facturas ADD COLUMN soporte_foto VARCHAR(255)")
+                    print("✅ Columna 'soporte_foto' agregada a tabla 'facturas'")
+                except sqlite3.OperationalError as e:
+                    print(f"ℹ️ Tabla 'facturas': {e}")
+
+                # Intentar agregar la columna a gastos
+                try:
+                    cursor.execute("ALTER TABLE gastos ADD COLUMN soporte_foto VARCHAR(255)")
+                    print("✅ Columna 'soporte_foto' agregada a tabla 'gastos'")
+                except sqlite3.OperationalError as e:
+                    print(f"ℹ️ Tabla 'gastos': {e}")
+                
+                conn.commit()
+                conn.close()
+            except Exception as e:
+                print(f"❌ Error conectando a {ruta}: {e}")
+        else:
+            print(f"❓ No existe archivo en: {ruta}")
+
+    print("\n--- PROCESO TERMINADO ---")
+    print("Si el error persiste, borra el archivo 'licorera.db' de la raíz y deja solo el de 'instance'.")
 
 if __name__ == "__main__":
-    encontrar_y_reparar()
+    reparacion_forzada()

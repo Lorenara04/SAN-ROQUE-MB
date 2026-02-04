@@ -1,185 +1,196 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
 <style>
-    /* Estética Unificada "San Roque M.B." - Francesco Virgolini Edition */
+    /* Estética Unificada "San Roque M.B." */
     :root {
-        --btn-size: 40px; 
-        --san-roque-dark: #1a365d;
-        --san-roque-emerald: #059669;
-        --san-roque-emerald-light: #10b981;
-        --san-roque-sapphire: #2563eb;
-        --san-roque-ruby: #dc2626;
+        --san-roque-dark: #1e293b;
+        --san-roque-emerald: #10b981;
+        --san-roque-sapphire: #3b82f6;
+        --san-roque-ruby: #ef4444;
+        --bg-soft: #f8fafc;
+        --border-color: #e2e8f0;
     }
 
-    /* Botones de Acción Simétricos y Elegantes */
-    .btn-action-custom {
-        width: var(--btn-size);
-        height: var(--btn-size);
+    body {
+        background-color: var(--bg-soft);
+        font-family: 'Inter', sans-serif;
+        color: #1e293b;
+    }
+
+    /* Botones de Texto Profesionales */
+    .btn-text-action {
+        padding: 8px 12px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid var(--border-color);
+        background: white;
+        cursor: pointer;
+        text-decoration: none !important;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        border-radius: 12px;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        padding: 0;
-        font-size: 1.2rem;
-        cursor: pointer;
     }
 
-    /* Efecto Hover General */
-    .btn-action-custom:hover {
-        transform: translateY(-3px) scale(1.05);
-        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    .btn-text-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 12px rgba(0,0,0,0.08);
     }
 
-    /* BOTÓN ABONAR: Blanco por fuera, Esmeralda al pasar el mouse */
-    .btn-abonar-prof {
-        background: white;
-        color: var(--san-roque-emerald);
-        border: 2px solid var(--san-roque-emerald);
-    }
+    .btn-text-abonar { color: var(--san-roque-emerald); border-color: #d1fae5; }
+    .btn-text-abonar:hover { background: var(--san-roque-emerald); color: white; border-color: var(--san-roque-emerald); }
 
-    .btn-abonar-prof:hover {
-        background: linear-gradient(135deg, var(--san-roque-emerald) 0%, var(--san-roque-emerald-light) 100%);
-        color: white;
-        border-color: transparent;
-    }
+    .btn-text-edit { color: var(--san-roque-sapphire); border-color: #dbeafe; }
+    .btn-text-edit:hover { background: var(--san-roque-sapphire); color: white; border-color: var(--san-roque-sapphire); }
 
-    /* BOTÓN EDITAR: Blanco por fuera, Zafiro al pasar el mouse */
-    .btn-edit-prof {
-        background: white;
-        color: var(--san-roque-sapphire);
-        border: 2px solid var(--san-roque-sapphire);
-    }
-    .btn-edit-prof:hover {
-        background: var(--san-roque-sapphire);
-        color: white;
-    }
+    .btn-text-delete { color: var(--san-roque-ruby); border-color: #fee2e2; }
+    .btn-text-delete:hover { background: var(--san-roque-ruby); color: white; border-color: var(--san-roque-ruby); }
 
-    /* BOTÓN ELIMINAR: Blanco por fuera, Rubí al pasar el mouse */
-    .btn-delete-prof {
-        background: white;
-        color: var(--san-roque-ruby);
-        border: 2px solid var(--san-roque-ruby);
-    }
-    .btn-delete-prof:hover {
-        background: var(--san-roque-ruby);
-        color: white;
-    }
+    .btn-text-view { color: var(--san-roque-dark); border-color: #e2e8f0; }
+    .btn-text-view:hover { background: var(--san-roque-dark); color: white; }
 
     .card-luxury {
-        border-radius: 20px;
-        border: none;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-        background: rgba(255, 255, 255, 0.98);
+        border-radius: 24px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.03);
+        background: white;
     }
 
-    .table-luxury thead {
+    .table-luxury thead th {
         background: var(--san-roque-dark);
         color: white;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        padding: 15px;
+        border: none;
     }
 
-    input::-webkit-outer-spin-button,
-    input::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
+    .history-scroll {
+        max-height: 300px;
+        overflow-y: auto;
     }
+
+    .sticky-top-custom {
+        position: sticky;
+        top: 20px;
+        z-index: 10;
+    }
+
+    .x-small { font-size: 0.75rem; }
 </style>
 
-<div class="container-fluid mt-4 px-4" style="background-color: #f4f7f9; min-height: 100vh; font-family: 'Poppins', sans-serif;">
+<div class="container-fluid py-4 px-4">
     
-    <div class="fondo-particulas"></div>
-
-    <div class="row mb-4" style="position: relative; z-index: 1;">
+    <div class="row mb-4">
         <div class="col-12">
             <div class="p-4 card-luxury d-flex justify-content-between align-items-center"
-                 style="border-left: 8px solid var(--san-roque-dark);">
+                 style="border-left: 8px solid var(--san-roque-emerald);">
                 <div>
-                    <h2 style="color:var(--san-roque-dark);font-weight:800;margin:0;">📦 Control de Proveedores</h2>
-                    <p class="text-muted mb-0 fw-medium">San Roque M.B. — Francesco Virgolini Edition 🏎️</p>
+                    <h2 style="color:var(--san-roque-dark); font-weight:800; margin:0;">📦 Control de Proveedores</h2>
+                    <p class="text-muted mb-0 fw-medium">San Roque M.B. — Gestión de Facturación e Imágenes</p>
                 </div>
                 <div class="d-flex gap-2">
-                    <a href="{{ url_for('ventas.dashboard') }}" class="btn btn-outline-secondary fw-bold rounded-pill px-4">Dashboard</a>
-                    <a href="{{ url_for('proveedores_gastos.gastos') }}" class="btn btn-outline-primary fw-bold rounded-pill px-4">Gastos</a>
-                    <a href="{{ url_for('proveedores_gastos.exportar_proveedores') }}" class="btn btn-success fw-bold rounded-pill px-4 shadow-sm">Exportar</a>
+                    <a href="{{ url_for('ventas.dashboard') }}" class="btn btn-outline-secondary rounded-pill px-4 fw-bold shadow-sm">Dashboard</a>
+                    <a href="{{ url_for('proveedores_gastos.gastos') }}" class="btn btn-outline-primary rounded-pill px-4 fw-bold shadow-sm">Gastos</a>
+                    <a href="{{ url_for('proveedores_gastos.exportar_proveedores') }}" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm">
+                        Exportar Reporte
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row" style="position: relative; z-index: 1;">
-
+    <div class="row">
         <div class="col-lg-4 mb-4">
-            <div class="card p-4 card-luxury shadow-lg border-0">
-                <h5 class="fw-bold mb-4 text-primary">📑 Radicar Factura</h5>
-                <form method="POST" action="{{ url_for('proveedores_gastos.enlista_proveedores') }}">
+            <div class="card p-4 card-luxury shadow-sm sticky-top-custom">
+                <h5 class="fw-bold mb-4 text-primary"><i class="bi bi-receipt me-2"></i>Radicar Factura</h5>
+                <form method="POST" action="{{ url_for('proveedores_gastos.enlista_proveedores') }}" enctype="multipart/form-data">
                     <div class="mb-3">
                         <label class="small fw-bold text-muted">NÚMERO FACTURA</label>
-                        <input type="text" name="numero" class="form-control rounded-3 border-light bg-light" required>
+                        <input type="text" name="numero" class="form-control rounded-3 border-light bg-light p-3" required placeholder="Ej: FE-123">
                     </div>
                     <div class="mb-3">
                         <label class="small fw-bold text-muted">PROVEEDOR</label>
-                        <input type="text" name="proveedor" class="form-control rounded-3 border-light bg-light" required>
+                        <input type="text" name="proveedor" class="form-control rounded-3 border-light bg-light p-3" required placeholder="Nombre de empresa">
                     </div>
                     <div class="mb-3">
                         <label class="small fw-bold text-muted">TOTAL DEUDA</label>
                         <div class="input-group">
                             <span class="input-group-text bg-light border-light fw-bold text-primary">$</span>
-                            <input type="number" step="0.01" name="total" class="form-control rounded-end-3 border-light bg-light" required>
+                            <input type="number" step="0.01" name="total" class="form-control border-light bg-light p-3" required placeholder="0.00">
                         </div>
                     </div>
                     <div class="mb-3">
                         <label class="small fw-bold text-muted">FECHA RECEPCIÓN</label>
-                        <input type="date" name="fecha" class="form-control rounded-3 border-light bg-light">
+                        <input type="date" name="fecha" value="{{ hoy }}" class="form-control rounded-3 border-light bg-light p-3">
                     </div>
-                    <button class="btn btn-primary w-100 fw-bold rounded-pill py-2 shadow">💾 GUARDAR FACTURA</button>
+                    <div class="mb-4">
+                        <label class="small fw-bold text-muted">ADJUNTAR FOTO/SOPORTE</label>
+                        <input type="file" name="soporte_foto" class="form-control rounded-3 border-light bg-light p-3" accept="image/*,application/pdf">
+                        <small class="text-muted mt-1 d-block">Captura la factura física aquí.</small>
+                    </div>
+                    <button class="btn btn-primary w-100 fw-bold rounded-pill py-3 shadow">
+                        GUARDAR FACTURA
+                    </button>
                 </form>
             </div>
         </div>
 
         <div class="col-lg-8">
-            <div class="card card-luxury shadow-lg overflow-hidden border-0">
+            <div class="card card-luxury shadow-sm overflow-hidden border-0">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0 table-luxury">
                         <thead>
                             <tr>
-                                <th class="ps-4 py-3 text-white">FECHA</th>
-                                <th class="py-3 text-white">FACTURA</th>
-                                <th class="py-3 text-white">PROVEEDOR</th>
-                                <th class="py-3 text-white">TOTAL</th>
-                                <th class="py-3 text-white">SALDO</th>
-                                <th class="text-center py-3 text-white">GESTIÓN</th>
+                                <th class="ps-4">FECHA</th>
+                                <th>FACTURA</th>
+                                <th>PROVEEDOR</th>
+                                <th>SALDO</th>
+                                <th class="text-center">GESTIÓN</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white">
+                        <tbody>
                         {% for f in facturas %}
-                            {% set saldo = f.total - f.abonado %}
                             <tr>
                                 <td class="ps-4 text-muted small">{{ f.fecha_factura }}</td>
-                                <td><span class="badge rounded-pill bg-dark px-3">{{ f.numero }}</span></td>
-                                <td class="fw-bold text-secondary">{{ f.proveedor }}</td>
-                                <td class="fw-bold">${{ "{:,.0f}".format(f.total) }}</td>
                                 <td>
-                                    {% if saldo <= 0 %}
-                                        <span class="badge bg-success bg-opacity-10 text-success fw-bold px-3 py-2" style="border-radius:10px;">PAGADA ✅</span>
+                                    <div class="d-flex flex-column">
+                                        <span class="badge rounded-pill bg-light text-dark border px-3 mb-1">#{{ f.numero }}</span>
+                                        {% if f.soporte_foto %}
+                                        <a href="{{ url_for('static', filename='uploads/facturas_proveedores/' + f.soporte_foto) }}" target="_blank" class="btn-text-action btn-text-view" style="font-size: 0.55rem; padding: 2px 8px;">
+                                            <i class="bi bi-image me-1"></i> VER SOPORTE
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td class="fw-bold text-dark text-capitalize">{{ f.proveedor }}</td>
+                                <td>
+                                    {% if f.saldo <= 0 %}
+                                        <span class="badge bg-success-subtle text-success fw-bold px-3 py-2 rounded-pill">PAGADA ✅</span>
                                     {% else %}
-                                        <span class="fw-bold text-danger" style="font-size: 1.1rem;">${{ "{:,.0f}".format(saldo) }}</span>
+                                        <span class="fw-bold text-danger" style="font-size: 1rem;">${{ "{:,.0f}".format(f.saldo) }}</span>
+                                        <div class="x-small text-muted">Total: ${{ "{:,.0f}".format(f.total) }}</div>
                                     {% endif %}
                                 </td>
                                 <td class="text-center">
-                                    <div class="d-flex justify-content-center gap-2">
-                                        <button class="btn-action-custom btn-abonar-prof" 
-                                                data-bs-toggle="collapse" data-bs-target="#abono{{ f.id }}" title="Registrar Pago">
-                                            💳
+                                    <div class="d-flex justify-content-center gap-1">
+                                        <button class="btn-text-action btn-text-abonar" data-bs-toggle="collapse" data-bs-target="#abono{{ f.id }}">
+                                            ABONAR
                                         </button>
-                                        <button class="btn-action-custom btn-edit-prof" 
-                                                data-bs-toggle="modal" data-bs-target="#editFactura{{ f.id }}" title="Editar Datos">
-                                            ✏️
+                                        <button class="btn-text-action btn-text-edit" data-bs-toggle="modal" data-bs-target="#editFactura{{ f.id }}">
+                                            EDITAR
                                         </button>
-                                        <form method="POST" action="{{ url_for('proveedores_gastos.eliminar_factura', factura_id=f.id) }}">
-                                            <button class="btn-action-custom btn-delete-prof" 
-                                                    onclick="return confirm('¿Eliminar factura permanentemente?')" title="Eliminar Registro">
-                                                🗑️
+                                        <form method="POST" action="{{ url_for('proveedores_gastos.eliminar_factura', factura_id=f.id) }}" class="d-inline">
+                                            <button type="submit" class="btn-text-action btn-text-delete" onclick="return confirm('¿Eliminar factura?')">
+                                                BORRAR
                                             </button>
                                         </form>
                                     </div>
@@ -187,46 +198,73 @@
                             </tr>
 
                             <tr class="collapse" id="abono{{ f.id }}">
-                                <td colspan="6" class="p-0 border-0">
-                                    <div class="p-4 mx-4 mb-3 rounded-4 shadow-inner" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                                <td colspan="5" class="p-0 border-0">
+                                    <div class="p-4 mx-4 mb-4 rounded-4 shadow-sm" style="background: #f1f5f9; border: 1px solid var(--border-color);">
                                         <div class="row">
-                                            <div class="col-md-7 border-end border-2">
-                                                <h6 class="fw-bold text-primary mb-3 text-uppercase small">Historial de Pagos</h6>
-                                                <div class="pe-2">
-                                                    {% set tiene_abonos = false %}
-                                                    {% for a in abonos if a.factura_id == f.id %}
-                                                        {% set tiene_abonos = true %}
-                                                        <div class="d-flex justify-content-between align-items-center p-3 mb-2 bg-white rounded-3 shadow-sm border-start border-4 border-success">
-                                                            <div>
-                                                                <span class="text-muted small">📅 {{ a.fecha }}</span><br>
-                                                                <strong class="text-dark" style="font-size: 1.1rem;">${{ "{:,.0f}".format(a.monto) }}</strong>
-                                                            </div>
-                                                            <a href="{{ url_for('proveedores_gastos.eliminar_abono_proveedor', abono_id=a.id) }}" 
-                                                               class="text-danger p-0" onclick="return confirm('¿Eliminar este abono?')">
-                                                                <span style="font-size: 1.2rem;">🗑️</span>
-                                                            </a>
-                                                        </div>
-                                                    {% endfor %}
-                                                    {% if not tiene_abonos %}
-                                                        <p class="text-muted small italic">Sin movimientos registrados.</p>
-                                                    {% endif %}
+                                            <div class="col-md-7 border-end border-2 border-white pe-4">
+                                                <h6 class="fw-bold text-primary mb-3 small">HISTORIAL DE PAGOS</h6>
+                                                <div class="history-scroll pe-2">
+                                                    <table class="table table-sm table-borderless bg-white rounded-3 overflow-hidden shadow-sm">
+                                                        <thead class="bg-light">
+                                                            <tr class="x-small text-muted">
+                                                                <th class="ps-3 py-2">FECHA</th>
+                                                                <th>MONTO</th>
+                                                                <th>MEDIO</th>
+                                                                <th class="text-end pe-3">ELIMINAR</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody class="small">
+                                                        {% for a in f.lista_abonos %}
+                                                            <tr class="border-bottom align-middle">
+                                                                <td class="ps-3 py-2">{{ a.fecha.strftime('%d/%m/%Y') if a.fecha else '—' }}</td>
+                                                                <td class="fw-bold text-success">${{ "{:,.0f}".format(a.monto) }}</td>
+                                                                <td><span class="badge bg-light text-dark text-uppercase x-small">{{ a.medio_pago }}</span></td>
+                                                                <td class="text-end pe-3">
+                                                                    <a href="{{ url_for('proveedores_gastos.eliminar_abono_proveedor', abono_id=a.id) }}" 
+                                                                       class="text-danger" onclick="return confirm('¿Eliminar este abono?')">
+                                                                        <i class="bi bi-x-circle-fill"></i>
+                                                                    </a>
+                                                                </td>
+                                                            </tr>
+                                                        {% else %}
+                                                            <tr>
+                                                                <td colspan="4" class="text-center py-4 text-muted x-small">No hay registros de abonos.</td>
+                                                            </tr>
+                                                        {% endfor %}
+                                                        </tbody>
+                                                    </table>
                                                 </div>
                                             </div>
 
                                             <div class="col-md-5 ps-4">
-                                                <h6 class="fw-bold text-success mb-3 text-uppercase small">Nuevo Abono</h6>
-                                                {% if saldo > 0 %}
-                                                    <form method="POST" action="{{ url_for('proveedores_gastos.abonar', factura_id=f.id) }}">
-                                                        <input type="number" step="0.01" name="monto" placeholder="Monto $" class="form-control mb-2 border-0 shadow-sm" required>
-                                                        <select name="medio" class="form-select mb-2 border-0 shadow-sm">
-                                                            <option>Efectivo</option>
-                                                            <option>Transferencia</option>
-                                                            <option>Nequi</option>
-                                                        </select>
-                                                        <button class="btn btn-abonar-prof w-100 rounded-pill py-2 shadow-sm fw-bold">PROCESAR PAGO</button>
+                                                <h6 class="fw-bold text-success mb-3 small">REGISTRAR PAGO</h6>
+                                                {% if f.saldo > 0 %}
+                                                    <form method="POST" action="{{ url_for('proveedores_gastos.abonar') }}">
+                                                        <input type="hidden" name="factura_id" value="{{ f.id }}">
+                                                        <div class="mb-2">
+                                                            <label class="x-small fw-bold text-muted">MONTO DEL PAGO</label>
+                                                            <input type="number" step="0.01" name="monto" max="{{ f.saldo }}" class="form-control border-0 shadow-sm p-2" placeholder="Saldo: ${{ f.saldo }}" required>
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <label class="x-small fw-bold text-muted">MEDIO DE PAGO</label>
+                                                            <select name="medio" class="form-select border-0 shadow-sm p-2">
+                                                                <option value="Efectivo">Efectivo</option>
+                                                                <option value="Transferencia">Transferencia</option>
+                                                                <option value="Nequi">Nequi</option>
+                                                                <option value="Daviplata">Daviplata</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <input type="date" name="fecha_abono" class="form-control border-0 shadow-sm p-2" value="{{ hoy }}">
+                                                        </div>
+                                                        <button class="btn btn-success w-100 rounded-pill py-2 shadow-sm fw-bold">
+                                                            CONFIRMAR PAGO
+                                                        </button>
                                                     </form>
                                                 {% else %}
-                                                    <div class="alert alert-success py-2 text-center fw-bold rounded-4">CUENTA SALDADA</div>
+                                                    <div class="text-center py-4 text-success fw-bold">
+                                                        <i class="bi bi-check-circle-fill d-block fs-2 mb-2"></i> FACTURA SALDADA
+                                                    </div>
                                                 {% endif %}
                                             </div>
                                         </div>
@@ -243,34 +281,39 @@
 </div>
 
 {% for f in facturas %}
-<div class="modal fade" id="editFactura{{ f.id }}" tabindex="-1" aria-hidden="true" style="z-index: 1060;">
+<div class="modal fade" id="editFactura{{ f.id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <form method="POST" action="{{ url_for('proveedores_gastos.editar_factura', factura_id=f.id) }}" class="modal-content border-0 shadow-lg" style="border-radius: 25px;">
-            <div class="modal-header p-4 border-0" style="background: var(--san-roque-dark); color: white; border-radius: 25px 25px 0 0;">
-                <h5 class="modal-title fw-bold">✏️ Actualizar Registro</h5>
+        <form method="POST" action="{{ url_for('proveedores_gastos.editar_factura', factura_id=f.id) }}" enctype="multipart/form-data" class="modal-content border-0 shadow-lg" style="border-radius: 28px;">
+            <div class="modal-header p-4 border-0 bg-dark text-white" style="border-radius: 28px 28px 0 0;">
+                <h5 class="modal-title fw-bold">Actualizar Factura</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-4">
                 <div class="mb-3">
-                    <label class="small fw-bold text-muted">PROVEEDOR</label>
-                    <input type="text" name="proveedor" value="{{ f.proveedor }}" class="form-control bg-light border-0" required>
+                    <label class="small fw-bold text-muted text-uppercase">Nombre Proveedor</label>
+                    <input type="text" name="proveedor" value="{{ f.proveedor }}" class="form-control bg-light border-0 p-3" required>
                 </div>
                 <div class="mb-3">
-                    <label class="small fw-bold text-muted">N° FACTURA</label>
-                    <input type="text" name="numero" value="{{ f.numero }}" class="form-control bg-light border-0" required>
+                    <label class="small fw-bold text-muted text-uppercase">Número de Factura</label>
+                    <input type="text" name="numero" value="{{ f.numero }}" class="form-control bg-light border-0 p-3" required>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <label class="small fw-bold text-muted text-uppercase">Monto Total</label>
+                        <input type="number" step="0.01" name="total" value="{{ f.total }}" class="form-control bg-light border-0 p-3" required>
+                    </div>
+                    <div class="col-6">
+                        <label class="small fw-bold text-muted text-uppercase">Fecha</label>
+                        <input type="date" name="fecha" value="{{ f.fecha_factura }}" class="form-control bg-light border-0 p-3">
+                    </div>
                 </div>
                 <div class="mb-3">
-                    <label class="small fw-bold text-muted">VALOR TOTAL</label>
-                    <input type="number" step="0.01" name="total" value="{{ f.total }}" class="form-control bg-light border-0" required>
-                </div>
-                <div class="mb-3">
-                    <label class="small fw-bold text-muted">FECHA</label>
-                    <input type="date" name="fecha" value="{{ f.fecha_factura }}" class="form-control bg-light border-0">
+                    <label class="small fw-bold text-muted text-uppercase">REEMPLAZAR SOPORTE (OPCIONAL)</label>
+                    <input type="file" name="soporte_foto" class="form-control bg-light border-0 p-3" accept="image/*,application/pdf">
                 </div>
             </div>
             <div class="modal-footer p-4 border-0 pt-0">
-                <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">CANCELAR</button>
-                <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow">GUARDAR CAMBIOS</button>
+                <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold py-3 shadow">GUARDAR CAMBIOS</button>
             </div>
         </form>
     </div>
