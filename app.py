@@ -19,6 +19,20 @@ def create_app():
     app.config.from_object(Config)
 
     # --------------------------------------------------
+    # 🗄️ CONFIGURACIÓN DE BASE DE DATOS (POSTGRESQL / RENDER)
+    # --------------------------------------------------
+    # Prioridad: 1. Variable de entorno 'DATABASE_URL' | 2. Tu link directo | 3. SQLite local
+    link_directo_render = "postgresql://sanroque_db_user:Lnr7p7UWphk9sTGUoBAk9pDkm87uMWA8@dpg-d5ugvjnfte5s73eb9at0-a.virginia-postgres.render.com/sanroque_db"
+    
+    database_url = os.getenv('DATABASE_URL', link_directo_render)
+
+    if database_url.startswith("postgres://"):
+        database_url = database_url.replace("postgres://", "postgresql://", 1)
+
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+    # --------------------------------------------------
     # 🔐 CONFIGURACIÓN DE SEGURIDAD
     # --------------------------------------------------
     if not app.config.get('SECRET_KEY'):
@@ -28,7 +42,7 @@ def create_app():
         )
 
     # --------------------------------------------------
-    # 📧 VARIABLES DE CORREO (solo para correo_utils.py)
+    # 📧 VARIABLES DE CORREO
     # --------------------------------------------------
     app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
     app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 465))
@@ -126,15 +140,16 @@ def create_app():
 
     return app
 
-
 # --------------------------------------------------
-# INSTANCIA DE APLICACIÓN
+# INSTANCIA Y CREACIÓN DE TABLAS
 # --------------------------------------------------
 app = create_app()
 
 if __name__ == '__main__':
     with app.app_context():
+        # Esto crea las tablas en Postgres si no existen
         db.create_all()
+        print("✅ Base de Datos PostgreSQL conectada")
         print("✅ Sistema San Roque M.B. iniciado correctamente")
 
     app.run(debug=True, port=5000)
