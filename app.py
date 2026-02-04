@@ -18,6 +18,23 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
+
+    with app.app_context():
+    db.create_all()
+    # TRUCO: Crear administrador automático si la base está vacía
+    from models import Usuario
+    if Usuario.query.count() == 0:
+        admin = Usuario(
+            nombre="LORENA", 
+            username="admin", 
+            rol="Administrador", 
+            cedula="123"
+        )
+        admin.set_password("1234")
+        db.session.add(admin)
+        db.session.commit()
+        print("✅ Base de datos vacía: Usuario 'admin' creado automáticamente.")
+
     # --------------------------------------------------
     # 🗄️ CONFIGURACIÓN DE BASE DE DATOS (POSTGRESQL / RENDER)
     # --------------------------------------------------
