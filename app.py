@@ -18,29 +18,10 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-
-    with app.app_context():
-    db.create_all()
-    # TRUCO: Crear administrador automático si la base está vacía
-    from models import Usuario
-    if Usuario.query.count() == 0:
-        admin = Usuario(
-            nombre="LORENA", 
-            username="admin", 
-            rol="Administrador", 
-            cedula="123"
-        )
-        admin.set_password("1234")
-        db.session.add(admin)
-        db.session.commit()
-        print("✅ Base de datos vacía: Usuario 'admin' creado automáticamente.")
-
     # --------------------------------------------------
     # 🗄️ CONFIGURACIÓN DE BASE DE DATOS (POSTGRESQL / RENDER)
     # --------------------------------------------------
-    # Prioridad: 1. Variable de entorno 'DATABASE_URL' | 2. Tu link directo | 3. SQLite local
     link_directo_render = "postgresql://sanroque_db_user:Lnr7p7UWphk9sTGUoBAk9pDkm87uMWA8@dpg-d5ugvjnfte5s73eb9at0-a.virginia-postgres.render.com/sanroque_db"
-    
     database_url = os.getenv('DATABASE_URL', link_directo_render)
 
     if database_url.startswith("postgres://"):
@@ -73,6 +54,27 @@ def create_app():
     # --------------------------------------------------
     CORS(app)
     db.init_app(app)
+
+    # --------------------------------------------------
+    # CREACIÓN DE TABLAS Y USUARIO ADMIN AUTOMÁTICO
+    # --------------------------------------------------
+    with app.app_context():
+        db.create_all()  # Crea las tablas si no existen
+        
+        # Verificar si ya existe un usuario para no duplicar
+        if Usuario.query.count() == 0:
+            admin = Usuario(
+                nombre="LORENA", 
+                username="admin", 
+                rol="Administrador", 
+                cedula="123"
+            )
+            admin.set_password("1234")
+            db.session.add(admin)
+            db.session.commit()
+            print("✅ Base de datos vacía: Usuario 'admin' creado automáticamente.")
+        else:
+            print("✅ La base de datos ya contiene registros.")
 
     # --------------------------------------------------
     # LOGIN MANAGER
@@ -158,15 +160,10 @@ def create_app():
     return app
 
 # --------------------------------------------------
-# INSTANCIA Y CREACIÓN DE TABLAS
+# INSTANCIA DE APLICACIÓN
 # --------------------------------------------------
 app = create_app()
 
 if __name__ == '__main__':
-    with app.app_context():
-        # Esto crea las tablas en Postgres si no existen
-        db.create_all()
-        print("✅ Base de Datos PostgreSQL conectada")
-        print("✅ Sistema San Roque M.B. iniciado correctamente")
-
+    print("✅ Sistema San Roque M.B. iniciado correctamente")
     app.run(debug=True, port=5000)
