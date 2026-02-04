@@ -65,6 +65,7 @@ def create_app():
         if Usuario.query.count() == 0:
             admin = Usuario(
                 nombre="LORENA", 
+                apellido="RODRIGUEZ",  # <--- AGREGADO PARA EVITAR ERROR
                 username="admin", 
                 rol="Administrador", 
                 cedula="123"
@@ -72,7 +73,7 @@ def create_app():
             admin.set_password("1234")
             db.session.add(admin)
             db.session.commit()
-            print("✅ Base de datos vacía: Usuario 'admin' creado automáticamente.")
+            print("✅ Base de datos vacía: Usuario 'admin' creado correctamente.")
         else:
             print("✅ La base de datos ya contiene registros.")
 
@@ -90,34 +91,27 @@ def create_app():
         return Usuario.query.get(int(user_id))
 
     # --------------------------------------------------
-    # FILTROS JINJA
+    # FILTROS JINJA (Igual que antes)
     # --------------------------------------------------
     @app.template_filter('from_json')
     def from_json_filter(value):
         try:
-            if value:
-                return json.loads(value)
+            if value: return json.loads(value)
             return {}
-        except Exception:
-            return {}
+        except Exception: return {}
 
     @app.template_filter('format_number')
     def format_number(value):
         try:
-            if value is None or value == "":
-                return "$ 0"
+            if value is None or value == "": return "$ 0"
             return f"$ {float(value):,.0f}".replace(",", ".")
-        except Exception:
-            return "$ 0"
+        except Exception: return "$ 0"
 
     @app.template_filter('fecha_co')
     def fecha_co(value):
-        if not value:
-            return ""
-        try:
-            return value.strftime('%d/%m/%Y')
-        except Exception:
-            return str(value)
+        if not value: return ""
+        try: return value.strftime('%d/%m/%Y')
+        except Exception: return str(value)
 
     # --------------------------------------------------
     # BLUEPRINTS
@@ -140,16 +134,10 @@ def create_app():
     app.register_blueprint(proveedores_gastos_bp)
     app.register_blueprint(creditos_bp)
 
-    # --------------------------------------------------
-    # RUTA PRINCIPAL
-    # --------------------------------------------------
     @app.route('/')
     def index():
         return redirect(url_for('ventas.dashboard'))
 
-    # --------------------------------------------------
-    # CONTEXT PROCESSOR GLOBAL
-    # --------------------------------------------------
     @app.context_processor
     def inject_utilities():
         return {
