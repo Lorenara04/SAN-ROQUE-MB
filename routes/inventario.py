@@ -13,6 +13,32 @@ from models import Producto, MovimientoStock
 inventario_bp = Blueprint('inventario', __name__)
 
 # =========================================================
+# API DE BÚSQUEDA GLOBAL (CRÍTICA PARA EL BUSCADOR)
+# =========================================================
+@inventario_bp.route('/api/productos/buscar')
+@login_required
+def api_buscar_productos():
+    query = request.args.get('q', '').strip()
+    if not query:
+        return jsonify([])
+    
+    # Busca por nombre, código o marca en TODA la base de datos
+    productos = Producto.query.filter(
+        (Producto.nombre.ilike(f'%{query}%')) | 
+        (Producto.codigo.ilike(f'%{query}%')) |
+        (Producto.marca.ilike(f'%{query}%'))
+    ).all()
+    
+    return jsonify([{
+        'id': p.id,
+        'codigo': p.codigo,
+        'nombre': p.nombre.upper() if p.nombre else "SIN NOMBRE",
+        'stock': p.cantidad,
+        'precio': p.valor_venta,
+        'marca': p.marca.upper() if p.marca else "S.M"
+    } for p in productos])
+
+# =========================================================
 # EXPORTAR A EXCEL (SEGURIDAD: SOLO ADMIN)
 # =========================================================
 @inventario_bp.route('/inventario/exportar')
@@ -41,7 +67,6 @@ def exportar_excel():
         
         df = pd.DataFrame(data)
         output = io.BytesIO()
-        # Se requiere tener instalado XlsxWriter: pip install xlsxwriter
         with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
             df.to_excel(writer, index=False, sheet_name='Inventario')
         output.seek(0)
@@ -54,12 +79,11 @@ def exportar_excel():
         return redirect(url_for('inventario.inventario'))
 
 # =========================================================
-# LISTADO CON PAGINACIÓN E HISTORIAL DETALLADO
+# LISTADO CON PAGINACIÓN E HISTORIAL
 # =========================================================
 @inventario_bp.route('/inventario')
 @login_required
 def inventario():
-    # Implementación de Paginación
     page = request.args.get('page', 1, type=int)
     search_query = request.args.get('search', '').strip()
     
@@ -72,10 +96,7 @@ def inventario():
             (Producto.marca.ilike(f'%{search_query}%'))
         )
     
-    # 15 productos por página para mantener velocidad
     productos_paginados = query.paginate(page=page, per_page=15, error_out=False)
-    
-    # Historial detallado para la tabla inferior (últimos 15 movimientos)
     historial = MovimientoStock.query.order_by(MovimientoStock.fecha.desc()).limit(15).all()
     
     return render_template('productos.html', 
@@ -84,20 +105,20 @@ def inventario():
                            search_query=search_query)
 
 # =========================================================
-# CREAR PRODUCTO (SEGURIDAD: SOLO ADMIN)
+# CREAR PRODUCTO
 # =========================================================
 @inventario_bp.route('/inventario/crear_producto', methods=['POST'])
 @login_required
 def crear_producto():
     if current_user.rol.lower() != 'administrador':
-        flash('Acceso denegado. Solo administradores pueden crear productos.', 'danger')
+        flash('Acceso denegado.', 'danger')
         return redirect(url_for('inventario.inventario'))
 
     try:
         codigo = request.form.get('codigo', '').strip() or None
         
         if codigo and Producto.query.filter_by(codigo=codigo).first():
-            flash('❌ Ya existe un producto con ese código.', 'danger')
+            flash('❌ Ya existe un producto con ese código.', 'error')
             return redirect(url_for('inventario.inventario'))
 
         producto = Producto(
@@ -114,7 +135,6 @@ def crear_producto():
         if not producto.codigo:
             producto.codigo = str(producto.id).zfill(8)
 
-        # Registro detallado en historial
         mov = MovimientoStock(
             producto_id=producto.id, 
             cantidad=producto.cantidad, 
@@ -123,47 +143,14 @@ def crear_producto():
         )
         db.session.add(mov)
         db.session.commit()
-        flash(f'✅ Producto "{producto.nombre}" registrado exitosamente.', 'success')
+        flash(f'✅ "{producto.nombre}" registrado.', 'success')
     except Exception as e:
         db.session.rollback()
-        flash(f'❌ Error al crear producto: {e}', 'danger')
+        flash(f'❌ Error: {e}', 'error')
     return redirect(url_for('inventario.inventario'))
 
 # =========================================================
-# RECEPCIÓN RÁPIDA (ESCÁNER)
-# =========================================================
-@inventario_bp.route('/inventario/agregar_producto', methods=['POST'])
-@login_required
-def agregar_producto():
-    codigo = request.form.get('codigo_scanner', '').strip()
-    cantidad = int(request.form.get('cantidad_scanner', 1))
-    
-    if not codigo:
-        flash('❌ Debe escanear o ingresar un código.', 'warning')
-        return redirect(url_for('inventario.inventario'))
-
-    producto = Producto.query.filter_by(codigo=codigo).first()
-
-    if not producto:
-        flash('❌ Producto no encontrado.', 'danger')
-        return redirect(url_for('inventario.inventario'))
-
-    producto.cantidad += cantidad
-    
-    mov = MovimientoStock(
-        producto_id=producto.id, 
-        cantidad=cantidad, 
-        tipo='ESCÁNER', 
-        usuario=current_user.username
-    )
-    db.session.add(mov)
-    db.session.commit()
-    
-    flash(f'📦 Stock actualizado: {producto.nombre} (+{cantidad})', 'success')
-    return redirect(url_for('inventario.inventario'))
-
-# =========================================================
-# AJUSTAR STOCK (MODAL MANUAL)
+# AJUSTAR STOCK (MANUAL)
 # =========================================================
 @inventario_bp.route('/inventario/ajustar_stock/<int:producto_id>', methods=['POST'])
 @login_required
@@ -176,30 +163,25 @@ def ajustar_stock(producto_id):
         mov = MovimientoStock(
             producto_id=producto.id, 
             cantidad=cantidad_a_sumar, 
-            tipo='AJUSTE MANUAL', 
+            tipo='AJUSTE', 
             usuario=current_user.username
         )
         db.session.add(mov)
         db.session.commit()
-        
-        if cantidad_a_sumar >= 0:
-            flash(f'✅ Se agregaron {cantidad_a_sumar} unidades a {producto.nombre}.', 'success')
-        else:
-            flash(f'📉 Se restaron {abs(cantidad_a_sumar)} unidades a {producto.nombre}.', 'warning')
-            
+        flash(f'✅ Stock actualizado.', 'success')
     except Exception as e:
         db.session.rollback()
-        flash(f'❌ Error al ajustar stock: {e}', 'danger')
+        flash(f'❌ Error: {e}', 'error')
     return redirect(url_for('inventario.inventario'))
 
 # =========================================================
-# EDITAR Y ELIMINAR (SEGURIDAD: SOLO ADMIN)
+# EDITAR PRODUCTO (RUTA CORREGIDA)
 # =========================================================
 @inventario_bp.route('/inventario/editar/<int:producto_id>', methods=['POST'])
 @login_required
 def editar_producto(producto_id):
     if current_user.rol.lower() != 'administrador':
-        flash('No tienes permisos para editar.', 'danger')
+        flash('No tienes permisos.', 'error')
         return redirect(url_for('inventario.inventario'))
         
     producto = Producto.query.get_or_404(producto_id)
@@ -212,27 +194,33 @@ def editar_producto(producto_id):
         producto.cantidad = int(request.form.get('cantidad', 0))
         
         db.session.commit()
-        flash(f'✅ Producto actualizado exitosamente.', 'success')
+        flash(f'✅ Producto actualizado.', 'success')
     except Exception as e:
         db.session.rollback()
-        flash(f'❌ Error al editar: {e}', 'danger')
+        flash(f'❌ Error al editar: {e}', 'error')
     return redirect(url_for('inventario.inventario'))
 
+# =========================================================
+# ELIMINAR PRODUCTO (SOPORTA AMBAS RUTAS PARA EVITAR 404)
+# =========================================================
 @inventario_bp.route('/inventario/eliminar/<int:producto_id>')
+@inventario_bp.route('/inventario/eliminar_producto/<int:producto_id>')
 @login_required
 def eliminar_producto(producto_id):
     if current_user.rol.lower() != 'administrador':
-        flash('Acceso denegado.', 'danger')
+        flash('Acceso denegado.', 'error')
         return redirect(url_for('inventario.inventario'))
         
     producto = Producto.query.get_or_404(producto_id)
     try:
+        # Primero eliminar movimientos relacionados para evitar error de llave foránea
+        MovimientoStock.query.filter_by(producto_id=producto_id).delete()
         db.session.delete(producto)
         db.session.commit()
-        flash(f'🗑️ Producto eliminado.', 'success')
+        flash(f'🗑️ Producto eliminado correctamente.', 'success')
     except Exception as e:
         db.session.rollback()
-        flash(f'❌ Error al eliminar: {e}', 'danger')
+        flash(f'❌ Error al eliminar: {e}', 'error')
     return redirect(url_for('inventario.inventario'))
 
 # =========================================================
