@@ -73,6 +73,10 @@
 .bg-ganancia-box { background-color: #f0fdf4; border: 2px dashed #22c55e; border-radius: 15px; padding: 15px; text-align: center; }
 .btn-porcentaje { padding: 8px 15px; font-size: 0.85rem; border-radius: 12px; border: 2px solid var(--azul-claro); background: #f8fafc; font-weight: bold; cursor: pointer; }
 
+/* Impresión de Etiquetas */
+.card-etiqueta-print { border: 2px solid #eee; border-radius: 20px; padding: 25px; text-align: center; background: white; max-width: 320px; margin: 0 auto; }
+.precio-tag { background: #f1f5f9; color: #1e293b; font-size: 1.8rem; font-weight: 900; padding: 10px 20px; border-radius: 15px; display: inline-block; margin: 15px 0; border: 1px solid #cbd5e1; }
+
 @media print {
     body * { visibility: hidden; }
     #area-impresion-barcode, #area-impresion-barcode * { visibility: visible; }
@@ -87,7 +91,7 @@
           <script>
             Swal.fire({
               icon: "{{ 'error' if category == 'error' else 'success' }}",
-              title: "{{ '¡Vaya!' if category == 'error' else '¡Excelente!' }}",
+              title: "{{ 'Error' if category == 'error' else 'Éxito' }}",
               text: "{{ message }}",
               confirmButtonColor: '#1a3a5a'
             });
@@ -99,7 +103,7 @@
     <div class="header-inventario d-flex justify-content-between align-items-center">
         <div>
             <h1 class="mb-1 fw-bold"><i class="fas fa-wine-bottle me-2"></i> Gestión de Cava</h1>
-            <p class="mb-0 opacity-75">San Roque M.B - Inventario Inteligente</p>
+            <p class="mb-0 opacity-75">San Roque M.B - Inventario Maestro</p>
         </div>
         <div class="d-flex gap-2">
             {% if current_user.rol.lower() == 'administrador' %}
@@ -113,7 +117,7 @@
     <div class="card-search-premium">
         <div class="search-container-inner">
             <i class="fas fa-search"></i>
-            <input type="text" id="globalSearch" placeholder="Escanea el código que da error para ELIMINARLO..." autofocus autocomplete="off">
+            <input type="text" id="globalSearch" placeholder="Busca por Nombre, Marca o Código en TODO el inventario..." autofocus autocomplete="off">
         </div>
     </div>
 
@@ -133,7 +137,7 @@
                 <tr class="product-row">
                     <td><span class="badge bg-light text-primary border fw-bold">{{ p.codigo or 'N/A' }}</span></td>
                     <td class="text-start">
-                        <div class="fw-bold text-dark">{{ p.nombre | upper if p.nombre else 'REGISTRO SIN NOMBRE' }}</div>
+                        <div class="fw-bold text-dark" style="font-size: 1rem;">{{ p.nombre | upper if p.nombre else 'SIN NOMBRE' }}</div>
                         <div class="small text-muted text-uppercase">{{ p.marca or 'S.M' }}</div>
                     </td>
                     <td>
@@ -148,7 +152,7 @@
                             <button class="btn-action-base btn-action-barcode" onclick="verEtiqueta('{{ p.codigo }}', '{{ p.nombre|e }}', '{{ p.marca|e }}', '{{ p.valor_venta }}')" title="Etiqueta"><i class="fas fa-barcode"></i></button>
                             {% if current_user.rol.lower() == 'administrador' %}
                             <button class="btn-action-base btn-action-edit" onclick="openEditModal('{{ p.id }}', '{{ p.nombre|e }}', '{{ p.marca|e }}', '{{ p.codigo|e }}', '{{ p.valor_interno }}', '{{ p.valor_venta }}', '{{ p.cantidad }}')" title="Editar"><i class="fas fa-edit"></i></button>
-                            <a class="btn-action-base btn-action-delete" href="{{ url_for('inventario.eliminar_producto', producto_id=p.id) }}" onclick="return confirm('¿Seguro desea ELIMINAR permanentemente este registro?')"><i class="fas fa-trash-alt"></i></a>
+                            <a class="btn-action-base btn-action-delete" href="{{ url_for('inventario.eliminar_producto', producto_id=p.id) }}" onclick="return confirm('¿Eliminar producto?')"><i class="fas fa-trash-alt"></i></a>
                             {% endif %}
                         </div>
                     </td>
@@ -181,7 +185,7 @@
                     <i class="fas {% if m.cantidad > 0 %}fa-arrow-up{% else %}fa-arrow-down{% endif %}"></i>
                 </div>
                 <div class="flex-grow-1">
-                    <div class="fw-bold text-dark">{{ m.producto.nombre | upper if m.producto.nombre else 'ITEM ELIMINADO' }}</div>
+                    <div class="fw-bold text-dark">{{ m.producto.nombre | upper if m.producto.nombre else 'PRODUCTO' }}</div>
                     <div class="text-muted small">{{ m.tipo }} por <b>{{ m.usuario }}</b></div>
                 </div>
                 <div class="text-end">
@@ -206,20 +210,20 @@
                 </div>
                 <div class="modal-body p-4 bg-light">
                     <div class="row g-4">
-                        <div class="col-12"><label class="fw-bold">CÓDIGO</label><input name="codigo" class="form-control" required></div>
+                        <div class="col-12"><label class="fw-bold">CÓDIGO</label><input name="codigo" class="form-control"></div>
                         <div class="col-md-8"><label class="fw-bold">Nombre</label><input name="nombre" class="form-control" required></div>
                         <div class="col-md-4"><label class="fw-bold">Marca</label><input name="marca" class="form-control"></div>
                         <div class="col-md-6"><label class="fw-bold text-primary">Costo</label><input name="valor_interno" id="new_costo" type="number" step="0.01" class="form-control" oninput="calcularMargen('new_costo', 'new_venta', 'new_ganancia', null)"></div>
                         <div class="col-md-6"><label class="fw-bold">Stock Inicial</label><input name="cantidad" type="number" class="form-control" value="0"></div>
                         <div class="col-12">
-                            <label class="small fw-bold text-muted">CALCULAR POR % GANANCIA:</label>
-                            <select class="form-select border-primary" onchange="calcularMargen('new_costo', 'new_venta', 'new_ganancia', this.value)">
+                            <label class="small fw-bold text-muted">MÁRGEN %:</label>
+                            <select class="form-select border-primary fw-bold" onchange="calcularMargen('new_costo', 'new_venta', 'new_ganancia', this.value)">
                                 <option value="">-- Seleccionar --</option>
                                 {% for i in range(5, 71, 5) %}<option value="{{ i }}">{{ i }}%</option>{% endfor %}
                             </select>
                         </div>
                         <div class="col-md-6"><label class="fw-bold text-success">Precio Venta</label><input name="valor_venta" id="new_venta" type="number" step="0.01" class="form-control" oninput="calcularMargen('new_costo', 'new_venta', 'new_ganancia', null)"></div>
-                        <div class="col-md-6"><div class="bg-ganancia-box"><span id="new_ganancia" class="h5 fw-bold text-success">$ 0</span></div></div>
+                        <div class="col-md-6"><div class="bg-ganancia-box py-3"><span id="new_ganancia" class="h5 fw-bold text-success">$ 0</span></div></div>
                     </div>
                 </div>
                 <div class="modal-footer border-0 p-4"><button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-pill">GUARDAR</button></div>
@@ -233,27 +237,28 @@
         <div class="modal-content border-0 shadow-lg" style="border-radius: 25px;">
             <form method="POST" id="editForm">
                 <div class="modal-header bg-dark text-white p-4" style="border-radius: 25px 25px 0 0;">
-                    <h5 class="modal-title fw-bold">EDITAR / CORREGIR</h5>
+                    <h5 class="modal-title fw-bold">EDITAR PRODUCTO</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4 bg-light">
                     <div class="row g-4">
-                        <div class="col-12"><label class="fw-bold">CÓDIGO (Si aparece N/A cámbialo aquí)</label><input name="codigo" id="edit_codigo" class="form-control"></div>
+                        <div class="col-12"><label class="fw-bold">CÓDIGO</label><input name="codigo" id="edit_codigo" class="form-control"></div>
                         <div class="col-md-8"><label class="fw-bold">Nombre</label><input name="nombre" id="edit_nombre" class="form-control" required></div>
                         <div class="col-md-4"><label class="fw-bold">Marca</label><input name="marca" id="edit_marca" class="form-control"></div>
-                        <div class="col-md-6"><label class="fw-bold text-primary">Costo</label><input name="valor_interno" id="edit_costo" type="number" step="0.01" class="form-control" oninput="calcularMargen('edit_costo', 'edit_venta', 'edit_ganancia', null)"></div>
+                        <div class="col-md-6"><label class="fw-bold">Costo</label><input name="valor_interno" id="edit_costo" type="number" step="0.01" class="form-control" oninput="calcularMargen('edit_costo', 'edit_venta', 'edit_ganancia', null)"></div>
                         <div class="col-md-6"><label class="fw-bold">Stock</label><input name="cantidad" id="edit_cantidad" type="number" class="form-control"></div>
                         <div class="col-12">
-                            <select class="form-select border-primary" id="dropdown_edit" onchange="calcularMargen('edit_costo', 'edit_venta', 'edit_ganancia', this.value)">
-                                <option value="">-- Ajustar Margen % --</option>
+                            <label class="small fw-bold text-muted">AJUSTAR % GANANCIA:</label>
+                            <select class="form-select border-primary fw-bold" id="select_margen_edit" onchange="calcularMargen('edit_costo', 'edit_venta', 'edit_ganancia', this.value)">
+                                <option value="">-- Seleccionar (5% al 70%) --</option>
                                 {% for i in range(5, 71, 5) %}<option value="{{ i }}">{{ i }}%</option>{% endfor %}
                             </select>
                         </div>
                         <div class="col-md-6"><label class="fw-bold text-success">Precio Venta</label><input name="valor_venta" id="edit_venta" type="number" step="0.01" class="form-control" oninput="calcularMargen('edit_costo', 'edit_venta', 'edit_ganancia', null)"></div>
-                        <div class="col-md-6"><div class="bg-ganancia-box"><span id="edit_ganancia" class="h5 fw-bold text-success">$ 0</span></div></div>
+                        <div class="col-md-6"><div class="bg-ganancia-box py-3"><span id="edit_ganancia" class="h5 fw-bold text-success">$ 0</span></div></div>
                     </div>
                 </div>
-                <div class="modal-footer border-0 p-4"><button type="submit" class="btn btn-dark w-100 py-3 fw-bold rounded-pill">ACTUALIZAR DATOS</button></div>
+                <div class="modal-footer border-0 p-4"><button type="submit" class="btn btn-dark w-100 py-3 fw-bold rounded-pill">ACTUALIZAR</button></div>
             </form>
         </div>
     </div>
@@ -271,7 +276,7 @@
                     <h4 id="stock_nombre_prod" class="fw-bold text-primary mb-4"></h4>
                     <div class="row g-3">
                         <div class="col-6"><label class="small fw-bold">ACTUAL</label><input type="number" id="stock_actual" class="form-control text-center bg-light border-0" readonly></div>
-                        <div class="col-6"><label class="small fw-bold text-primary">AÑADIR</label><input type="number" name="cantidad_sumar" id="cantidad_sumar" class="form-control text-center" value="0" oninput="calcularNuevoTotal()"></div>
+                        <div class="col-6"><label class="small fw-bold text-primary">SUMAR</label><input type="number" name="cantidad_sumar" id="cantidad_sumar" class="form-control text-center" value="0" oninput="calcularNuevoTotal()"></div>
                         <div class="col-12 mt-4"><div class="p-3 bg-dark rounded-3 text-white"><small class="fw-bold">STOCK FINAL</small><div id="stock_nuevo_total" class="h1 fw-bold text-info mb-0">0</div></div></div>
                     </div>
                 </div>
@@ -284,18 +289,18 @@
 <div class="modal fade" id="barcodeModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
-            <div class="modal-body text-center p-5">
+            <div class="modal-body">
                 <div id="area-impresion-barcode">
                     <div class="card-etiqueta-print">
                         <h4 id="tag-nombre" class="fw-bold text-primary"></h4>
-                        <p id="tag-marca" class="text-muted small mb-1"></p>
+                        <p id="tag-marca" class="text-muted small"></p>
                         <div class="precio-tag" id="tag-precio"></div>
                         <div class="mt-2"><img id="tag-barcode-img" src="" style="max-width: 100%;"><p class="fw-bold mt-1"><code id="tag-codigo-texto"></code></p></div>
                     </div>
                 </div>
                 <div class="d-flex justify-content-center gap-3 mt-4">
-                    <button class="btn btn-outline-primary fw-bold" onclick="window.print()">IMPRIMIR</button>
-                    <button class="btn btn-secondary fw-bold" data-bs-dismiss="modal">CERRAR</button>
+                    <button class="btn btn-outline-primary" onclick="window.print()">IMPRIMIR</button>
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">CERRAR</button>
                 </div>
             </div>
         </div>
@@ -303,7 +308,7 @@
 </div>
 
 <script>
-// BUSCADOR GLOBAL AJAX REFORZADO (Busca errores N/A)
+// Buscador AJAX Global
 document.getElementById('globalSearch').addEventListener('input', function() {
     let query = this.value.trim();
     let tbody = document.getElementById('inventoryBody');
@@ -316,19 +321,20 @@ document.getElementById('globalSearch').addEventListener('input', function() {
             .then(data => {
                 tbody.innerHTML = '';
                 if (data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-muted">No se encontró. Puedes crearlo como NUEVO.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-muted font-italic">No se encontró.</td></tr>';
                 } else {
                     data.forEach(p => {
                         tbody.innerHTML += `
                             <tr class="product-row">
-                                <td><span class="badge bg-warning text-dark border">${p.codigo || 'N/A'}</span></td>
-                                <td class="text-start"><b>${p.nombre || 'ERROR: SIN NOMBRE'}</b></td>
+                                <td><span class="badge bg-light text-primary border">${p.codigo || 'N/A'}</span></td>
+                                <td class="text-start"><b>${p.nombre || 'SIN NOMBRE'}</b></td>
                                 <td><span class="badge-stock stock-top">${p.stock} UND</span></td>
                                 <td><span class="fw-bold">$${p.precio.toLocaleString()}</span></td>
                                 <td>
                                     <div class="d-flex gap-2 justify-content-center">
+                                        <button class="btn-action-base btn-action-stock" onclick="openStockModal('${p.id}', '${p.nombre}', '${p.stock}')"><i class="fas fa-cubes"></i></button>
                                         <button class="btn-action-base btn-action-edit" onclick="openEditModal('${p.id}', '${p.nombre}', '', '${p.codigo}', '', '${p.precio}', '${p.stock}')"><i class="fas fa-edit"></i></button>
-                                        <a class="btn-action-base btn-action-delete" href="/inventario/eliminar_producto/${p.id}" onclick="return confirm('¿Eliminar permanentemente este registro con error?')"><i class="fas fa-trash-alt"></i></a>
+                                        <a class="btn-action-base btn-action-delete" href="/inventario/eliminar_producto/${p.id}" onclick="return confirm('¿Eliminar?')"><i class="fas fa-trash-alt"></i></a>
                                     </div>
                                 </td>
                             </tr>`;
@@ -343,7 +349,9 @@ document.getElementById('globalSearch').addEventListener('input', function() {
 function calcularMargen(idCosto, idVenta, idGanancia, porcentaje) {
     const costo = parseFloat(document.getElementById(idCosto).value) || 0;
     const ventaInput = document.getElementById(idVenta);
-    if (porcentaje) ventaInput.value = Math.round(costo * (1 + (parseInt(porcentaje) / 100)));
+    if (porcentaje !== null && porcentaje !== "") {
+        ventaInput.value = Math.round(costo * (1 + (parseInt(porcentaje) / 100)));
+    }
     const ganancia = (parseFloat(ventaInput.value) || 0) - costo;
     document.getElementById(idGanancia).innerText = '$ ' + ganancia.toLocaleString();
 }
@@ -366,7 +374,7 @@ function calcularNuevoTotal() {
 function openEditModal(id, nombre, marca, codigo, costo, venta, cantidad) {
     document.getElementById('edit_nombre').value = nombre || '';
     document.getElementById('edit_marca').value = marca || '';
-    document.getElementById('edit_codigo').value = codigo || '';
+    document.getElementById('edit_codigo').value = codigo === 'N/A' ? '' : codigo;
     document.getElementById('edit_costo').value = costo || 0;
     document.getElementById('edit_venta').value = venta || 0;
     document.getElementById('edit_cantidad').value = cantidad || 0;
