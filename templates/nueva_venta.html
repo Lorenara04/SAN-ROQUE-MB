@@ -32,7 +32,6 @@
     .card-pos-header { background: var(--azul-sanroque); color: white; padding: 12px 15px; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
     .card-pos-body { padding: 20px; }
 
-    /* Ventas en Espera */
     .espera-bar { background: #e2e8f0; padding: 10px 15px; border-radius: 10px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .btn-pausa { background: var(--dorado-olimpo); color: white; border: none; border-radius: 8px; padding: 5px 15px; font-weight: 700; font-size: 0.75rem; transition: 0.3s; }
     .btn-pausa:hover { background: #966d09; }
@@ -52,15 +51,9 @@
     .btn-finalizar { background: #166534; color: white; border: none; border-radius: 10px; padding: 18px; width: 100%; font-weight: 800; font-size: 1.2rem; text-transform: uppercase; transition: 0.3s; cursor: pointer;}
     .btn-finalizar:hover { background: #14534c; transform: translateY(-2px); }
 
-    .table-pos tbody tr:nth-child(even) { background-color: #f8fafc; }
     .table-pos thead th { font-size: 0.7rem; border-bottom: 2px solid var(--border-color); padding: 12px; }
 
     .ref-box { background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; display: none; margin-top: 10px; }
-    
-    .select2-results__option { font-size: 13px; border-bottom: 1px solid #f1f1f1; padding: 10px; }
-    .select2-product-title { font-weight: bold; color: var(--azul-sanroque); display: block; }
-    .select2-product-desc { font-size: 11px; color: #666; display: block; font-style: italic; }
-    .select2-product-price { font-weight: bold; color: #2e7d32; float: right; }
 </style>
 
 <script id="product-data" type="application/json">
@@ -74,14 +67,13 @@
             <button type="button" class="btn-pausa" onclick="pausarVenta()">
                 <i class="fas fa-pause-circle me-1"></i> PAUSAR VENTA
             </button>
-            <div id="lista-pendientes" class="d-flex gap-2">
-                </div>
+            <div id="lista-pendientes" class="d-flex gap-2"></div>
         </div>
 
         <div class="card-pos">
             <div class="card-pos-header">ESCANEAR CÓDIGO <i class="fas fa-barcode"></i></div>
             <div class="card-pos-body">
-                <input type="text" id="barcode_input" class="form-control form-control-pos" placeholder="Escanee código..." autofocus autocomplete="off">
+                <input type="text" id="barcode_input" class="form-control form-control-pos" placeholder="Pase la pistola aquí..." autofocus autocomplete="off">
             </div>
         </div>
 
@@ -165,9 +157,9 @@
                         <span id="vuelto-monto" class="vuelto-val">$ 0</span>
                     </div>
 
-                    <div id="ref-nequi" class="ref-box"><label class="form-label">REF. NEQUI</label><input type="text" id="codigo_nequi" class="form-control form-control-pos" placeholder="Ingrese comprobante"></div>
-                    <div id="ref-daviplata" class="ref-box"><label class="form-label">REF. DAVIPLATA</label><input type="text" id="codigo_daviplata" class="form-control form-control-pos" placeholder="Ingrese comprobante"></div>
-                    <div id="ref-tarjeta" class="ref-box"><label class="form-label">REF. TARJETA</label><input type="text" id="codigo_tarjeta" class="form-control form-control-pos" placeholder="Ingrese comprobante"></div>
+                    <div id="ref-nequi" class="ref-box"><label class="form-label">REF. NEQUI</label><input type="text" id="codigo_nequi" class="form-control form-control-pos"></div>
+                    <div id="ref-daviplata" class="ref-box"><label class="form-label">REF. DAVIPLATA</label><input type="text" id="codigo_daviplata" class="form-control form-control-pos"></div>
+                    <div id="ref-tarjeta" class="ref-box"><label class="form-label">REF. TARJETA</label><input type="text" id="codigo_tarjeta" class="form-control form-control-pos"></div>
                 </div>
             </div>
 
@@ -181,70 +173,40 @@
 </div>
 
 <script>
-    // --- DATOS Y VARIABLES ---
     const productData = JSON.parse(document.getElementById('product-data').textContent);
     let carrito = {};
     let ventasEnEspera = JSON.parse(localStorage.getItem('espera_san_roque')) || [];
 
     function formatCurrency(v) { return v.toLocaleString('es-CO'); }
 
-    // --- LÓGICA DE VENTAS EN ESPERA ---
-    function pausarVenta() {
-        if (Object.keys(carrito).length === 0) return alert("El carrito está vacío.");
-        
-        const nuevaVenta = {
-            id: Date.now(),
-            cliente: $('#cliente_id_select').val(),
-            items: { ...carrito },
-            fecha: new Date().toLocaleTimeString()
-        };
+    // --- LÓGICA DE ESCÁNER (CORREGIDA) ---
+    document.getElementById('barcode_input').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault(); // EVITA que el Enter salte de campo
+            const codigo = this.value.trim();
+            if (codigo) {
+                const p = productData.find(x => x.codigo === codigo);
+                if (p) {
+                    const cat = getCategoriaActual();
+                    const precio = (cat === 'premium') ? p.precio_costo : p.precio_venta;
 
-        ventasEnEspera.push(nuevaVenta);
-        localStorage.setItem('espera_san_roque', JSON.stringify(ventasEnEspera));
-        
-        carrito = {};
-        renderizarCarrito();
-        actualizarListaPendientes();
-        document.getElementById('barcode_input').focus();
-    }
-
-    function recuperarVenta(id) {
-        if (Object.keys(carrito).length > 0) {
-            if (!confirm("Ya hay items en el carrito. ¿Deseas reemplazarlos?")) return;
+                    if (carrito[p.id]) {
+                        carrito[p.id].cantidad++;
+                        carrito[p.id].precio = precio;
+                    } else {
+                        carrito[p.id] = {id: p.id, nombre: p.nombre, marca: p.marca, precio: precio, cantidad: 1};
+                    }
+                    renderizarCarrito();
+                } else {
+                    alert("Producto no registrado.");
+                }
+            }
+            this.value = '';
+            this.focus();
         }
+    });
 
-        const index = ventasEnEspera.findIndex(v => v.id === id);
-        const venta = ventasEnEspera[index];
-
-        carrito = { ...venta.items };
-        $('#cliente_id_select').val(venta.cliente).trigger('change');
-        
-        ventasEnEspera.splice(index, 1);
-        localStorage.setItem('espera_san_roque', JSON.stringify(ventasEnEspera));
-        
-        renderizarCarrito();
-        actualizarListaPendientes();
-        document.getElementById('barcode_input').focus();
-    }
-
-    function actualizarListaPendientes() {
-        const contenedor = document.getElementById('lista-pendientes');
-        contenedor.innerHTML = '';
-        if (ventasEnEspera.length === 0) {
-            contenedor.innerHTML = '<span class="text-muted small italic">No hay pedidos en espera.</span>';
-            return;
-        }
-        ventasEnEspera.forEach((venta, i) => {
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'btn-recuperar';
-            btn.innerHTML = `<i class="fas fa-user-clock me-1"></i> ESPERA ${i+1} <small>(${venta.fecha})</small>`;
-            btn.onclick = () => recuperarVenta(venta.id);
-            contenedor.appendChild(btn);
-        });
-    }
-
-    // --- LÓGICA DE CARRITO Y PRECIOS ---
+    // --- LÓGICA DE CLIENTE Y CATEGORÍAS ---
     function getCategoriaActual() {
         const select = document.getElementById('cliente_id_select');
         return select.options[select.selectedIndex].getAttribute('data-categoria') || 'estandar';
@@ -260,35 +222,38 @@
         document.getElementById('barcode_input').focus();
     }
 
-    // --- ESCÁNER AUTOMÁTICO ---
-    document.getElementById('barcode_input').addEventListener('keypress', function(e){
-        if(e.key === 'Enter'){
-            e.preventDefault();
-            const codigo = this.value.trim();
-            if(!codigo) return;
-            
-            const p = productData.find(x => x.codigo === codigo);
-            if(!p){ 
-                alert("Producto no registrado en sistema."); 
-                this.value = '';
-                return; 
-            }
-            
-            const cat = getCategoriaActual();
-            const precio = (cat === 'premium') ? p.precio_costo : p.precio_venta;
-
-            if(carrito[p.id]){
-                carrito[p.id].cantidad++;
-                carrito[p.id].precio = precio;
-            }else{
-                carrito[p.id] = {id:p.id, nombre:p.nombre, marca:p.marca, precio:precio, cantidad:1};
-            }
-            renderizarCarrito();
-            this.value = ''; // Limpia el campo para el siguiente escaneo
-            this.focus();    // Mantiene el foco para rapidez
+    function renderizarCarrito() {
+        const body = document.getElementById('carrito-body');
+        body.innerHTML = '';
+        let total = 0;
+        for (const key in carrito) {
+            const item = carrito[key];
+            const sub = item.precio * item.cantidad;
+            total += sub;
+            body.innerHTML += `
+                <tr>
+                    <td class="text-start ps-3">
+                        <span class="fw-bold d-block">${item.nombre.toUpperCase()}</span>
+                        <small class="text-muted">${item.marca ? item.marca.toUpperCase() : 'S.M'}</small>
+                    </td>
+                    <td>${item.cantidad}</td>
+                    <td class="text-muted small">$${formatCurrency(item.precio)}</td>
+                    <td class="text-end pe-3 fw-bold">$${formatCurrency(sub)}</td>
+                    <td><button type="button" class="btn btn-sm text-danger" onclick="eliminarItem(${key})"><i class="fas fa-times"></i></button></td>
+                </tr>`;
         }
-    });
+        document.getElementById('total-final').innerText = formatCurrency(total);
+        document.getElementById('total-final').dataset.rawTotal = total;
+        actualizarPagos();
+    }
 
+    function eliminarItem(id) {
+        delete carrito[id];
+        renderizarCarrito();
+        document.getElementById('barcode_input').focus();
+    }
+
+    // --- PAGOS Y VUELTOS ---
     function actualizarPagos() {
         let totalPagado = 0;
         ['nequi', 'daviplata', 'tarjeta', 'transferencia'].forEach(m => {
@@ -305,15 +270,9 @@
         const diff = totalPagado - totalCarrito;
 
         const vueltoEl = document.getElementById('vuelto-monto');
-        if(diff >= 0){
-            document.querySelector('.vuelto-label').innerText = 'CAMBIO';
-            vueltoEl.innerText = `$ ${formatCurrency(diff)}`;
-            vueltoEl.style.color = '#38bdf8';
-        }else{
-            document.querySelector('.vuelto-label').innerText = 'FALTAN';
-            vueltoEl.innerText = `$ ${formatCurrency(Math.abs(diff))}`;
-            vueltoEl.style.color = '#fb7185';
-        }
+        vueltoEl.innerText = `$ ${formatCurrency(Math.abs(diff))}`;
+        vueltoEl.style.color = diff >= 0 ? '#38bdf8' : '#fb7185';
+        document.querySelector('.vuelto-label').innerText = diff >= 0 ? 'CAMBIO' : 'FALTAN';
         return { totalPagado, totalCarrito };
     }
 
@@ -329,75 +288,34 @@
             carrito[id].cantidad += cant;
             carrito[id].precio = precio;
         } else {
-            carrito[id] = { id:p.id, nombre:p.nombre, marca:p.marca, precio:precio, cantidad:cant };
+            carrito[id] = { id: p.id, nombre: p.nombre, marca: p.marca, precio: precio, cantidad: cant };
         }
         renderizarCarrito();
         $('#manual_producto').val('').trigger('change');
         document.getElementById('barcode_input').focus();
     }
 
-    function renderizarCarrito() {
-        const body = document.getElementById('carrito-body');
-        body.innerHTML = '';
-        let total = 0;
-        for (const key in carrito) {
-            const item = carrito[key];
-            const sub = item.precio * item.cantidad;
-            total += sub;
-            body.innerHTML += `
-                <tr>
-                    <td class="text-start ps-3">
-                        <span class="fw-bold d-block" style="font-size: 0.9rem;">${item.nombre.toUpperCase()}</span>
-                        <span class="text-muted" style="font-size: 0.7rem;">${item.marca ? item.marca.toUpperCase() : 'S.M'}</span>
-                    </td>
-                    <td>${item.cantidad}</td>
-                    <td class="text-muted small">$${formatCurrency(item.precio)}</td>
-                    <td class="text-end pe-3 fw-bold">$${formatCurrency(sub)}</td>
-                    <td><button type="button" class="btn btn-sm text-danger" onclick="delete carrito[${key}]; renderizarCarrito();"><i class="fas fa-times"></i></button></td>
-                </tr>`;
-        }
-        document.getElementById('total-final').innerText = formatCurrency(total);
-        document.getElementById('total-final').dataset.rawTotal = total;
-        actualizarPagos();
-    }
-
     function validarYEnviar(e) {
         e.preventDefault();
         const { totalPagado, totalCarrito } = actualizarPagos();
-        if (totalCarrito <= 0) return alert("El carrito está vacío.");
-        if (totalPagado < totalCarrito) return alert("El monto pagado es insuficiente.");
+        if (totalCarrito <= 0) return alert("Carrito vacío.");
+        if (totalPagado < totalCarrito) return alert("Pago insuficiente.");
 
-        const productosFinales = Object.values(carrito).map(item => ({
-            ...item,
-            subtotal: item.precio * item.cantidad
-        }));
-
-        document.getElementById('productos_vendidos_json').value = JSON.stringify(productosFinales);
+        document.getElementById('productos_vendidos_json').value = JSON.stringify(Object.values(carrito).map(i => ({...i, subtotal: i.precio * i.cantidad})));
         document.getElementById('total_venta_hidden').value = totalCarrito;
         document.getElementById('cliente_id_hidden').value = $('#cliente_id_select').val();
         document.getElementById('referencias_pago_json').value = JSON.stringify({
-            Nequi: $('#codigo_nequi').val() || '',
-            Daviplata: $('#codigo_daviplata').val() || '',
-            Tarjeta: $('#codigo_tarjeta').val() || ''
+            Nequi: $('#codigo_nequi').val(),
+            Daviplata: $('#codigo_daviplata').val(),
+            Tarjeta: $('#codigo_tarjeta').val()
         });
         document.getElementById('form_venta').submit();
     }
 
-    // --- INICIALIZACIÓN ---
     $(document).ready(() => {
-        $('#manual_producto').select2({
-            theme: 'bootstrap-5',
-            templateResult: function(data) {
-                if (!data.id) return data.text;
-                const p = productData.find(x => x.id == data.id);
-                return $(`<span><span class="select2-product-price">$${formatCurrency(p.precio_venta)}</span><span class="select2-product-title">${p.nombre.toUpperCase()}</span><span class="select2-product-desc">${p.marca ? p.marca.toUpperCase() : 'S.M'} | STOCK: ${p.stock}</span></span>`);
-            }
-        });
+        $('#manual_producto').select2({ theme: 'bootstrap-5' });
         $('#cliente_id_select').select2({ theme: 'bootstrap-5' });
         $('.pago-input').on('input', actualizarPagos);
-        actualizarListaPendientes();
-        
-        // Asegurar que el foco siempre empiece en el escáner
         document.getElementById('barcode_input').focus();
     });
 </script>

@@ -26,7 +26,6 @@
   color: white; padding: 35px; border-radius: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); margin-bottom: 30px;
 }
 
-/* Panel de Control: Buscador Inteligente */
 .card-control-panel {
   border-radius: 20px; background: #fff; border-top: 5px solid var(--azul-acero);
   box-shadow: 0 10px 25px rgba(0,0,0,0.05); padding: 25px; margin-bottom: 30px;
@@ -35,9 +34,7 @@
 .search-wrapper { position: relative; }
 .search-wrapper i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--azul-acero); }
 .search-wrapper .form-control { padding-left: 45px; border-radius: 15px; border: 2px solid var(--azul-claro); height: 55px; transition: 0.3s; font-size: 1.1rem; }
-.search-wrapper .form-control:focus { border-color: var(--azul-acero); box-shadow: 0 0 0 4px rgba(74, 105, 189, 0.1); }
 
-/* Tabla Estilizada */
 .tabla-container {
   background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid var(--azul-claro);
 }
@@ -47,9 +44,6 @@
   text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1.5px; padding: 20px; border: none;
 }
 
-.table-striped-custom tbody tr:hover { background-color: var(--azul-claro) !important; transition: 0.3s; }
-
-/* Badges de Stock */
 .badge-stock {
   padding: 10px 16px; border-radius: 50px; font-weight: 800; font-size: 0.75rem;
   display: inline-flex; align-items: center; gap: 8px; min-width: 130px; justify-content: center;
@@ -60,16 +54,6 @@
 
 @keyframes pulse-danger { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
-/* Botones UI */
-.btn-porcentaje {
-    padding: 8px 15px; font-size: 0.85rem; border-radius: 12px;
-    border: 2px solid var(--azul-claro); background: #f8fafc; color: var(--azul-premium);
-    transition: 0.3s; margin: 3px; font-weight: bold;
-}
-.btn-porcentaje:hover { background: var(--azul-premium); color: white; border-color: var(--azul-premium); transform: translateY(-2px); }
-
-.bg-ganancia-box { background-color: #f0fdf4; border: 2px dashed #22c55e; border-radius: 15px; padding: 15px; text-align: center; }
-
 .btn-action-base {
   width: 42px; height: 42px; border-radius: 12px; display: inline-flex;
   align-items: center; justify-content: center; border: none; color: #fff; transition: 0.3s;
@@ -79,11 +63,17 @@
 .btn-action-barcode { background: var(--rosa-tag); }
 .btn-action-stock { background: var(--azul-acero); }
 
-/* Etiqueta */
 .card-etiqueta-print {
     border: 2px solid #eee; border-radius: 20px; padding: 25px; text-align: center; background: white; max-width: 320px; margin: 0 auto;
 }
 .precio-tag { background: #f1f5f9; color: #1e293b; font-size: 1.8rem; font-weight: 900; padding: 10px 20px; border-radius: 15px; display: inline-block; margin: 15px 0; border: 1px solid #cbd5e1; }
+
+.btn-porcentaje {
+    padding: 8px 15px; font-size: 0.85rem; border-radius: 12px;
+    border: 2px solid var(--azul-claro); background: #f8fafc; color: var(--azul-premium);
+    transition: 0.3s; margin: 3px; font-weight: bold;
+}
+.bg-ganancia-box { background-color: #f0fdf4; border: 2px dashed #22c55e; border-radius: 15px; padding: 15px; text-align: center; }
 
 @media print {
     body * { visibility: hidden; }
@@ -113,7 +103,7 @@
     <div class="card-control-panel">
         <div class="row align-items-center">
             <div class="col-12">
-                <h6 class="fw-bold text-muted mb-3"><i class="fas fa-search me-2"></i>BUSCADOR MULTI-FILTRO (NOMBRE, MARCA O CÓDIGO)</h6>
+                <h6 class="fw-bold text-muted mb-3"><i class="fas fa-search me-2"></i>BUSCADOR MULTI-FILTRO</h6>
                 <div class="search-wrapper">
                     <i class="fas fa-barcode fs-4"></i>
                     <input type="text" id="smartSearch" class="form-control" placeholder="Escanea código de barras o escribe para filtrar productos..." autofocus>
@@ -153,22 +143,17 @@
                     <td><span class="fw-bold text-dark h5 mb-0">${{ p.valor_venta }}</span></td>
                     <td>
                         <div class="d-flex gap-2 justify-content-center">
-                            <button class="btn-action-base btn-action-stock" title="Ajustar Stock"
-                                onclick="openStockModal('{{ p.id }}', '{{ p.nombre|e }}', '{{ p.cantidad }}')">
+                            <button class="btn-action-base btn-action-stock" onclick="openStockModal('{{ p.id }}', '{{ p.nombre|e }}', '{{ p.cantidad }}')" title="Ajustar Stock">
                                 <i class="fas fa-cubes"></i>
                             </button>
-                            <button class="btn-action-base btn-action-barcode" title="Ver Etiqueta"
-                                onclick="verEtiqueta('{{ p.codigo }}', '{{ p.nombre|e }}', '{{ p.marca|e }}', '{{ p.valor_venta }}')">
+                            <button class="btn-action-base btn-action-barcode" onclick="verEtiqueta('{{ p.codigo }}', '{{ p.nombre|e }}', '{{ p.marca|e }}', '{{ p.valor_venta }}')" title="Ver Etiqueta">
                                 <i class="fas fa-barcode"></i>
                             </button>
                             {% if current_user.rol.lower() == 'administrador' %}
-                            <button class="btn-action-base btn-action-edit" title="Editar"
-                                onclick="openEditModal('{{ p.id }}', '{{ p.nombre|e }}', '{{ p.marca|e }}', '{{ p.codigo|e }}', '{{ p.valor_interno }}', '{{ p.valor_venta }}', '{{ p.cantidad }}')">
+                            <button class="btn-action-base btn-action-edit" onclick="openEditModal('{{ p.id }}', '{{ p.nombre|e }}', '{{ p.marca|e }}', '{{ p.codigo|e }}', '{{ p.valor_interno }}', '{{ p.valor_venta }}', '{{ p.cantidad }}')" title="Editar">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <a class="btn-action-base btn-action-delete" title="Eliminar"
-                               href="{{ url_for('inventario.eliminar_producto', producto_id=p.id) }}"
-                               onclick="return confirm('¿Seguro que desea eliminar este producto?')">
+                            <a class="btn-action-base btn-action-delete" href="{{ url_for('inventario.eliminar_producto', producto_id=p.id) }}" onclick="return confirm('¿Eliminar producto?')">
                                  <i class="fas fa-trash-alt"></i>
                             </a>
                             {% endif %}
@@ -178,20 +163,6 @@
                 {% endfor %}
             </tbody>
         </table>
-
-        <div class="d-flex justify-content-between align-items-center p-4 bg-light">
-            <div class="text-muted small fw-bold">Página {{ productos_paginados.page }} de {{ productos_paginados.pages }}</div>
-            <nav>
-                <ul class="pagination mb-0">
-                    <li class="page-item {{ 'disabled' if not productos_paginados.has_prev }}">
-                        <a class="page-link shadow-sm" href="{{ url_for('inventario.inventario', page=productos_paginados.prev_num) }}">Anterior</a>
-                    </li>
-                    <li class="page-item {{ 'disabled' if not productos_paginados.has_next }}">
-                        <a class="page-link shadow-sm" href="{{ url_for('inventario.inventario', page=productos_paginados.next_num) }}">Siguiente</a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
     </div>
 
     <div class="card-control-panel mt-4 shadow-sm" style="border-top: 5px solid var(--rosa-tag);">
@@ -230,42 +201,86 @@
     </div>
 </div>
 
+<div class="modal fade" id="addProductModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 25px;">
+            <form action="{{ url_for('inventario.crear_producto') }}" method="POST">
+                <div class="modal-header bg-primary text-white p-4" style="border-radius: 25px 25px 0 0;">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-cart-plus me-2"></i>REGISTRAR PRODUCTO</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4 bg-light">
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <label class="form-label fw-bold text-primary">CÓDIGO DE BARRAS</label>
+                            <input name="codigo" class="form-control" placeholder="Escanee o escriba código">
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label fw-bold text-muted">Nombre</label>
+                            <input name="nombre" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold text-muted">Detalle/Marca</label>
+                            <input name="marca" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-primary">Costo Compra</label>
+                            <input name="valor_interno" id="new_costo" type="number" step="0.01" class="form-control" oninput="calcularMargen('new_costo', 'new_venta', 'new_ganancia', null)">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-danger">Stock Inicial</label>
+                            <input name="cantidad" type="number" class="form-control" value="0" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold text-muted">Márgenes Rápidos (%)</label>
+                            <div class="d-flex flex-wrap gap-1">
+                                {% for i in range(10, 51, 10) %}
+                                <button type="button" class="btn-porcentaje" onclick="calcularMargen('new_costo', 'new_venta', 'new_ganancia', {{ i }})">{{ i }}%</button>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-success">Precio de Venta</label>
+                            <input name="valor_venta" id="new_venta" type="number" step="0.01" class="form-control" oninput="calcularMargen('new_costo', 'new_venta', 'new_ganancia', null)">
+                        </div>
+                        <div class="col-md-6">
+                            <div class="bg-ganancia-box">
+                                <small class="fw-bold text-muted">UTILIDAD</small><br>
+                                <span id="new_ganancia" class="h4 fw-bold text-success">$ 0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4">
+                    <button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-pill">GUARDAR EN INVENTARIO</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
-// --- BUSCADOR MULTI-FILTRO ACTUALIZADO ---
+// (Buscador, calcularMargen, openStockModal, openEditModal, verEtiqueta - Se mantienen igual)
 document.getElementById('smartSearch').addEventListener('input', function() {
     let filter = this.value.toUpperCase().trim();
     let rows = document.querySelectorAll('.product-row');
-    
     rows.forEach(row => {
         let name = row.querySelector('.product-name').innerText.toUpperCase();
         let brand = row.querySelector('.product-brand').innerText.toUpperCase();
         let code = row.querySelector('.product-code').innerText.toUpperCase();
-        
-        // El producto se muestra si coincide el filtro con cualquier campo
-        if (name.includes(filter) || brand.includes(filter) || code.includes(filter)) {
-            row.style.display = "";
-        } else {
-            row.style.display = "none";
-        }
+        row.style.display = (name.includes(filter) || brand.includes(filter) || code.includes(filter)) ? "" : "none";
     });
 });
 
-// --- LÓGICA DE CÁLCULOS ---
 function calcularMargen(idCosto, idVenta, idGanancia, porcentaje) {
     const costo = parseFloat(document.getElementById(idCosto).value) || 0;
     const ventaInput = document.getElementById(idVenta);
     const gananciaDisplay = document.getElementById(idGanancia);
-    
-    if (porcentaje !== null) {
-        ventaInput.value = Math.round(costo * (1 + (porcentaje / 100)));
-    }
-    
+    if (porcentaje !== null) ventaInput.value = Math.round(costo * (1 + (porcentaje / 100)));
     const ventaActual = parseFloat(ventaInput.value) || 0;
-    const ganancia = ventaActual - costo;
-    gananciaDisplay.innerText = ganancia.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 });
+    gananciaDisplay.innerText = (ventaActual - costo).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 });
 }
 
-// --- GESTIÓN DE MODALES ---
 function openStockModal(id, nombre, actual) {
     document.getElementById('stock_nombre_prod').innerText = nombre.toUpperCase();
     document.getElementById('stock_actual').value = actual;
@@ -289,7 +304,6 @@ function openEditModal(id, nombre, marca, codigo, costo, venta, cantidad) {
   document.getElementById('edit_venta').value = venta;
   document.getElementById('edit_cantidad').value = cantidad;
   document.getElementById('editForm').action = "/inventario/editar/" + id;
-  
   setTimeout(() => calcularMargen('edit_costo', 'edit_venta', 'edit_ganancia', null), 200);
   new bootstrap.Modal(document.getElementById('editProductModal')).show();
 }
@@ -299,28 +313,9 @@ function verEtiqueta(codigo, nombre, marca, precio) {
     document.getElementById('tag-marca').innerText = marca || 'LICORERA SAN ROQUE';
     document.getElementById('tag-codigo-texto').innerText = codigo;
     document.getElementById('tag-precio').innerText = '$ ' + precio;
-    const urlImagen = `/generar_codigo/${codigo}`;
-    document.getElementById('tag-barcode-img').src = urlImagen;
-    document.getElementById('btn-descargar-link').href = urlImagen;
-    document.getElementById('btn-descargar-link').download = `Etiqueta_${codigo}.png`;
+    document.getElementById('tag-barcode-img').src = `/generar_codigo/${codigo}`;
     new bootstrap.Modal(document.getElementById('barcodeModal')).show();
 }
-
-// --- ALERTAS INICIALES ---
-document.addEventListener("DOMContentLoaded", function() {
-    if (!sessionStorage.getItem('aviso_stock')) {
-        const criticos = document.querySelectorAll(".critico-trigger").length;
-        if (criticos > 0) {
-            Swal.fire({ 
-                title: 'SISTEMA DE BODEGA', 
-                text: `Alerta: Tienes ${criticos} productos en nivel crítico de stock.`, 
-                icon: 'warning', 
-                confirmButtonColor: '#1a3a5a' 
-            });
-            sessionStorage.setItem('aviso_stock', 'true');
-        }
-    }
-});
 </script>
 
 {% endblock %}
