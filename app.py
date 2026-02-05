@@ -60,7 +60,7 @@ def create_app():
     # --------------------------------------------------
     with app.app_context():
         db.create_all()  # Crea las tablas si no existen
-        
+
         # Verificar si ya existe un usuario para no duplicar
         if Usuario.query.count() == 0:
             admin = Usuario(
