@@ -56,7 +56,7 @@
 .btn-action-barcode { background: var(--rosa-tag); }
 .btn-action-stock { background: var(--azul-acero); }
 
-/* Historial Minimalista (Sin Ruido) */
+/* Historial Minimalista */
 .historial-clean { background: white; border-radius: 20px; padding: 25px; border: 1px solid var(--azul-claro); }
 .movimiento-item { 
     display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #f1f5f9; 
@@ -67,9 +67,12 @@
 .icon-entrada { background: #dcfce7; color: #15803d; }
 .icon-salida { background: #fee2e2; color: #b91c1c; }
 
-/* Modal Styles */
+/* Estilos de Utilidad */
 .bg-ganancia-box { background-color: #f0fdf4; border: 2px dashed #22c55e; border-radius: 15px; padding: 15px; text-align: center; }
-.btn-porcentaje { padding: 8px 15px; font-size: 0.85rem; border-radius: 12px; border: 2px solid var(--azul-claro); background: #f8fafc; font-weight: bold; cursor: pointer; }
+
+/* Impresión */
+.card-etiqueta-print { border: 2px solid #eee; border-radius: 20px; padding: 25px; text-align: center; background: white; max-width: 320px; margin: 0 auto; }
+.precio-tag { background: #f1f5f9; color: #1e293b; font-size: 1.8rem; font-weight: 900; padding: 10px 20px; border-radius: 15px; display: inline-block; margin: 15px 0; border: 1px solid #cbd5e1; }
 
 @media print {
     body * { visibility: hidden; }
@@ -175,9 +178,6 @@
                 </div>
             </div>
             {% endfor %}
-            {% if not historial %}
-            <div class="text-center text-muted py-3">No hay movimientos registrados hoy.</div>
-            {% endif %}
         </div>
     </div>
 </div>
@@ -197,6 +197,17 @@
                         <div class="col-md-4"><label class="fw-bold">Marca</label><input name="marca" class="form-control"></div>
                         <div class="col-md-6"><label class="fw-bold text-primary">Costo</label><input name="valor_interno" id="new_costo" type="number" step="0.01" class="form-control" oninput="calcularMargen('new_costo', 'new_venta', 'new_ganancia', null)"></div>
                         <div class="col-md-6"><label class="fw-bold">Stock Inicial</label><input name="cantidad" type="number" class="form-control" value="0"></div>
+                        
+                        <div class="col-12">
+                            <label class="small fw-bold text-muted">SELECCIONAR % DE GANANCIA:</label>
+                            <select class="form-select border-primary fw-bold" onchange="calcularMargen('new_costo', 'new_venta', 'new_ganancia', this.value)">
+                                <option value="">-- Seleccionar Margen --</option>
+                                {% for i in range(5, 71, 5) %}
+                                <option value="{{ i }}">{{ i }}% de ganancia</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
                         <div class="col-md-6"><label class="fw-bold text-success">Precio Venta</label><input name="valor_venta" id="new_venta" type="number" step="0.01" class="form-control" oninput="calcularMargen('new_costo', 'new_venta', 'new_ganancia', null)"></div>
                         <div class="col-md-6"><div class="bg-ganancia-box"><span id="new_ganancia" class="h5 fw-bold text-success">$ 0</span></div></div>
                     </div>
@@ -222,15 +233,17 @@
                         <div class="col-md-4"><label class="fw-bold">Marca</label><input name="marca" id="edit_marca" class="form-control"></div>
                         <div class="col-md-6"><label class="fw-bold">Costo</label><input name="valor_interno" id="edit_costo" type="number" step="0.01" class="form-control" oninput="calcularMargen('edit_costo', 'edit_venta', 'edit_ganancia', null)"></div>
                         <div class="col-md-6"><label class="fw-bold">Stock</label><input name="cantidad" id="edit_cantidad" type="number" class="form-control"></div>
+                        
                         <div class="col-12">
-                            <label class="small fw-bold text-muted">CALCULAR POR % DE GANANCIA:</label>
-                            <div class="d-flex flex-wrap gap-2 mt-2">
-                                <button type="button" class="btn-porcentaje" onclick="calcularMargen('edit_costo', 'edit_venta', 'edit_ganancia', 10)">10%</button>
-                                <button type="button" class="btn-porcentaje" onclick="calcularMargen('edit_costo', 'edit_venta', 'edit_ganancia', 20)">20%</button>
-                                <button type="button" class="btn-porcentaje" onclick="calcularMargen('edit_costo', 'edit_venta', 'edit_ganancia', 30)">30%</button>
-                                <button type="button" class="btn-porcentaje" onclick="calcularMargen('edit_costo', 'edit_venta', 'edit_ganancia', 50)">50%</button>
-                            </div>
+                            <label class="small fw-bold text-muted">AJUSTAR POR GANANCIA (%):</label>
+                            <select class="form-select border-primary fw-bold" id="select_margen_edit" onchange="calcularMargen('edit_costo', 'edit_venta', 'edit_ganancia', this.value)">
+                                <option value="">-- Cambiar Margen (5% al 70%) --</option>
+                                {% for i in range(5, 71, 5) %}
+                                <option value="{{ i }}">{{ i }}% de ganancia</option>
+                                {% endfor %}
+                            </select>
                         </div>
+
                         <div class="col-md-6"><label class="fw-bold text-success">Precio Venta</label><input name="valor_venta" id="edit_venta" type="number" step="0.01" class="form-control" oninput="calcularMargen('edit_costo', 'edit_venta', 'edit_ganancia', null)"></div>
                         <div class="col-md-6"><div class="bg-ganancia-box"><span id="edit_ganancia" class="h5 fw-bold text-success">$ 0</span></div></div>
                     </div>
@@ -304,7 +317,10 @@ document.getElementById('globalSearch').addEventListener('input', function() {
                             <td class="text-start"><b>${p.nombre}</b></td>
                             <td><span class="badge-stock stock-top">${p.stock} UND</span></td>
                             <td><span class="fw-bold">$${p.precio.toLocaleString()}</span></td>
-                            <td><button class="btn-action-base btn-action-stock" onclick="openStockModal('${p.id}', '${p.nombre}', '${p.stock}')"><i class="fas fa-cubes"></i></button></td>
+                            <td>
+                                <button class="btn-action-base btn-action-stock" onclick="openStockModal('${p.id}', '${p.nombre}', '${p.stock}')"><i class="fas fa-cubes"></i></button>
+                                <button class="btn-action-base btn-action-edit" onclick="openEditModal('${p.id}', '${p.nombre}', '', '${p.codigo}', '', '${p.precio}', '${p.stock}')"><i class="fas fa-edit"></i></button>
+                            </td>
                         </tr>`;
                 });
             });
@@ -314,9 +330,15 @@ document.getElementById('globalSearch').addEventListener('input', function() {
 });
 
 function calcularMargen(idCosto, idVenta, idGanancia, porcentaje) {
+    if (!porcentaje && porcentaje !== 0) return;
     const costo = parseFloat(document.getElementById(idCosto).value) || 0;
     const ventaInput = document.getElementById(idVenta);
-    if (porcentaje !== null) ventaInput.value = Math.round(costo * (1 + (porcentaje / 100)));
+    
+    // Si se seleccionó un porcentaje, calculamos el precio
+    if (porcentaje !== null && porcentaje !== "") {
+        ventaInput.value = Math.round(costo * (1 + (parseInt(porcentaje) / 100)));
+    }
+    
     const ganancia = (parseFloat(ventaInput.value) || 0) - costo;
     document.getElementById(idGanancia).innerText = '$ ' + ganancia.toLocaleString();
 }
@@ -344,6 +366,7 @@ function openEditModal(id, nombre, marca, codigo, costo, venta, cantidad) {
     document.getElementById('edit_venta').value = venta;
     document.getElementById('edit_cantidad').value = cantidad;
     document.getElementById('editForm').action = "/inventario/editar/" + id;
+    document.getElementById('select_margen_edit').value = ""; // Reset dropdown
     calcularMargen('edit_costo', 'edit_venta', 'edit_ganancia', null);
     new bootstrap.Modal(document.getElementById('editProductModal')).show();
 }
