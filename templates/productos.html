@@ -26,7 +26,7 @@
   color: white; padding: 35px; border-radius: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); margin-bottom: 30px;
 }
 
-/* Panel de Control: Escáner + Buscador Inteligente */
+/* Panel de Control: Buscador Inteligente */
 .card-control-panel {
   border-radius: 20px; background: #fff; border-top: 5px solid var(--azul-acero);
   box-shadow: 0 10px 25px rgba(0,0,0,0.05); padding: 25px; margin-bottom: 30px;
@@ -34,7 +34,7 @@
 
 .search-wrapper { position: relative; }
 .search-wrapper i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--azul-acero); }
-.search-wrapper .form-control { padding-left: 45px; border-radius: 15px; border: 2px solid var(--azul-claro); height: 50px; transition: 0.3s; }
+.search-wrapper .form-control { padding-left: 45px; border-radius: 15px; border: 2px solid var(--azul-claro); height: 55px; transition: 0.3s; font-size: 1.1rem; }
 .search-wrapper .form-control:focus { border-color: var(--azul-acero); box-shadow: 0 0 0 4px rgba(74, 105, 189, 0.1); }
 
 /* Tabla Estilizada */
@@ -60,7 +60,7 @@
 
 @keyframes pulse-danger { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
-/* Botones y UI */
+/* Botones UI */
 .btn-porcentaje {
     padding: 8px 15px; font-size: 0.85rem; border-radius: 12px;
     border: 2px solid var(--azul-claro); background: #f8fafc; color: var(--azul-premium);
@@ -78,10 +78,6 @@
 .btn-action-delete { background: #ef4444; }
 .btn-action-barcode { background: var(--rosa-tag); }
 .btn-action-stock { background: var(--azul-acero); }
-
-/* Estilo Paginación */
-.pagination .page-link { color: var(--azul-premium); border-radius: 8px; margin: 0 3px; border: none; font-weight: bold; }
-.pagination .page-item.active .page-link { background-color: var(--azul-premium); color: white; }
 
 /* Etiqueta */
 .card-etiqueta-print {
@@ -115,20 +111,12 @@
     </div>
 
     <div class="card-control-panel">
-        <div class="row g-4 align-items-end">
-            <div class="col-md-6">
-                <h6 class="fw-bold text-muted mb-3"><i class="fas fa-barcode me-2"></i>RECEPCIÓN RÁPIDA (ESCÁNER)</h6>
-                <form action="{{ url_for('inventario.agregar_producto') }}" method="POST" class="d-flex gap-2">
-                    <input name="codigo_scanner" class="form-control form-control-modern" placeholder="Escanear código..." required autofocus>
-                    <input name="cantidad_scanner" type="number" min="1" value="1" class="form-control form-control-modern text-center fw-bold" style="width: 100px;">
-                    <button type="submit" class="btn btn-primary px-4 rounded-pill fw-bold">SUMAR</button>
-                </form>
-            </div>
-            <div class="col-md-6">
-                <h6 class="fw-bold text-muted mb-3"><i class="fas fa-search me-2"></i>BÚSQUEDA Y FILTRO EN VIVO</h6>
+        <div class="row align-items-center">
+            <div class="col-12">
+                <h6 class="fw-bold text-muted mb-3"><i class="fas fa-search me-2"></i>BUSCADOR MULTI-FILTRO (NOMBRE, MARCA O CÓDIGO)</h6>
                 <div class="search-wrapper">
-                    <i class="fas fa-filter h5 mb-0"></i>
-                    <input type="text" id="smartSearch" class="form-control h-100" placeholder="Escribe nombre, marca o detalle para filtrar...">
+                    <i class="fas fa-barcode fs-4"></i>
+                    <input type="text" id="smartSearch" class="form-control" placeholder="Escanea código de barras o escribe para filtrar productos..." autofocus>
                 </div>
             </div>
         </div>
@@ -148,7 +136,7 @@
             <tbody id="inventoryBody">
                 {% for p in productos_paginados.items %}
                 <tr class="product-row">
-                    <td><span class="badge bg-light text-primary border fw-bold">{{ p.codigo or 'N/A' }}</span></td>
+                    <td><span class="badge bg-light text-primary border fw-bold product-code">{{ p.codigo or 'N/A' }}</span></td>
                     <td class="text-start">
                         <div class="fw-bold text-dark product-name">{{ p.nombre | upper }}</div>
                         <div class="small text-muted text-uppercase product-brand">{{ p.marca }}</div>
@@ -242,200 +230,42 @@
     </div>
 </div>
 
-<div class="modal fade" id="addProductModal" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg" style="border-radius: 25px;">
-      <form action="{{ url_for('inventario.crear_producto') }}" method="POST">
-        <div class="modal-header bg-primary text-white p-4" style="border-radius: 25px 25px 0 0;">
-          <h5 class="modal-title fw-bold"><i class="fas fa-cart-plus me-2"></i>REGISTRAR PRODUCTO</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body p-4 bg-light">
-            <div class="row g-4">
-                <div class="col-12">
-                    <label class="form-label fw-bold text-primary">CÓDIGO DE BARRAS (ESCANEADO)</label>
-                    <input name="codigo" class="form-control form-control-modern border-primary shadow-sm" placeholder="Escanee primero..." autofocus>
-                </div>
-                <div class="col-md-8">
-                    <label class="form-label fw-bold text-muted">Nombre del Producto</label>
-                    <input name="nombre" class="form-control form-control-modern" placeholder="Nombre completo" required>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label fw-bold text-muted">Detalle / Marca</label>
-                    <input name="marca" class="form-control form-control-modern" placeholder="Ej: 750ml">
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label fw-bold text-primary">Costo Compra ($)</label>
-                    <input name="valor_interno" id="new_costo" type="number" step="0.01" class="form-control form-control-modern" oninput="calcularMargen('new_costo', 'new_venta', 'new_ganancia', null)">
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label fw-bold text-danger">Stock Inicial</label>
-                    <input name="cantidad" type="number" class="form-control form-control-modern border-danger fw-bold text-center" value="0" required>
-                </div>
-                <div class="col-md-12">
-                    <label class="form-label fw-bold text-muted">Márgenes de Ganancia (%)</label>
-                    <div class="d-flex flex-wrap gap-1">
-                        {% for i in range(5, 51, 5) %}
-                        <button type="button" class="btn-porcentaje" onclick="calcularMargen('new_costo', 'new_venta', 'new_ganancia', {{ i }})">{{ i }}%</button>
-                        {% endfor %}
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label fw-bold text-success">Precio de Venta</label>
-                    <input name="valor_venta" id="new_venta" type="number" step="0.01" class="form-control form-control-modern border-success fw-bold text-success" oninput="calcularMargen('new_costo', 'new_venta', 'new_ganancia', null)">
-                </div>
-                <div class="col-md-6">
-                    <div class="bg-ganancia-box">
-                        <small class="fw-bold text-muted">GANANCIA ESTIMADA</small><br>
-                        <span id="new_ganancia" class="h4 fw-bold text-success">$ 0</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="modal-footer border-0 p-4">
-          <button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-pill">GUARDAR EN INVENTARIO</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<div class="modal fade" id="editProductModal" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg" style="border-radius: 25px;">
-      <form method="POST" id="editForm">
-        <div class="modal-header bg-dark text-white p-4" style="border-radius: 25px 25px 0 0;">
-          <h5 class="modal-title fw-bold"><i class="fas fa-edit me-2"></i>MODIFICAR PRODUCTO</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body p-4 bg-light">
-            <div class="row g-4">
-                <div class="col-12">
-                    <label class="form-label fw-bold text-primary">CÓDIGO DE BARRAS</label>
-                    <input name="codigo" id="edit_codigo" class="form-control form-control-modern border-primary">
-                </div>
-                <div class="col-md-8">
-                    <label class="form-label fw-bold text-muted">Nombre</label>
-                    <input name="nombre" id="edit_nombre" class="form-control form-control-modern" required>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label fw-bold text-muted">Detalle</label>
-                    <input name="marca" id="edit_marca" class="form-control form-control-modern">
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label fw-bold text-primary">Costo</label>
-                    <input name="valor_interno" id="edit_costo" type="number" step="0.01" class="form-control form-control-modern" oninput="calcularMargen('edit_costo', 'edit_venta', 'edit_ganancia', null)">
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label fw-bold text-danger">Stock Actual</label>
-                    <input name="cantidad" id="edit_cantidad" type="number" class="form-control form-control-modern border-danger fw-bold text-center">
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label fw-bold text-success">Precio Venta</label>
-                    <input name="valor_venta" id="edit_venta" type="number" step="0.01" class="form-control form-control-modern border-success fw-bold text-success" oninput="calcularMargen('edit_costo', 'edit_venta', 'edit_ganancia', null)">
-                </div>
-                <div class="col-md-6">
-                    <div class="bg-ganancia-box py-2">
-                        <small class="fw-bold text-muted">UTILIDAD</small><br>
-                        <span id="edit_ganancia" class="h5 fw-bold text-success">$ 0</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="modal-footer border-0 p-4">
-          <button type="submit" class="btn btn-dark w-100 py-3 fw-bold rounded-pill">ACTUALIZAR CAMBIOS</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<div class="modal fade" id="stockModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
-            <form action="" method="POST" id="stockForm">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title fw-bold">SUMAR EXISTENCIAS</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-4 text-center">
-                    <h4 id="stock_nombre_prod" class="fw-bold text-primary mb-4"></h4>
-                    <div class="row g-3">
-                        <div class="col-6">
-                            <label class="small fw-bold text-muted d-block">EN BODEGA</label>
-                            <input type="number" id="stock_actual" class="form-control form-control-lg bg-light text-center fw-bold border-0" readonly>
-                        </div>
-                        <div class="col-6">
-                            <label class="small fw-bold text-primary d-block">CANTIDAD A SUMAR</label>
-                            <input type="number" name="cantidad_sumar" id="cantidad_sumar" class="form-control form-control-lg border-primary text-center fw-bold" value="0" oninput="calcularNuevoTotal()">
-                        </div>
-                        <div class="col-12 mt-4">
-                            <div class="p-3 bg-dark rounded-3 text-white">
-                                <small class="opacity-75">NUEVO SALDO TOTAL</small>
-                                <div id="stock_nuevo_total" class="h1 fw-bold text-info mb-0">0</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer border-0">
-                    <button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-pill">ACTUALIZAR INVENTARIO</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="barcodeModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
-            <div class="modal-header border-0 pb-0">
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div id="area-impresion-barcode">
-                    <div class="card-etiqueta-print">
-                        <img src="{{ url_for('static', filename='img/logo.png') }}" style="width: 60px;" alt="Logo">
-                        <h4 id="tag-nombre" class="fw-bold text-primary mt-2">PRODUCTO</h4>
-                        <p id="tag-marca" class="text-muted small mb-1">DETALLE</p>
-                        <div class="precio-tag" id="tag-precio">$ 0</div>
-                        <div class="mt-2">
-                            <img id="tag-barcode-img" src="" style="max-width: 100%;" alt="Barras">
-                            <p class="fw-bold mt-1 mb-0"><code id="tag-codigo-texto">000</code></p>
-                        </div>
-                    </div>
-                </div>
-                <div class="d-flex justify-content-center gap-3 mt-4 no-print p-3">
-                    <button class="btn btn-outline-primary rounded-pill px-4" onclick="window.print()"><i class="fas fa-print me-2"></i>IMPRIMIR</button>
-                    <a id="btn-descargar-link" href="#" class="btn btn-primary rounded-pill px-4"><i class="fas fa-download me-2"></i>DESCARGAR</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script>
-// --- BUSCADOR INTELIGENTE ---
+// --- BUSCADOR MULTI-FILTRO ACTUALIZADO ---
 document.getElementById('smartSearch').addEventListener('input', function() {
-    let filter = this.value.toUpperCase();
+    let filter = this.value.toUpperCase().trim();
     let rows = document.querySelectorAll('.product-row');
+    
     rows.forEach(row => {
-        let name = row.querySelector('.product-name').innerText;
-        let brand = row.querySelector('.product-brand').innerText;
-        row.style.display = (name.includes(filter) || brand.includes(filter)) ? "" : "none";
+        let name = row.querySelector('.product-name').innerText.toUpperCase();
+        let brand = row.querySelector('.product-brand').innerText.toUpperCase();
+        let code = row.querySelector('.product-code').innerText.toUpperCase();
+        
+        // El producto se muestra si coincide el filtro con cualquier campo
+        if (name.includes(filter) || brand.includes(filter) || code.includes(filter)) {
+            row.style.display = "";
+        } else {
+            row.style.display = "none";
+        }
     });
 });
 
-// --- CÁLCULOS ---
+// --- LÓGICA DE CÁLCULOS ---
 function calcularMargen(idCosto, idVenta, idGanancia, porcentaje) {
     const costo = parseFloat(document.getElementById(idCosto).value) || 0;
     const ventaInput = document.getElementById(idVenta);
     const gananciaDisplay = document.getElementById(idGanancia);
-    if (porcentaje !== null) ventaInput.value = Math.round(costo * (1 + (porcentaje / 100)));
+    
+    if (porcentaje !== null) {
+        ventaInput.value = Math.round(costo * (1 + (porcentaje / 100)));
+    }
+    
     const ventaActual = parseFloat(ventaInput.value) || 0;
-    gananciaDisplay.innerText = (ventaActual - costo).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 });
+    const ganancia = ventaActual - costo;
+    gananciaDisplay.innerText = ganancia.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 });
 }
 
-// --- MODALES ---
+// --- GESTIÓN DE MODALES ---
 function openStockModal(id, nombre, actual) {
     document.getElementById('stock_nombre_prod').innerText = nombre.toUpperCase();
     document.getElementById('stock_actual').value = actual;
@@ -459,6 +289,7 @@ function openEditModal(id, nombre, marca, codigo, costo, venta, cantidad) {
   document.getElementById('edit_venta').value = venta;
   document.getElementById('edit_cantidad').value = cantidad;
   document.getElementById('editForm').action = "/inventario/editar/" + id;
+  
   setTimeout(() => calcularMargen('edit_costo', 'edit_venta', 'edit_ganancia', null), 200);
   new bootstrap.Modal(document.getElementById('editProductModal')).show();
 }
@@ -475,12 +306,17 @@ function verEtiqueta(codigo, nombre, marca, precio) {
     new bootstrap.Modal(document.getElementById('barcodeModal')).show();
 }
 
-// --- ALERTAS ---
+// --- ALERTAS INICIALES ---
 document.addEventListener("DOMContentLoaded", function() {
     if (!sessionStorage.getItem('aviso_stock')) {
         const criticos = document.querySelectorAll(".critico-trigger").length;
         if (criticos > 0) {
-            Swal.fire({ title: 'STOCK BAJO', text: `Hay ${criticos} productos en nivel crítico.`, icon: 'warning', confirmButtonColor: '#1a3a5a' });
+            Swal.fire({ 
+                title: 'SISTEMA DE BODEGA', 
+                text: `Alerta: Tienes ${criticos} productos en nivel crítico de stock.`, 
+                icon: 'warning', 
+                confirmButtonColor: '#1a3a5a' 
+            });
             sessionStorage.setItem('aviso_stock', 'true');
         }
     }

@@ -14,6 +14,7 @@
         --bg-gris: #f1f5f9;
         --rosa-total: #fff1f2;
         --border-color: #e2e8f0;
+        --success-soft: #dcfce7;
     }
 
     body { background-color: var(--bg-gris) !important; font-family: 'Poppins', sans-serif; }
@@ -28,8 +29,15 @@
     }
 
     .card-pos { background: white; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 20px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-    .card-pos-header { background: var(--azul-sanroque); color: white; padding: 12px 15px; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; }
+    .card-pos-header { background: var(--azul-sanroque); color: white; padding: 12px 15px; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
     .card-pos-body { padding: 20px; }
+
+    /* Ventas en Espera */
+    .espera-bar { background: #e2e8f0; padding: 10px 15px; border-radius: 10px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .btn-pausa { background: var(--dorado-olimpo); color: white; border: none; border-radius: 8px; padding: 5px 15px; font-weight: 700; font-size: 0.75rem; transition: 0.3s; }
+    .btn-pausa:hover { background: #966d09; }
+    .btn-recuperar { background: white; border: 1px solid var(--azul-sanroque); color: var(--azul-sanroque); border-radius: 8px; padding: 5px 12px; font-size: 0.75rem; font-weight: 600; transition: 0.2s; }
+    .btn-recuperar:hover { background: var(--azul-sanroque); color: white; }
 
     .form-label { font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 6px; }
     .form-control-pos { border-radius: 8px; border: 1.5px solid var(--border-color); padding: 10px; font-size: 0.95rem; font-weight: 600; }
@@ -45,7 +53,7 @@
     .btn-finalizar:hover { background: #14534c; transform: translateY(-2px); }
 
     .table-pos tbody tr:nth-child(even) { background-color: #f8fafc; }
-    .table-pos thead th { font-size: 0.7rem; border-bottom: 2px solid var(--border-color); }
+    .table-pos thead th { font-size: 0.7rem; border-bottom: 2px solid var(--border-color); padding: 12px; }
 
     .ref-box { background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; display: none; margin-top: 10px; }
     
@@ -61,29 +69,39 @@
 
 <div class="venta-wrapper">
     <div class="col-left">
+        
+        <div class="espera-bar">
+            <button type="button" class="btn-pausa" onclick="pausarVenta()">
+                <i class="fas fa-pause-circle me-1"></i> PAUSAR VENTA
+            </button>
+            <div id="lista-pendientes" class="d-flex gap-2">
+                </div>
+        </div>
+
         <div class="card-pos">
-            <div class="card-pos-header">ESCANEAR CÓDIGO</div>
+            <div class="card-pos-header">ESCANEAR CÓDIGO <i class="fas fa-barcode"></i></div>
             <div class="card-pos-body">
-                <input type="text" id="barcode_input" class="form-control form-control-pos" placeholder="Escanee código y presione Enter">
+                <input type="text" id="barcode_input" class="form-control form-control-pos" placeholder="Escanee código..." autofocus autocomplete="off">
             </div>
         </div>
 
         <div class="card-pos">
-            <div class="card-pos-header">CLIENTE</div>
+            <div class="card-pos-header">CLIENTE <i class="fas fa-user"></i></div>
             <div class="card-pos-body">
                 <select id="cliente_id_select" class="form-select select2-pos" onchange="recalcularPreciosPorCategoria()">
-                    <option value="1" data-categoria="estandar">CLIENTE GENERAL (MOSTRADOR)</option>
+                    <option value="1" data-categoria="estandar" selected>CLIENTE GENERAL (MOSTRADOR)</option>
                     {% for c in clientes %}
+                        {% if c.id != 1 %}
                         <option value="{{ c.id }}" data-categoria="{{ c.categoria }}">{{ c.nombre | upper }}</option>
+                        {% endif %}
                     {% endfor %}
                 </select>
             </div>
         </div>
 
         <div class="card-pos">
-            <div class="card-pos-header">PRODUCTOS</div>
+            <div class="card-pos-header">BÚSQUEDA MANUAL <i class="fas fa-search"></i></div>
             <div class="card-pos-body">
-                <label class="form-label">Buscar por nombre o marca</label>
                 <select id="manual_producto" class="form-select mb-3">
                     <option value="">-- Buscar producto --</option>
                     {% for p in productos %}
@@ -104,11 +122,17 @@
         </div>
 
         <div class="card-pos">
-            <div class="card-pos-header">DETALLE DE VENTA</div>
+            <div class="card-pos-header">RESUMEN DE CARRITO <i class="fas fa-shopping-cart"></i></div>
             <div class="card-pos-body p-0">
                 <table class="table table-pos mb-0 text-center align-middle">
                     <thead>
-                        <tr><th class="text-start ps-3">ITEM</th><th>CANT.</th><th>PRECIO</th><th class="text-end pe-3">SUBTOTAL</th><th></th></tr>
+                        <tr>
+                            <th class="text-start ps-3">ITEM</th>
+                            <th>CANT.</th>
+                            <th>PRECIO</th>
+                            <th class="text-end pe-3">SUBTOTAL</th>
+                            <th></th>
+                        </tr>
                     </thead>
                     <tbody id="carrito-body"></tbody>
                 </table>
@@ -120,13 +144,13 @@
         <form method="POST" id="form_venta" onsubmit="return validarYEnviar(event)">
             <input type="hidden" name="cliente_id" id="cliente_id_hidden" value="1">
             
-            <div class="total-box">
+            <div class="total-box shadow-sm">
                 <span class="total-label">TOTAL A PAGAR</span>
                 <span class="total-val">$ <span id="total-final" data-raw-total="0">0</span></span>
             </div>
 
             <div class="card-pos">
-                <div class="card-pos-header" style="background: #be123c;">REGISTRO DE PAGO</div>
+                <div class="card-pos-header" style="background: #be123c;">REGISTRO DE PAGO <i class="fas fa-wallet"></i></div>
                 <div class="card-pos-body">
                     <div class="row g-3">
                         <div class="col-6"><label class="form-label">EFECTIVO</label><input type="number" step="any" name="pago_efectivo" id="pago_efectivo" class="form-control form-control-pos pago-input" value="0"></div>
@@ -136,18 +160,19 @@
                         <div class="col-12"><label class="form-label">TRANSFERENCIA</label><input type="number" step="any" name="pago_transferencia" id="pago_transferencia" class="form-control form-control-pos pago-input" value="0"></div>
                     </div>
 
-                    <div class="vuelto-container mt-3">
+                    <div class="vuelto-container mt-3 shadow-sm">
                         <span class="vuelto-label">CAMBIO</span>
                         <span id="vuelto-monto" class="vuelto-val">$ 0</span>
                     </div>
 
-                    <div id="ref-nequi" class="ref-box"><label class="form-label">REF. NEQUI</label><input type="text" id="codigo_nequi" class="form-control form-control-pos"></div>
-                    <div id="ref-daviplata" class="ref-box"><label class="form-label">REF. DAVIPLATA</label><input type="text" id="codigo_daviplata" class="form-control form-control-pos"></div>
-                    <div id="ref-tarjeta" class="ref-box"><label class="form-label">REF. TARJETA</label><input type="text" id="codigo_tarjeta" class="form-control form-control-pos"></div>
+                    <div id="ref-nequi" class="ref-box"><label class="form-label">REF. NEQUI</label><input type="text" id="codigo_nequi" class="form-control form-control-pos" placeholder="Ingrese comprobante"></div>
+                    <div id="ref-daviplata" class="ref-box"><label class="form-label">REF. DAVIPLATA</label><input type="text" id="codigo_daviplata" class="form-control form-control-pos" placeholder="Ingrese comprobante"></div>
+                    <div id="ref-tarjeta" class="ref-box"><label class="form-label">REF. TARJETA</label><input type="text" id="codigo_tarjeta" class="form-control form-control-pos" placeholder="Ingrese comprobante"></div>
                 </div>
             </div>
 
-            <button type="submit" class="btn-finalizar">FINALIZAR VENTA</button>
+            <button type="submit" class="btn-finalizar shadow">FINALIZAR VENTA <i class="fas fa-check-circle ms-2"></i></button>
+            
             <input type="hidden" name="referencias_pago_json" id="referencias_pago_json">
             <input type="hidden" name="productos_vendidos_json" id="productos_vendidos_json">
             <input type="hidden" name="total_venta" id="total_venta_hidden">
@@ -156,11 +181,70 @@
 </div>
 
 <script>
+    // --- DATOS Y VARIABLES ---
     const productData = JSON.parse(document.getElementById('product-data').textContent);
     let carrito = {};
+    let ventasEnEspera = JSON.parse(localStorage.getItem('espera_san_roque')) || [];
 
     function formatCurrency(v) { return v.toLocaleString('es-CO'); }
 
+    // --- LÓGICA DE VENTAS EN ESPERA ---
+    function pausarVenta() {
+        if (Object.keys(carrito).length === 0) return alert("El carrito está vacío.");
+        
+        const nuevaVenta = {
+            id: Date.now(),
+            cliente: $('#cliente_id_select').val(),
+            items: { ...carrito },
+            fecha: new Date().toLocaleTimeString()
+        };
+
+        ventasEnEspera.push(nuevaVenta);
+        localStorage.setItem('espera_san_roque', JSON.stringify(ventasEnEspera));
+        
+        carrito = {};
+        renderizarCarrito();
+        actualizarListaPendientes();
+        document.getElementById('barcode_input').focus();
+    }
+
+    function recuperarVenta(id) {
+        if (Object.keys(carrito).length > 0) {
+            if (!confirm("Ya hay items en el carrito. ¿Deseas reemplazarlos?")) return;
+        }
+
+        const index = ventasEnEspera.findIndex(v => v.id === id);
+        const venta = ventasEnEspera[index];
+
+        carrito = { ...venta.items };
+        $('#cliente_id_select').val(venta.cliente).trigger('change');
+        
+        ventasEnEspera.splice(index, 1);
+        localStorage.setItem('espera_san_roque', JSON.stringify(ventasEnEspera));
+        
+        renderizarCarrito();
+        actualizarListaPendientes();
+        document.getElementById('barcode_input').focus();
+    }
+
+    function actualizarListaPendientes() {
+        const contenedor = document.getElementById('lista-pendientes');
+        contenedor.innerHTML = '';
+        if (ventasEnEspera.length === 0) {
+            contenedor.innerHTML = '<span class="text-muted small italic">No hay pedidos en espera.</span>';
+            return;
+        }
+        ventasEnEspera.forEach((venta, i) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'btn-recuperar';
+            btn.innerHTML = `<i class="fas fa-user-clock me-1"></i> ESPERA ${i+1} <small>(${venta.fecha})</small>`;
+            btn.onclick = () => recuperarVenta(venta.id);
+            contenedor.appendChild(btn);
+        });
+    }
+
+    // --- LÓGICA DE CARRITO Y PRECIOS ---
     function getCategoriaActual() {
         const select = document.getElementById('cliente_id_select');
         return select.options[select.selectedIndex].getAttribute('data-categoria') || 'estandar';
@@ -173,17 +257,26 @@
             carrito[key].precio = (cat === 'premium') ? p.precio_costo : p.precio_venta;
         }
         renderizarCarrito();
+        document.getElementById('barcode_input').focus();
     }
 
-    document.getElementById('barcode_input').addEventListener('keypress',function(e){
+    // --- ESCÁNER AUTOMÁTICO ---
+    document.getElementById('barcode_input').addEventListener('keypress', function(e){
         if(e.key === 'Enter'){
             e.preventDefault();
             const codigo = this.value.trim();
             if(!codigo) return;
+            
             const p = productData.find(x => x.codigo === codigo);
-            if(!p){ alert("Producto no encontrado"); return; }
+            if(!p){ 
+                alert("Producto no registrado en sistema."); 
+                this.value = '';
+                return; 
+            }
+            
             const cat = getCategoriaActual();
             const precio = (cat === 'premium') ? p.precio_costo : p.precio_venta;
+
             if(carrito[p.id]){
                 carrito[p.id].cantidad++;
                 carrito[p.id].precio = precio;
@@ -191,7 +284,8 @@
                 carrito[p.id] = {id:p.id, nombre:p.nombre, marca:p.marca, precio:precio, cantidad:1};
             }
             renderizarCarrito();
-            this.value='';
+            this.value = ''; // Limpia el campo para el siguiente escaneo
+            this.focus();    // Mantiene el foco para rapidez
         }
     });
 
@@ -210,12 +304,15 @@
         const totalCarrito = parseFloat(document.getElementById('total-final').dataset.rawTotal) || 0;
         const diff = totalPagado - totalCarrito;
 
+        const vueltoEl = document.getElementById('vuelto-monto');
         if(diff >= 0){
             document.querySelector('.vuelto-label').innerText = 'CAMBIO';
-            document.getElementById('vuelto-monto').innerText = `$ ${formatCurrency(diff)}`;
+            vueltoEl.innerText = `$ ${formatCurrency(diff)}`;
+            vueltoEl.style.color = '#38bdf8';
         }else{
             document.querySelector('.vuelto-label').innerText = 'FALTAN';
-            document.getElementById('vuelto-monto').innerText = `$ ${formatCurrency(Math.abs(diff))}`;
+            vueltoEl.innerText = `$ ${formatCurrency(Math.abs(diff))}`;
+            vueltoEl.style.color = '#fb7185';
         }
         return { totalPagado, totalCarrito };
     }
@@ -236,6 +333,7 @@
         }
         renderizarCarrito();
         $('#manual_producto').val('').trigger('change');
+        document.getElementById('barcode_input').focus();
     }
 
     function renderizarCarrito() {
@@ -255,7 +353,7 @@
                     <td>${item.cantidad}</td>
                     <td class="text-muted small">$${formatCurrency(item.precio)}</td>
                     <td class="text-end pe-3 fw-bold">$${formatCurrency(sub)}</td>
-                    <td><button type="button" class="btn btn-sm text-danger" onclick="delete carrito[${key}]; renderizarCarrito();">×</button></td>
+                    <td><button type="button" class="btn btn-sm text-danger" onclick="delete carrito[${key}]; renderizarCarrito();"><i class="fas fa-times"></i></button></td>
                 </tr>`;
         }
         document.getElementById('total-final').innerText = formatCurrency(total);
@@ -266,8 +364,8 @@
     function validarYEnviar(e) {
         e.preventDefault();
         const { totalPagado, totalCarrito } = actualizarPagos();
-        if (totalCarrito <= 0) return alert("Carrito vacío");
-        if (totalPagado < totalCarrito) return alert("Pago insuficiente");
+        if (totalCarrito <= 0) return alert("El carrito está vacío.");
+        if (totalPagado < totalCarrito) return alert("El monto pagado es insuficiente.");
 
         const productosFinales = Object.values(carrito).map(item => ({
             ...item,
@@ -285,6 +383,7 @@
         document.getElementById('form_venta').submit();
     }
 
+    // --- INICIALIZACIÓN ---
     $(document).ready(() => {
         $('#manual_producto').select2({
             theme: 'bootstrap-5',
@@ -296,6 +395,10 @@
         });
         $('#cliente_id_select').select2({ theme: 'bootstrap-5' });
         $('.pago-input').on('input', actualizarPagos);
+        actualizarListaPendientes();
+        
+        // Asegurar que el foco siempre empiece en el escáner
+        document.getElementById('barcode_input').focus();
     });
 </script>
 {% endblock %}
