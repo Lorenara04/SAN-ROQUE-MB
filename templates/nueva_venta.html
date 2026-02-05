@@ -54,6 +54,10 @@
     .table-pos thead th { font-size: 0.7rem; border-bottom: 2px solid var(--border-color); padding: 12px; }
 
     .ref-box { background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; display: none; margin-top: 10px; }
+    
+    /* Estilo para resaltar el campo del escáner */
+    #barcode_input { border: 2px solid var(--azul-sanroque); background-color: #fff; font-size: 1.2rem; }
+    #barcode_input:focus { box-shadow: 0 0 10px rgba(26, 58, 90, 0.2); }
 </style>
 
 <script id="product-data" type="application/json">
@@ -71,16 +75,16 @@
         </div>
 
         <div class="card-pos">
-            <div class="card-pos-header">ESCANEAR CÓDIGO <i class="fas fa-barcode"></i></div>
+            <div class="card-pos-header">MODO ESCÁNER ACTIVO <i class="fas fa-barcode"></i></div>
             <div class="card-pos-body">
-                <input type="text" id="barcode_input" class="form-control form-control-pos" placeholder="Pase la pistola aquí..." autofocus autocomplete="off">
+                <input type="text" id="barcode_input" class="form-control form-control-pos" placeholder="Pase la pistola repetidamente..." autofocus autocomplete="off">
             </div>
         </div>
 
         <div class="card-pos">
             <div class="card-pos-header">CLIENTE <i class="fas fa-user"></i></div>
             <div class="card-pos-body">
-                <select id="cliente_id_select" class="form-select select2-pos" onchange="recalcularPreciosPorCategoria()">
+                <select id="cliente_id_select" class="form-select select2-pos" onchange="recalcularPreciosYFocar()">
                     <option value="1" data-categoria="estandar" selected>CLIENTE GENERAL (MOSTRADOR)</option>
                     {% for c in clientes %}
                         {% if c.id != 1 %}
@@ -175,14 +179,21 @@
 <script>
     const productData = JSON.parse(document.getElementById('product-data').textContent);
     let carrito = {};
-    let ventasEnEspera = JSON.parse(localStorage.getItem('espera_san_roque')) || [];
+
+    // --- FUNCIÓN PARA MANTENER EL FOCO SIEMPRE EN EL ESCÁNER ---
+    function enfocarEscaner() {
+        setTimeout(() => {
+            const input = document.getElementById('barcode_input');
+            input.focus();
+        }, 10);
+    }
 
     function formatCurrency(v) { return v.toLocaleString('es-CO'); }
 
-    // --- LÓGICA DE ESCÁNER (CORREGIDA) ---
+    // --- ESCÁNER AUTOMÁTICO ---
     document.getElementById('barcode_input').addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
-            e.preventDefault(); // EVITA que el Enter salte de campo
+            e.preventDefault(); 
             const codigo = this.value.trim();
             if (codigo) {
                 const p = productData.find(x => x.codigo === codigo);
@@ -192,7 +203,6 @@
 
                     if (carrito[p.id]) {
                         carrito[p.id].cantidad++;
-                        carrito[p.id].precio = precio;
                     } else {
                         carrito[p.id] = {id: p.id, nombre: p.nombre, marca: p.marca, precio: precio, cantidad: 1};
                     }
@@ -202,24 +212,23 @@
                 }
             }
             this.value = '';
-            this.focus();
+            enfocarEscaner(); // REGRESA EL FOCO AL TIRO
         }
     });
 
-    // --- LÓGICA DE CLIENTE Y CATEGORÍAS ---
     function getCategoriaActual() {
         const select = document.getElementById('cliente_id_select');
         return select.options[select.selectedIndex].getAttribute('data-categoria') || 'estandar';
     }
 
-    function recalcularPreciosPorCategoria() {
+    function recalcularPreciosYFocar() {
         const cat = getCategoriaActual();
         for (const key in carrito) {
             const p = productData.find(x => x.id == key);
             carrito[key].precio = (cat === 'premium') ? p.precio_costo : p.precio_venta;
         }
         renderizarCarrito();
-        document.getElementById('barcode_input').focus();
+        enfocarEscaner(); // SI CAMBIAN CLIENTE, VUELVE AL ESCÁNER
     }
 
     function renderizarCarrito() {
@@ -250,10 +259,9 @@
     function eliminarItem(id) {
         delete carrito[id];
         renderizarCarrito();
-        document.getElementById('barcode_input').focus();
+        enfocarEscaner(); // DESPUÉS DE BORRAR, VUELVE AL ESCÁNER
     }
 
-    // --- PAGOS Y VUELTOS ---
     function actualizarPagos() {
         let totalPagado = 0;
         ['nequi', 'daviplata', 'tarjeta', 'transferencia'].forEach(m => {
@@ -286,13 +294,12 @@
 
         if (carrito[id]) {
             carrito[id].cantidad += cant;
-            carrito[id].precio = precio;
         } else {
             carrito[id] = { id: p.id, nombre: p.nombre, marca: p.marca, precio: precio, cantidad: cant };
         }
         renderizarCarrito();
         $('#manual_producto').val('').trigger('change');
-        document.getElementById('barcode_input').focus();
+        enfocarEscaner(); // DESPUÉS DE BÚSQUEDA MANUAL, VUELVE AL ESCÁNER
     }
 
     function validarYEnviar(e) {
@@ -316,7 +323,14 @@
         $('#manual_producto').select2({ theme: 'bootstrap-5' });
         $('#cliente_id_select').select2({ theme: 'bootstrap-5' });
         $('.pago-input').on('input', actualizarPagos);
-        document.getElementById('barcode_input').focus();
+        enfocarEscaner();
+
+        // SI HACEN CLIC EN CUALQUIER LADO DEL FONDO, EL CURSOR VUELVE AL ESCÁNER
+        document.addEventListener('click', function(e) {
+            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT' && e.target.tagName !== 'TEXTAREA') {
+                enfocarEscaner();
+            }
+        });
     });
 </script>
 {% endblock %}
