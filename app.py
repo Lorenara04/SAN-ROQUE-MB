@@ -6,6 +6,9 @@ from flask_login import LoginManager, current_user
 from flask_cors import CORS
 from dotenv import load_dotenv
 import io
+from dotenv import load_dotenv
+load_dotenv()
+
 
 # Importaciones locales
 from database import db
