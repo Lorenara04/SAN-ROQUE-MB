@@ -2,7 +2,7 @@ import os
 import json
 from datetime import timedelta
 from flask import Flask, redirect, url_for, send_file
-from flask_login import LoginManager, current_user 
+from flask_login import LoginManager, current_user
 from flask_cors import CORS
 from dotenv import load_dotenv
 import io
@@ -10,10 +10,10 @@ import io
 # Importaciones locales
 from database import db
 from config import Config
-from models import Usuario, Mesa 
+from models import Usuario, Mesa  # IMPORTANTE: modelos importados aquí
 from utils.time_utils import obtener_hora_colombia
 
-# Intentar importar barcode para las etiquetas (opcional)
+# Intentar importar barcode (opcional)
 try:
     import barcode
     from barcode.writer import ImageWriter
@@ -21,6 +21,7 @@ except ImportError:
     barcode = None
 
 load_dotenv()
+
 
 def create_app():
     app = Flask(__name__)
@@ -30,8 +31,8 @@ def create_app():
     # CONFIGURACIÓN DE BASE DE DATOS (Render / Local)
     # --------------------------------------------------
     database_url = os.getenv("DATABASE_URL")
+
     if database_url and "postgresql" in database_url:
-        # Corrección necesaria para Render/Heroku
         if database_url.startswith("postgres://"):
             database_url = database_url.replace("postgres://", "postgresql://", 1)
         app.config["SQLALCHEMY_DATABASE_URI"] = database_url
@@ -41,7 +42,9 @@ def create_app():
     # --------------------------------------------------
     # SEGURIDAD Y SESIONES
     # --------------------------------------------------
-    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "san-roque-mb-secret-2026")
+    app.config["SECRET_KEY"] = os.getenv(
+        "SECRET_KEY", "san-roque-mb-secret-2026"
+    )
     app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=8)
 
     # --------------------------------------------------
@@ -62,50 +65,7 @@ def create_app():
         return Usuario.query.get(int(user_id))
 
     # --------------------------------------------------
-    # SINCRONIZACIÓN DE TABLAS (RESET DE PRODUCCIÓN)
-    # --------------------------------------------------
-    with app.app_context():
-        # ESTA LÍNEA ES LA "BOMBA DE LIMPIEZA" PARA RENDER
-        # Borra todo lo viejo que está dando error y lo crea de nuevo
-        print("🚀 RESETEANDO BASE DE DATOS EN RENDER...")
-        db.drop_all() 
-        db.create_all()
-        print("✅ BASE DE DATOS RECONSTRUIDA.")
-
-        # Inicializar las 12 mesas si la base de datos está vacía
-        if Mesa.query.count() == 0:
-            for i in range(1, 13):
-                nueva_mesa = Mesa(id=i, estado='libre', total_cuenta=0)
-                db.session.add(nueva_mesa)
-            db.session.commit()
-            print("🪑 MESAS: 12 mesas inicializadas correctamente.")
-
-        # Crear usuario admin por defecto
-        if Usuario.query.count() == 0:
-            admin = Usuario(
-                nombre="LORENA",
-                apellido="RODRIGUEZ",
-                username="admin",
-                rol="Administrador",
-                cedula="123"
-            )
-            admin.set_password("1234")
-            db.session.add(admin)
-            db.session.commit()
-            print("👤 USUARIO ADMIN: Creado por defecto (admin / 1234)")
-
-    # --------------------------------------------------
-    # FILTROS JINJA
-    # --------------------------------------------------
-    @app.template_filter("format_number")
-    def format_number(value):
-        try:
-            return f"{float(value):,.0f}".replace(",", ".")
-        except:
-            return "0"
-
-    # --------------------------------------------------
-    # REGISTRO DE BLUEPRINTS
+    # REGISTRO DE BLUEPRINTS (ANTES DE CREAR TABLAS)
     # --------------------------------------------------
     from routes.auth import auth_bp
     from routes.inventario import inventario_bp
@@ -125,6 +85,58 @@ def create_app():
     app.register_blueprint(proveedores_gastos_bp, url_prefix='/proveedores')
     app.register_blueprint(creditos_bp, url_prefix='/creditos')
 
+    # --------------------------------------------------
+    # CREACIÓN SEGURA DE TABLAS (DESPUÉS DE TODO CARGADO)
+    # --------------------------------------------------
+    with app.app_context():
+
+        print("🚀 SINCRONIZANDO BASE DE DATOS...")
+
+        db.create_all()   # 🔥 YA NO USAMOS drop_all()
+
+        print("✅ TABLAS VERIFICADAS.")
+
+        # Crear mesas si no existen
+        if Mesa.query.count() == 0:
+            for i in range(1, 13):
+                nueva_mesa = Mesa(
+                    id=i,
+                    estado='libre',
+                    total_cuenta=0
+                )
+                db.session.add(nueva_mesa)
+            db.session.commit()
+            print("🪑 MESAS: 12 mesas inicializadas correctamente.")
+
+        # Crear admin si no existe
+        if Usuario.query.filter_by(username="admin").first() is None:
+            admin = Usuario(
+                nombre="LORENA",
+                apellido="RODRIGUEZ",
+                username="admin",
+                rol="Administrador",
+                cedula="123"
+            )
+            admin.set_password("1234")
+
+            db.session.add(admin)
+            db.session.commit()
+
+            print("👤 USUARIO ADMIN: Creado por defecto (admin / 1234)")
+
+    # --------------------------------------------------
+    # FILTRO JINJA
+    # --------------------------------------------------
+    @app.template_filter("format_number")
+    def format_number(value):
+        try:
+            return f"{float(value):,.0f}".replace(",", ".")
+        except:
+            return "0"
+
+    # --------------------------------------------------
+    # RUTAS BASE
+    # --------------------------------------------------
     @app.route("/")
     def index():
         return redirect(url_for("ventas.dashboard"))
@@ -133,20 +145,28 @@ def create_app():
     def generar_codigo(codigo):
         if not barcode:
             return "Librería 'python-barcode' no instalada", 404
-        EAN = barcode.get_barcode_class('code128')
-        ean = EAN(codigo, writer=ImageWriter())
+
+        CODE128 = barcode.get_barcode_class('code128')
         buffer = io.BytesIO()
-        ean.write(buffer)
+
+        instancia = CODE128(str(codigo), writer=ImageWriter())
+        instancia.write(buffer)
+
         buffer.seek(0)
         return send_file(buffer, mimetype='image/png')
 
+    # --------------------------------------------------
+    # CONTEXT PROCESSOR GLOBAL
+    # --------------------------------------------------
     @app.context_processor
     def inject_utilities():
         es_admin = False
+
         if current_user.is_authenticated:
             rol = getattr(current_user, 'rol', '')
             if rol and rol.lower() == 'administrador':
                 es_admin = True
+
         return {
             "ahora_col": obtener_hora_colombia(),
             "timedelta": timedelta,
@@ -155,6 +175,7 @@ def create_app():
         }
 
     return app
+
 
 app = create_app()
 

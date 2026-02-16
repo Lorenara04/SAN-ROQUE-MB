@@ -44,7 +44,7 @@ body { background-color: #f8fafc; color: var(--text-main); }
   text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; padding: 20px; border: none;
 }
 
-.product-row:hover { background-color: #173950; }
+.product-row:hover { background-color: #f8fafc; transition: 0.2s; }
 .stock-alert-critical { background-color: #fff1f2 !important; border-left: 5px solid #fb7185 !important; }
 
 .badge-stock { padding: 8px 14px; border-radius: 12px; font-weight: 700; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 5px; }
@@ -74,7 +74,6 @@ body { background-color: #f8fafc; color: var(--text-main); }
 .label-total { font-size: 0.65rem; font-weight: 800; color: var(--azul-oscuro); text-transform: uppercase; margin-bottom: 3px; display: block; }
 .value-total { font-size: 1rem; font-weight: 800; color: var(--text-main); }
 
-/* Estilo Etiqueta Impresión */
 .card-etiqueta-print { border: 2px solid #eee; border-radius: 20px; padding: 25px; text-align: center; background: white; max-width: 320px; margin: 0 auto; }
 .precio-tag { background: #f1f5f9; color: #1e293b; font-size: 1.8rem; font-weight: 900; padding: 10px 20px; border-radius: 15px; display: inline-block; margin: 15px 0; border: 1px solid #cbd5e1; }
 
@@ -156,14 +155,14 @@ body { background-color: #f8fafc; color: var(--text-main); }
                 <i class="fas {% if m.cantidad > 0 %}fa-arrow-up{% else %}fa-arrow-down{% endif %}"></i>
             </div>
             <div class="flex-grow-1">
-                <div class="fw-bold text-dark">{{ m.producto.nombre | upper }}</div>
-                <div class="text-muted small">{{ m.tipo }} por <b>{{ m.usuario }}</b></div>
+                <div class="fw-bold text-dark">{{ m.producto.nombre | upper if m.producto else 'PRODUCTO ELIMINADO' }}</div>
+                <div class="text-muted small">{{ m.tipo }} por <b>{{ m.usuario.username if m.usuario else 'Sistema' }}</b></div>
             </div>
             <div class="text-end">
                 <div class="fw-bold {% if m.cantidad > 0 %}text-success{% else %}text-danger{% endif %}">
                     {{ '+' if m.cantidad > 0 }}{{ m.cantidad }} UND
                 </div>
-                <div class="text-muted" style="font-size: 0.7rem;">{{ m.fecha.strftime('%d/%m - %H:%M') }}</div>
+                <div class="text-muted" style="font-size: 0.7rem;">{{ m.fecha.strftime('%d/%m - %H:%M') if m.fecha else 'N/A' }}</div>
             </div>
         </div>
         {% endfor %}
@@ -191,10 +190,10 @@ body { background-color: #f8fafc; color: var(--text-main); }
                             </select>
                         </div>
                         <div class="col-md-4"><label class="fw-bold small text-success">Venta</label><input name="valor_venta" id="new_venta" type="number" step="0.01" class="form-control" oninput="actualizarTotales('new')"></div>
-                        <div class="col-12"><label class="fw-bold small">Stock</label><input name="cantidad" id="new_cantidad" type="number" class="form-control" value="0" oninput="actualizarTotales('new')"></div>
+                        <div class="col-12"><label class="fw-bold small">Stock Inicial</label><input name="cantidad" id="new_cantidad" type="number" class="form-control" value="0" oninput="actualizarTotales('new')"></div>
                         <div class="col-12 mt-3"><div class="bg-ganancia-box"><span class="label-total">Ganancia Unit.</span><div id="new_ganancia" class="h4 fw-bold text-success">$ 0</div></div></div>
                         <div class="col-md-6"><div class="bg-total-box"><span class="label-total">Inversión</span><span id="new_total_costo" class="value-total">$ 0</span></div></div>
-                        <div class="col-md-6"><div class="bg-total-box"><span class="label-total">Utilidad</span><span id="new_total_ganancia" class="value-total">$ 0</span></div></div>
+                        <div class="col-md-6"><div class="bg-total-box"><span class="label-total">Utilidad Estimada</span><span id="new_total_ganancia" class="value-total">$ 0</span></div></div>
                     </div>
                 </div>
                 <div class="modal-footer border-0 p-4"><button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-pill" style="background-color: #0ea5e9;">GUARDAR</button></div>
@@ -271,7 +270,7 @@ body { background-color: #f8fafc; color: var(--text-main); }
                     </div>
                 </div>
                 <div class="d-flex justify-content-center gap-3 mt-4">
-                    <button class="btn btn-outline-primary fw-bold" onclick="window.print()">IMPRIMIR</button>
+                    <button class="btn btn-outline-primary fw-bold" onclick="window.print()"><i class="fas fa-print me-1"></i> IMPRIMIR</button>
                     <button class="btn btn-secondary fw-bold" data-bs-dismiss="modal">CERRAR</button>
                 </div>
             </div>
@@ -280,7 +279,7 @@ body { background-color: #f8fafc; color: var(--text-main); }
 </div>
 
 <script>
-// BUSCADOR REFORZADO - AHORA CON BOTÓN DE BARRAS FUNCIONAL
+// BUSCADOR REFORZADO
 document.getElementById('globalSearch').addEventListener('input', function() {
     let query = this.value.trim();
     let tbody = document.getElementById('inventoryBody');
@@ -293,8 +292,6 @@ document.getElementById('globalSearch').addEventListener('input', function() {
                 data.forEach(p => {
                     const stockClass = p.stock > 5 ? 'stock-top' : 'stock-low';
                     const alertRow = p.stock <= 3 ? 'stock-alert-critical' : '';
-                    
-                    // Escapar nombres para JS
                     const pNombre = p.nombre.replace(/'/g, "\\'");
                     const pMarca = (p.marca || '').replace(/'/g, "\\'");
                     
@@ -321,7 +318,7 @@ document.getElementById('globalSearch').addEventListener('input', function() {
                 });
             });
     } else if (query.length === 0) {
-        location.reload();
+        window.location.reload();
     }
 });
 
