@@ -1,50 +1,129 @@
 {% extends "base.html" %}
-{% block title %}Gestión de Clientes - San Roque M.B{% endblock %}
+{% block title %}Directorio de Clientes - SAN ROQUE MB{% endblock %}
 
 {% block content %}
 <style>
+    /* VARIABLES MEMORIZADAS SAN ROQUE MB */
+    :root {
+        --primary-oxford: #1A365D;
+        --accent-sky: #63B3ED;
+        --bg-glacial: #F0F7FF;
+        --bg-card-blue: #BEE3F8;
+        --text-dark: #2D3748;
+        --white: #ffffff;
+    }
+
     .tabla-premium {
-        background: white;
+        background: var(--white);
         border-radius: 15px;
         overflow: hidden;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        box-shadow: 0 10px 25px rgba(26, 54, 93, 0.08);
+        border: 1px solid var(--bg-card-blue);
     }
-    .table-striped tbody tr:nth-of-type(even) { background-color: #f8fafc; }
-    .table-striped tbody tr:hover { background-color: #f1f5f9; }
-    .btn-edit { background: #1a3a5a; color: white; border-radius: 8px; }
+
+    .table thead {
+        background-color: var(--primary-oxford);
+        color: var(--white);
+    }
+
+    .table thead th {
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+        border: none;
+        padding: 15px;
+    }
+
+    .table-striped tbody tr:nth-of-type(even) { background-color: var(--bg-glacial); }
+    .table-striped tbody tr:hover { background-color: var(--bg-card-blue); }
+
+    .btn-edit { 
+        background: var(--accent-sky); 
+        color: white; 
+        border-radius: 8px;
+        border: none;
+        transition: 0.3s;
+    }
+    .btn-edit:hover { 
+        background: var(--primary-oxford); 
+        transform: scale(1.1);
+    }
+
+    .btn-nuevo {
+        background: var(--primary-oxford);
+        border: none;
+        box-shadow: 0 4px 12px rgba(26, 54, 93, 0.2);
+    }
+    .btn-nuevo:hover {
+        background: var(--accent-sky);
+        transform: translateY(-2px);
+    }
+
+    .modal-header-pro {
+        background: var(--primary-oxford);
+        color: var(--white);
+        border-bottom: 4px solid var(--accent-sky);
+    }
+
+    .form-control {
+        border-radius: 10px;
+        border: 2px solid var(--bg-card-blue);
+        transition: 0.3s;
+    }
+
+    .form-control:focus {
+        border-color: var(--accent-sky);
+        box-shadow: 0 0 0 4px rgba(99, 179, 237, 0.15);
+    }
+
+    .mayuscula { text-transform: uppercase; }
 </style>
 
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-dark"><i class="fas fa-users me-2"></i> Directorio de Clientes</h2>
-        <button class="btn btn-primary fw-bold px-4 rounded-pill" data-bs-toggle="modal" data-bs-target="#addClienteModal">
+        <h2 class="fw-bold" style="color: var(--primary-oxford);">
+            <i class="fas fa-users me-2"></i> DIRECTORIO DE CLIENTES
+        </h2>
+        <button class="btn btn-nuevo text-white fw-bold px-4 rounded-pill" data-bs-toggle="modal" data-bs-target="#addClienteModal">
             <i class="fas fa-plus-circle me-1"></i> NUEVO CLIENTE
         </button>
     </div>
 
     <div class="tabla-premium">
-        <table class="table table-striped align-middle text-center mb-0">
-            <thead class="bg-dark text-white">
+        <table class="table table-striped align-middle text-center mb-0" id="tablaClientes">
+            <thead>
                 <tr>
-                    <th>Nombre</th>
-                    <th>Documento</th>
+                    <th class="text-start ps-4">Nombre Completo</th>
+                    <th>Documento / NIT</th>
                     <th>Teléfono</th>
-                    <th>Correo</th>
+                    <th>Correo Electrónico</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 {% for c in clientes %}
                 <tr>
-                    <td class="text-start ps-4 fw-bold">{{ c.nombre }}</td>
-                    <td>{{ c.documento }}</td>
-                    <td>{{ c.telefono }}</td>
-                    <td>{{ c.email or 'N/A' }}</td>
+                    <td class="text-start ps-4 fw-bold mayuscula" style="color: var(--primary-oxford);">{{ c.nombre }}</td>
+                    <td class="fw-bold text-muted">{{ c.documento or '---' }}</td>
+                    <td>
+                        <a href="https://wa.me/57{{ c.telefono }}" target="_blank" class="text-decoration-none" style="color: var(--text-dark);">
+                            <i class="fab fa-whatsapp text-success me-1"></i> {{ c.telefono }}
+                        </a>
+                    </td>
+                    <td class="small">{{ c.email | lower if c.email else 'N/A' }}</td>
                     <td>
                         <button class="btn btn-sm btn-edit" 
-                                onclick="prepareEditModal('{{ c.id }}', '{{ c.nombre }}', '{{ c.documento }}', '{{ c.telefono }}', '{{ c.email }}', '{{ c.direccion }}')">
+                                onclick="prepareEditModal('{{ c.id }}', '{{ c.nombre|escapejs }}', '{{ c.documento|default('') }}', '{{ c.telefono|default('') }}', '{{ c.email|default('') }}')"
+                                title="Editar Cliente">
                             <i class="fas fa-edit"></i>
                         </button>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="py-5 text-muted">
+                        <i class="fas fa-user-slash fa-3x mb-3 d-block" style="opacity: 0.2;"></i>
+                        NO HAY CLIENTES REGISTRADOS EN LA BASE DE DATOS.
                     </td>
                 </tr>
                 {% endfor %}
@@ -55,34 +134,37 @@
 
 <div class="modal fade" id="editClienteModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
             <form id="editClienteForm" method="POST">
-                <div class="modal-header bg-dark text-white">
+                <div class="modal-header modal-header-pro">
                     <h5 class="modal-title fw-bold">EDITAR INFORMACIÓN DEL CLIENTE</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body bg-light">
+                <div class="modal-body bg-light p-4">
                     <div class="row g-3">
                         <div class="col-12">
-                            <label class="form-label small fw-bold">NOMBRE COMPLETO</label>
-                            <input type="text" name="nombre" id="edit_nombre" class="form-control" required>
+                            <label class="small fw-bold">NOMBRE COMPLETO</label>
+                            <input type="text" name="nombre" id="edit_nombre" class="form-control mayuscula" required>
                         </div>
                         <div class="col-6">
-                            <label class="form-label small fw-bold">DOCUMENTO/NIT</label>
+                            <label class="small fw-bold">DOCUMENTO/NIT</label>
                             <input type="text" name="documento" id="edit_documento" class="form-control">
                         </div>
                         <div class="col-6">
-                            <label class="form-label small fw-bold">TELÉFONO</label>
+                            <label class="small fw-bold">TELÉFONO</label>
                             <input type="text" name="telefono" id="edit_telefono" class="form-control">
                         </div>
                         <div class="col-12">
-                            <label class="form-label small fw-bold">CORREO ELECTRÓNICO</label>
+                            <label class="small fw-bold">CORREO ELECTRÓNICO</label>
                             <input type="email" name="email" id="edit_email" class="form-control">
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer bg-white">
-                    <button type="submit" class="btn btn-primary w-100 fw-bold">GUARDAR CAMBIOS</button>
+                <div class="modal-footer bg-white border-0">
+                    <button type="button" class="btn btn-link text-muted fw-bold text-decoration-none" data-bs-dismiss="modal">CANCELAR</button>
+                    <button type="submit" class="btn fw-bold px-4 text-white" style="background: var(--primary-oxford); border-radius: 10px;">
+                        GUARDAR CAMBIOS
+                    </button>
                 </div>
             </form>
         </div>
@@ -90,19 +172,24 @@
 </div>
 
 <script>
-function prepareEditModal(id, nombre, documento, telefono, email, direccion) {
-    // 1. Cargamos los datos en los inputs del modal
+function prepareEditModal(id, nombre, documento, telefono, email) {
     document.getElementById('edit_nombre').value = nombre;
     document.getElementById('edit_documento').value = documento;
     document.getElementById('edit_telefono').value = telefono;
     document.getElementById('edit_email').value = email;
     
-    // 2. Ajustamos la URL del formulario para que apunte al ID correcto
-    document.getElementById('editClienteForm').action = "/clientes/editar/" + id;
+    // Ruta dinámica según el ID
+    document.getElementById('editClienteForm').action = "{{ url_for('clientes.clientes') }}/editar/" + id;
     
-    // 3. Mostramos el modal
     var myModal = new bootstrap.Modal(document.getElementById('editClienteModal'));
     myModal.show();
 }
+
+// Mayúsculas automáticas para inputs de texto
+document.querySelectorAll('.mayuscula').forEach(input => {
+    input.addEventListener('input', (e) => {
+        e.target.value = e.target.value.toUpperCase();
+    });
+});
 </script>
 {% endblock %}

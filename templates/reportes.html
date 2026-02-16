@@ -1,145 +1,126 @@
 {% extends "base.html" %}
-{% block title %}Business Intelligence - San Roque{% endblock %}
+{% block title %}Business Intelligence - SAN ROQUE MB{% endblock %}
 
 {% block content %}
 <style>
-:root {
-    --sky-bg: #f8fafc;
-    --sky-light: #e0f2fe;
-    --sky-medium: #7dd3fc;
-    --sky-dark: #0284c7;
-    --navy: #1e3a8a;
-    --slate-600: #475569;
-}
+    /* VARIABLES MEMORIZADAS SAN ROQUE MB */
+    :root {
+        --primary-oxford: #1A365D;
+        --accent-sky: #63B3ED;
+        --bg-glacial: #F0F7FF;
+        --bg-card-blue: #BEE3F8;
+        --success-cyan: #00A3C4;
+        --danger-red: #C53030;
+        --text-dark: #2D3748;
+        --white: #ffffff;
+    }
 
-body { background: var(--sky-bg); font-family: 'Inter', sans-serif; }
+    body { background: var(--bg-glacial); font-family: 'Inter', sans-serif; color: var(--text-dark); }
 
-/* Contenedor Maestro */
-.report-container {
-    background: rgb(213, 219, 240);
-    border-radius: 30px;
-    padding: 2.5rem;
-    box-shadow: 0 15px 50px rgba(0,0,0,0.03);
-    border: 1px solid rgba(0,0,0,0.05);
-}
+    /* Contenedor Maestro */
+    .report-container {
+        background: var(--white);
+        border-radius: 30px;
+        padding: 2.5rem;
+        box-shadow: 0 15px 50px rgba(26, 54, 93, 0.05);
+        border: 1px solid var(--bg-card-blue);
+    }
 
-/* Tarjetas de Métricas Premium */
-.metric-card-sky {
-    background: rgb(255, 255, 255);
-    border-radius: 24px;
-    padding: 1.8rem;
-    border: 1px solid #98b5d3;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
-    height: 100%;
-}
+    /* Tarjetas de Métricas Premium */
+    .metric-card-sr {
+        background: var(--white);
+        border-radius: 24px;
+        padding: 1.8rem;
+        border: 1px solid var(--bg-card-blue);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        height: 100%;
+    }
 
-.metric-card-sky:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 40px rgba(2, 132, 199, 0.1);
-    border-color: var(--sky-medium);
-}
+    .metric-card-sr:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(26, 54, 93, 0.1);
+        border-color: var(--accent-sky);
+    }
 
-.metric-card-sky small {
-    color: var(--slate-600);
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    font-size: 0.7rem;
-    font-weight: 800;
-    display: block;
-    margin-bottom: 0.5rem;
-}
+    .metric-card-sr small {
+        color: var(--primary-oxford);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        display: block;
+        margin-bottom: 0.8rem;
+        opacity: 0.8;
+    }
 
-.metric-card-sky h3 {
-    font-weight: 900;
-    font-size: 1.9rem;
-    margin-bottom: 0;
-    letter-spacing: -1px;
-}
+    .metric-card-sr h3 {
+        font-weight: 900;
+        font-size: 2.1rem;
+        margin-bottom: 0;
+        letter-spacing: -1.5px;
+        color: var(--primary-oxford);
+    }
 
-/* Decoración Sutil */
-.metric-card-sky::before {
-    content: "";
-    position: absolute;
-    top: -20px;
-    right: -20px;
-    width: 80px;
-    height: 80px;
-    background: var(--sky-light);
-    border-radius: 50%;
-    opacity: 0.4;
-    z-index: 0;
-}
+    /* Indicador lateral de color */
+    .card-indicator {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 6px;
+    }
 
-.metric-card-sky * { position: relative; z-index: 1; }
+    /* Botonera Superior */
+    .btn-premium {
+        background: var(--primary-oxford);
+        color: white !important;
+        border-radius: 15px;
+        padding: 12px 28px;
+        font-weight: 800;
+        text-transform: uppercase;
+        transition: 0.3s;
+        border: none;
+        box-shadow: 0 6px 15px rgba(26, 54, 93, 0.2);
+    }
 
-/* Botonera Superior */
-.btn-premium {
-    background: var(--navy);
-    color: white !important;
-    border-radius: 15px;
-    padding: 12px 28px;
-    font-weight: 700;
-    transition: 0.3s;
-    border: none;
-    box-shadow: 0 4px 15px rgba(30, 58, 138, 0.2);
-}
+    .btn-premium:hover {
+        background: var(--accent-sky);
+        transform: translateY(-2px);
+    }
 
-.btn-premium:hover {
-    background: #1e40af;
-    transform: scale(1.03);
-    box-shadow: 0 10px 25px rgba(30, 58, 138, 0.3);
-}
+    /* Sección de Formulario */
+    .glass-card-report {
+        background: var(--bg-glacial);
+        border-radius: 25px;
+        padding: 2.2rem;
+        border: 2px solid var(--bg-card-blue);
+        height: 100%;
+    }
 
-/* Sección de Formulario (Glassmorphism) */
-.glass-card-report {
-    background: #f8fafc;
-    border-radius: 25px;
-    padding: 2.2rem;
-    border: 2px solid var(--sky-light);
-    height: 100%;
-}
+    .form-control-sr {
+        border: 2px solid var(--bg-card-blue);
+        border-radius: 14px;
+        padding: 12px 18px;
+        font-weight: 600;
+        transition: 0.3s;
+    }
 
-.form-control-sky {
-    border: 2px solid #e2e8f0;
-    border-radius: 14px;
-    padding: 12px 18px;
-    font-weight: 500;
-    transition: 0.3s;
-}
+    .form-control-sr:focus {
+        border-color: var(--accent-sky);
+        box-shadow: 0 0 0 4px rgba(99, 179, 237, 0.1);
+    }
 
-.form-control-sky:focus {
-    border-color: var(--sky-dark);
-    box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.1);
-}
-
-.btn-sky {
-    background: linear-gradient(135deg, var(--sky-dark), var(--navy));
-    color: white !important;
-    border: none;
-    border-radius: 15px;
-    padding: 15px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    box-shadow: 0 6px 20px rgba(2, 132, 199, 0.3);
-}
-
-.btn-sky:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 25px rgba(2, 132, 199, 0.4);
-}
-
-/* Estilo Gráfico */
-.chart-container {
-    background: white;
-    padding: 2rem;
-    border-radius: 25px;
-    border: 1px solid #f1f5f9;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.02);
-}
+    /* Estilo Gráfico */
+    .chart-container {
+        background: white;
+        padding: 2rem;
+        border-radius: 25px;
+        border: 1px solid var(--bg-card-blue);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+    }
 </style>
 
 <div class="container py-5">
@@ -147,24 +128,23 @@ body { background: var(--sky-bg); font-family: 'Inter', sans-serif; }
         
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
             <div>
-                <span class="badge mb-2 px-3 py-2 rounded-pill" style="background: var(--sky-light); color: var(--sky-dark); font-weight: 800; font-size: 0.75rem;">
-                    SAN ROQUE M.B - SISTEMA DE INTELIGENCIA
+                <span class="badge mb-2 px-3 py-2 rounded-pill uppercase tracking-widest" style="background: var(--bg-card-blue); color: var(--primary-oxford); font-weight: 800; font-size: 0.7rem;">
+                    SISTEMA DE AUDITORÍA • SAN ROQUE MB
                 </span>
-                <h1 class="fw-bold text-navy mb-0" style="letter-spacing: -1.5px; font-size: 2.6rem;">
-                               Informes
-                
+                <h1 class="fw-black text-uppercase m-0" style="color: var(--primary-oxford); letter-spacing: -1px; font-size: 2.8rem;">
+                    Informes de Gestión
                 </h1>
             </div>
 
             <div class="d-flex gap-2">
                 <a href="{{ url_for('reportes.historial_cierres') }}"
-                   class="btn btn-light rounded-pill px-4 fw-bold border bg-white shadow-sm">
-                   <i class="fas fa-history me-2 text-primary"></i>Historial
+                   class="btn btn-light rounded-pill px-4 fw-bold border bg-white shadow-sm text-uppercase" style="font-size: 0.8rem;">
+                   <i class="fas fa-history me-2" style="color: var(--accent-sky);"></i>Historial de Cierres
                 </a>
 
                 <form action="{{ url_for('reportes.ejecutar_cierre_caja') }}" method="POST">
-                    <button class="btn btn-premium">
-                        <i class="fas fa-lock me-2"></i>Cierre de Caja
+                    <button class="btn btn-premium text-uppercase" style="font-size: 0.8rem;">
+                        <i class="fas fa-lock me-2"></i>Ejecutar Cierre
                     </button>
                 </form>
             </div>
@@ -172,37 +152,42 @@ body { background: var(--sky-bg); font-family: 'Inter', sans-serif; }
 
         <div class="row g-4 mb-5">
             <div class="col-md-4">
-                <div class="metric-card-sky">
-                    <small><i class="fas fa-coins text-success me-1"></i>Ingresos Totales</small>
-                    <h3 class="text-navy">{{ total_diario | format_number }}</h3>
+                <div class="metric-card-sr">
+                    <div class="card-indicator" style="background: var(--success-cyan);"></div>
+                    <small><i class="fas fa-plus-circle me-1" style="color: var(--success-cyan);"></i> Ingresos Totales</small>
+                    <h3>$ {{ "{:,.0f}".format(total_diario or 0) }}</h3>
+                    <p class="text-muted small m-0 mt-2 fw-bold">FACTURACIÓN BRUTA HOY</p>
                 </div>
             </div>
 
             <div class="col-md-4">
-                <div class="metric-card-sky">
-                    <small><i class="fas fa-file-invoice-dollar text-danger me-1"></i>Egresos Operativos</small>
-                    <h3 class="text-danger">{{ egresos_dia | format_number }}</h3>
+                <div class="metric-card-sr">
+                    <div class="card-indicator" style="background: var(--danger-red);"></div>
+                    <small><i class="fas fa-minus-circle me-1" style="color: var(--danger-red);"></i> Egresos Operativos</small>
+                    <h3 style="color: var(--danger-red);">$ {{ "{:,.0f}".format(egresos_dia or 0) }}</h3>
+                    <p class="text-muted small m-0 mt-2 fw-bold">GASTOS Y PAGOS HOY</p>
                 </div>
             </div>
 
             <div class="col-md-4">
-                <div class="metric-card-sky" style="border-bottom: 5px solid var(--sky-dark);">
-                    <small><i class="fas fa-wallet text-sky me-1"></i>Saldo en Caja</small>
-                    <h3 class="text-sky">{{ saldo_caja_dia | format_number }}</h3>
+                <div class="metric-card-sr">
+                    <div class="card-indicator" style="background: var(--primary-oxford);"></div>
+                    <small><i class="fas fa-wallet me-1" style="color: var(--accent-sky);"></i> Saldo Neto en Caja</small>
+                    <h3 style="color: var(--success-cyan);">$ {{ "{:,.0f}".format(saldo_caja_dia or 0) }}</h3>
+                    <p class="text-muted small m-0 mt-2 fw-bold">LIQUIDEZ DISPONIBLE</p>
                 </div>
             </div>
         </div>
 
         <div class="row g-4">
-            
             <div class="col-lg-7">
                 <div class="chart-container h-100">
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h5 class="fw-bold text-navy mb-0"><i class="fas fa-chart-line me-2 text-sky"></i>Tendencia Semanal</h5>
-                        <i class="fas fa-sync-alt text-muted small"></i>
+                        <h5 class="fw-bold text-uppercase small tracking-widest" style="color: var(--primary-oxford);"><i class="fas fa-chart-line me-2 text-sky"></i>Tendencia de Ventas (Semana)</h5>
+                        <i class="fas fa-sync-alt text-muted small animate-spin-hover"></i>
                     </div>
-                    <div style="height:340px">
-                        <canvas id="chartSky"></canvas>
+                    <div style="height:350px">
+                        <canvas id="chartSanRoque"></canvas>
                     </div>
                 </div>
             </div>
@@ -211,37 +196,43 @@ body { background: var(--sky-bg); font-family: 'Inter', sans-serif; }
                 <div class="glass-card-report shadow-sm h-100">
                     <div class="text-center mb-4">
                         <div class="icon-circle bg-white shadow-sm d-inline-flex align-items-center justify-content-center mb-3" 
-                             style="width:70px; height:70px; border-radius:20px; color: var(--sky-dark);">
-                            <i class="fas fa-envelope-open-text fa-2x"></i>
+                             style="width:80px; height:80px; border-radius:24px; color: var(--primary-oxford);">
+                            <i class="fas fa-mail-bulk fa-2x"></i>
                         </div>
-                        <h5 class="fw-bold text-navy">Exportación PDF</h5>
-                        <p class="text-muted small">Genera el reporte y recíbelo en tu correo</p>
+                        <h5 class="fw-black text-uppercase" style="color: var(--primary-oxford);">Generar Reporte PDF</h5>
+                        <p class="text-muted small fw-bold">AUDITORÍA DIGITAL A TU CORREO</p>
                     </div>
 
                     <form action="{{ url_for('reportes.enviar_reporte_email') }}" method="POST">
                         <div class="row g-3 mb-4">
                             <div class="col-6">
-                                <label class="form-label small fw-bold text-navy">Desde</label>
-                                <input type="date" name="fecha_inicio" class="form-control form-control-sky" value="{{ hoy }}" required>
+                                <label class="form-label small fw-black text-uppercase tracking-tighter" style="color: var(--primary-oxford);">Desde</label>
+                                <input type="date" name="fecha_inicio" class="form-control form-control-sr" value="{{ hoy }}" required>
                             </div>
                             <div class="col-6">
-                                <label class="form-label small fw-bold text-navy">Hasta</label>
-                                <input type="date" name="fecha_fin" class="form-control form-control-sky" value="{{ hoy }}" required>
+                                <label class="form-label small fw-black text-uppercase tracking-tighter" style="color: var(--primary-oxford);">Hasta</label>
+                                <input type="date" name="fecha_fin" class="form-control form-control-sr" value="{{ hoy }}" required>
                             </div>
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label small fw-bold text-navy">Correo Electrónico</label>
-                            <input type="email" name="email" class="form-control form-control-sky" placeholder="ejemplo@correo.com" required>
+                            <label class="form-label small fw-black text-uppercase tracking-tighter" style="color: var(--primary-oxford);">Destinatario</label>
+                            <input type="email" name="email" class="form-control form-control-sr" placeholder="admin@sanroque.com" required>
                         </div>
 
-                        <button class="btn btn-sky w-100 py-3 mt-2">
-                            <i class="fas fa-paper-plane me-2"></i>Generar y Enviar
+                        <button class="btn w-100 py-3 mt-2 fw-black text-uppercase text-white tracking-widest shadow-lg" style="background: linear-gradient(135deg, var(--primary-oxford), var(--accent-sky)); border: none; border-radius: 15px;">
+                            <i class="fas fa-paper-plane me-2"></i>Sincronizar y Enviar
                         </button>
                     </form>
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="text-center mt-5">
+        <p class="small fw-bold text-muted uppercase tracking-widest">
+            San Roque MB © 2026 | Sistema de Inteligencia Diseñado por Lorena Rodriguez Ramos
+        </p>
     </div>
 </div>
 {% endblock %}
@@ -250,29 +241,30 @@ body { background: var(--sky-bg); font-family: 'Inter', sans-serif; }
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function(){
-    const ctx = document.getElementById("chartSky").getContext('2d');
+    const ctx = document.getElementById("chartSanRoque").getContext('2d');
     
-    // Gradiente dinámico
+    // Gradiente Dinámico Premium
     const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-    gradient.addColorStop(0, 'rgba(2, 132, 199, 0.4)');
-    gradient.addColorStop(1, 'rgba(2, 132, 199, 0.0)');
+    gradient.addColorStop(0, 'rgba(99, 179, 237, 0.5)'); // Sky Blue
+    gradient.addColorStop(1, 'rgba(240, 247, 255, 0.1)'); // Glacial Blue
 
     new Chart(ctx,{
         type: "line",
         data: {
-            labels:{{ labels_grafico|tojson if labels_grafico else'[]'}},
-            datasets:[{
-                label: "Ventas ($)",
-                data: {{ datos_ventas|tojson if datos_ventas else'[]'}},
-                borderColor:"#0284c7",
-                borderWidth:4,
-                pointBackgroundColor:"#ffffff",
-                pointBorderColor:"#0284c7",
-                pointBorderWidth:3,
-                pointRadius:6,
-                backgroundColor:gradient,
-                fill:true,
-                tension:0.4
+            labels: {{ labels_grafico|tojson if labels_grafico else '[]' }},
+            datasets: [{
+                label: "Ventas Totales ($)",
+                data: {{ datos_ventas|tojson if datos_ventas else '[]' }},
+                borderColor: "#1A365D",
+                borderWidth: 4,
+                pointBackgroundColor: "#63B3ED",
+                pointBorderColor: "#ffffff",
+                pointBorderWidth: 3,
+                pointRadius: 7,
+                pointHoverRadius: 9,
+                backgroundColor: gradient,
+                fill: true,
+                tension: 0.4
             }]
         },
         options: {
@@ -281,14 +273,13 @@ document.addEventListener("DOMContentLoaded", function(){
             plugins: {
                 legend: { display: false },
                 tooltip: {
-                    backgroundColor:'#1e3a8a',
+                    backgroundColor: '#1A365D',
+                    titleFont: { size: 14, weight: 'bold', family: 'Inter' },
                     padding: 15,
-                    titleFont: { size: 14, weight: 'bold' },
-                    bodyFont: { size: 13 },
                     displayColors: false,
                     callbacks: {
                         label: function(context) {
-                            return 'Ventas: $' + context.parsed.y.toLocaleString();
+                            return 'RECAUDO: $' + context.parsed.y.toLocaleString('es-CO');
                         }
                     }
                 }
@@ -296,13 +287,15 @@ document.addEventListener("DOMContentLoaded", function(){
             scales: {
                 y: {
                     beginAtZero: true,
-                    grid:{ color: '#f1f5f9' },
+                    grid: { color: '#f1f5f9', drawBorder: false },
                     ticks: {
-                        callback: (v) => '$' + v.toLocaleString()
+                        font: { weight: 'bold' },
+                        callback: (v) => '$' + v.toLocaleString('es-CO')
                     }
                 },
                 x: {
-                    grid: { display: false }
+                    grid: { display: false },
+                    ticks: { font: { weight: 'bold' } }
                 }
             }
         }

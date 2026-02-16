@@ -2,50 +2,49 @@
 
 {% block content %}
 <style>
+    /* VARIABLES MEMORIZADAS SAN ROQUE MB */
     :root {
-        --azul-oscuro: #1a3a5a;
-        --azul-premium: #2c5282;
-        --azul-soft: #e3f2fd;
-        --azul-borde: #90caf9;
-        --dorado-premium: #b8860b;
-        --glass: rgba(255, 255, 255, 0.95);
-        --shadow-color: rgba(26, 58, 90, 0.15);
+        --primary-oxford: #1A365D;    /* Azul Oxford Oscuro */
+        --accent-sky: #63B3ED;        /* Azul Cielo Brillante */
+        --bg-glacial: #F0F7FF;        /* Azul Pastel Glacial */
+        --bg-card-blue: #BEE3F8;      /* Azul Aire Pastel */
+        --text-dark: #2D3748;
+        --white: #ffffff;
     }
 
-    /* Fondo general sobrio */
     .edit-page-container {
-        min-height: 100vh;
+        min-height: 70vh;
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: #f0f4f8;
-        font-family: 'Poppins', sans-serif;
+        background-color: var(--bg-glacial);
+        font-family: 'Inter', sans-serif;
         padding: 20px;
+        border-radius: 15px;
     }
 
     .card-edit {
         max-width: 500px;
         width: 100%;
-        background: var(--glass);
-        backdrop-filter: blur(15px);
+        background: var(--white);
         border-radius: 20px;
         padding: 40px;
-        border: 1px solid var(--azul-borde);
-        box-shadow: 0 15px 35px var(--shadow-color);
+        border: 1px solid var(--bg-card-blue);
+        box-shadow: 0 15px 35px rgba(26, 54, 93, 0.1);
         position: relative;
     }
 
-    /* Tag Superior Estilo Licorera 🥃 */
+    /* Tag Superior Estilo San Roque MB */
     .header-tag {
         position: absolute;
         top: -15px;
         left: 50%;
         transform: translateX(-50%);
-        background: var(--azul-oscuro);
+        background: var(--primary-oxford);
         padding: 6px 25px;
-        border-radius: 4px;
-        font-size: 11px;
-        font-weight: 700;
+        border-radius: 50px;
+        font-size: 10px;
+        font-weight: 800;
         color: white;
         text-transform: uppercase;
         letter-spacing: 2px;
@@ -54,24 +53,27 @@
     }
 
     h2 {
-        color: var(--azul-oscuro);
-        font-weight: 700;
+        color: var(--primary-oxford);
+        font-weight: 800;
         text-align: center;
         margin-top: 10px;
         margin-bottom: 5px;
+        text-transform: uppercase;
     }
 
     .subtitle {
         text-align: center;
-        font-size: 14px;
+        font-size: 13px;
         color: #64748b;
         margin-bottom: 30px;
+        text-transform: uppercase;
+        font-weight: 600;
     }
 
     label {
         display: block;
-        font-weight: 700;
-        color: var(--azul-premium);
+        font-weight: 800;
+        color: var(--primary-oxford);
         font-size: 11px;
         margin-bottom: 8px;
         margin-left: 5px;
@@ -82,20 +84,19 @@
     input, select {
         width: 100%;
         padding: 12px 18px;
-        border-radius: 8px;
-        border: 1px solid #d1d9e6;
-        background: #f8fbff;
+        border-radius: 10px;
+        border: 2px solid var(--bg-card-blue);
+        background: var(--white);
         outline: none;
         font-size: 15px;
         transition: 0.3s;
-        color: #333;
+        color: var(--text-dark);
         margin-bottom: 20px;
     }
 
     input:focus, select:focus {
-        border-color: var(--azul-premium);
-        background: white;
-        box-shadow: 0 0 0 4px rgba(144, 202, 249, 0.2);
+        border-color: var(--accent-sky);
+        box-shadow: 0 0 0 4px rgba(99, 179, 237, 0.15);
     }
 
     .grid-row {
@@ -113,10 +114,10 @@
     .btn-custom {
         flex: 1;
         padding: 14px;
-        border-radius: 8px;
+        border-radius: 10px;
         border: none;
-        font-weight: 700;
-        font-size: 13px;
+        font-weight: 800;
+        font-size: 12px;
         text-align: center;
         text-decoration: none;
         transition: 0.3s;
@@ -128,27 +129,26 @@
         text-transform: uppercase;
     }
 
-    /* Botón Cancelar */
     .btn-cancel {
-        background: #f1f5f9;
-        color: #64748b;
+        background: var(--bg-glacial);
+        color: var(--primary-oxford);
+        border: 1px solid var(--bg-card-blue);
     }
 
     .btn-cancel:hover {
-        background: #e2e8f0;
+        background: var(--bg-card-blue);
         transform: translateY(-2px);
     }
 
-    /* Botón Guardar - Azul Licorera */
     .btn-save {
-        background: var(--azul-oscuro);
+        background: var(--primary-oxford);
         color: white;
     }
 
     .btn-save:hover {
         transform: translateY(-2px);
-        background: var(--azul-premium);
-        box-shadow: 0 8px 15px rgba(26, 58, 90, 0.2);
+        background: var(--accent-sky);
+        box-shadow: 0 8px 15px rgba(26, 54, 93, 0.2);
     }
 
     .id-footer {
@@ -160,6 +160,8 @@
         letter-spacing: 2px;
     }
 
+    .mayuscula { text-transform: uppercase; }
+
     @media(max-width:500px){
         .grid-row { grid-template-columns: 1fr; }
     }
@@ -167,9 +169,9 @@
 
 <div class="edit-page-container">
     <div class="card-edit">
-        <div class="header-tag">Control de Egresos</div>
+        <div class="header-tag">CONTROL DE EGRESOS</div>
         
-        <h2>Editar Gasto</h2>
+        <h2>EDITAR GASTO</h2>
         <div class="subtitle">Ajusta los detalles para un balance exacto</div>
 
         <form method="POST">
@@ -178,11 +180,11 @@
                     <label>Categoría</label>
                     <select name="categoria" required>
                         {% set cat = gasto.categoria if gasto.categoria is defined else gasto[1] %}
-                        <option value="Arriendo" {{ "selected" if cat == "Arriendo" else "" }}>Arriendo</option>
-                        <option value="Servicios" {{ "selected" if cat == "Servicios" else "" }}>Servicios</option>
-                        <option value="Aseo" {{ "selected" if cat == "Aseo" else "" }}>Aseo</option>
-                        <option value="Nómina" {{ "selected" if cat == "Nómina" else "" }}>Nómina</option>
-                        <option value="Otros" {{ "selected" if cat == "Otros" else "" }}>Otros Gastos</option>
+                        <option value="ARRIENDO" {{ "selected" if cat == "ARRIENDO" else "" }}>ARRIENDO</option>
+                        <option value="SERVICIOS" {{ "selected" if cat == "SERVICIOS" else "" }}>SERVICIOS</option>
+                        <option value="ASEO" {{ "selected" if cat == "ASEO" else "" }}>ASEO</option>
+                        <option value="NÓMINA" {{ "selected" if cat == "NÓMINA" else "" }}>NÓMINA</option>
+                        <option value="OTROS" {{ "selected" if cat == "OTROS" else "" }}>OTROS GASTOS</option>
                     </select>
                 </div>
 
@@ -196,7 +198,7 @@
             <div class="input-box">
                 <label>Concepto del Gasto</label>
                 {% set conc = gasto.concepto if gasto.concepto is defined else gasto[2] %}
-                <input type="text" name="concepto" value="{{ conc }}" placeholder="Ej: Pago de seguridad, Envases, etc." required>
+                <input type="text" name="concepto" value="{{ conc }}" class="mayuscula" placeholder="EJ: PAGO DE SEGURIDAD, ENVASES, ETC." required>
             </div>
 
             <div class="input-box">
@@ -206,16 +208,16 @@
             </div>
 
             <div class="actions">
-                <a href="{{ url_for('gastos') }}" class="btn-custom btn-cancel">
-                    <i class="fas fa-arrow-left"></i> Volver
+                <a href="{{ url_for('proveedores_gastos.gastos') }}" class="btn-custom btn-cancel">
+                    <i class="fas fa-arrow-left"></i> VOLVER
                 </a>
                 <button type="submit" class="btn-custom btn-save">
-                    <i class="fas fa-save"></i> Guardar Cambios
+                    <i class="fas fa-save"></i> GUARDAR CAMBIOS
                 </button>
             </div>
         </form>
 
-        <div class="id-footer">Licorera Olimpo • Registro ID #{{ gasto.id if gasto.id is defined else gasto[0] }}</div>
+        <div class="id-footer">SAN ROQUE MB • REGISTRO ID #{{ gasto.id if gasto.id is defined else gasto[0] }}</div>
     </div>
 </div>
 
@@ -223,9 +225,14 @@
     // Efecto visual al guardar
     document.querySelector('form').addEventListener('submit', function() {
         const btn = document.querySelector('.btn-save');
-        btn.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Actualizando...';
+        btn.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> ACTUALIZANDO...';
         btn.style.opacity = '0.8';
         btn.style.pointerEvents = 'none';
+    });
+
+    // Forzar mayúsculas en tiempo real para el concepto
+    document.querySelector('input[name="concepto"]').addEventListener('input', function(e) {
+        e.target.value = e.target.value.toUpperCase();
     });
 </script>
 {% endblock %}

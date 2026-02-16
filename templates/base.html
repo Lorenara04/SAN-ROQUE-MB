@@ -17,13 +17,14 @@
 
   <style>
     :root {
-      --azul-primario: #0288d1;
-      --azul-hover: #03a9f4;
-      --negro-premium: #111111;
-      --texto-oscuro: #2c3e50;
-      --fondo-gris: #f4f7f9;
-      --blanco: #ffffff;
-      --danger-red: #ff4d4d;
+      --bg-glacial: #F0F7FF;
+      --primary-dark: #1A365D;
+      --accent-blue: #63B3ED;
+      --bg-card: #BEE3F8;
+      --success-cyan: #00A3C4;
+      --danger-red: #C53030;
+      --white: #ffffff;
+      --text-main: #2D3748;
     }
 
     html, body {
@@ -31,36 +32,32 @@
       margin: 0;
       display: flex;
       flex-direction: column;
-      background: var(--fondo-gris);
+      background: var(--bg-glacial);
       font-family: 'Inter', sans-serif;
-      color: var(--texto-oscuro);
+      color: var(--text-main);
     }
 
-    /* MEJORA: Todo lo que escriba se verá en MAYÚSCULAS visualmente */
-    input, textarea {
-      text-transform: uppercase;
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent-blue) !important;
+      box-shadow: 0 0 0 0.25rem rgba(99, 179, 237, 0.25) !important;
     }
 
-    .content-wrapper {
-      flex: 1;
-      padding-bottom: 40px;
-    }
+    input, textarea { text-transform: uppercase; }
+
+    .content-wrapper { flex: 1; padding-bottom: 40px; }
 
     .navbar-custom {
-      background-color: var(--negro-premium);
+      background-color: var(--primary-dark) !important;
       padding: 0.7rem 2rem;
-      border-bottom: 4px solid var(--azul-primario);
-      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      border-bottom: 4px solid var(--accent-blue);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     }
 
-    .logo-barra {
-      height: 45px !important;
-      transition: transform 0.2s ease;
-    }
+    .logo-barra { height: 45px !important; transition: transform 0.2s ease; }
 
     .titulo-logo {
       font-weight: 800;
-      color: white;
+      color: var(--white);
       font-size: 1.1rem;
       letter-spacing: 1px;
       text-transform: uppercase;
@@ -73,53 +70,29 @@
       font-size: 0.85rem;
       text-transform: uppercase;
       transition: 0.2s;
-      position: relative;
     }
 
-    .navbar-nav .nav-link:hover {
-      color: var(--azul-primario) !important;
-    }
-
-    .notif-badge {
-      position: absolute;
-      top: 0;
-      right: -5px;
-      width: 8px;
-      height: 8px;
-      background-color: var(--danger-red);
-      border-radius: 50%;
-      display: none;
-      box-shadow: 0 0 5px var(--danger-red);
-    }
-
-    .dropdown-menu-dark {
-      background-color: #1a1a1a;
-      border: 1px solid #333;
-    }
+    .navbar-nav .nav-link:hover { color: var(--accent-blue) !important; }
 
     .main-card {
-      background: var(--blanco);
+      background: var(--white);
       padding: 30px;
       border-radius: 12px;
-      border: 1px solid #e1e8ed;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      border: 1px solid var(--bg-card);
+      box-shadow: 0 10px 30px rgba(26, 54, 93, 0.05);
     }
 
     footer {
-      background-color: var(--negro-premium);
-      color: #999;
+      background-color: var(--primary-dark);
+      color: #a0aec0;
       padding: 20px 0;
       text-align: center;
       margin-top: auto;
       font-size: 0.85rem;
-      border-top: 4px solid var(--azul-primario);
+      border-top: 4px solid var(--accent-blue);
     }
 
-    footer strong { color: var(--blanco); }
-
-    .fade-in {
-      animation: fadeIn 0.4s ease-in;
-    }
+    .fade-in { animation: fadeIn 0.4s ease-in; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   </style>
 </head>
@@ -132,7 +105,7 @@
 
     <a class="navbar-brand d-flex align-items-center" href="{{ url_for('ventas.dashboard') }}">
       <img src="{{ url_for('static', filename='img/LOGO.png') }}" class="logo-barra" alt="Logo">
-      <span class="titulo-logo ms-2 text-white">LICORERA SAN ROQUE</span>
+      <span class="titulo-logo ms-2">LICORERA SAN ROQUE</span>
     </a>
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -142,16 +115,17 @@
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav mx-auto">
         <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('inventario.inventario') }}" id="nav-inventario">
+            <a class="nav-link" href="{{ url_for('inventario.inventario') }}">
               <i class="fas fa-wine-bottle me-1"></i> Inventario
-              <span class="notif-badge" id="alerta-punto"></span>
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="{{ url_for('clientes.clientes') }}"><i class="fas fa-users me-1"></i> Clientes</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('ventas.nueva_venta') }}"><i class="fas fa-plus-circle me-1"></i> Vender</a>
+            <a class="nav-link" href="{{ url_for('ventas.ver_mesa', mesa_id=1) }}">
+                <i class="fas fa-plus-circle me-1"></i> Vender
+            </a>
         </li>
         
         <li class="nav-item dropdown">
@@ -159,22 +133,23 @@
             <i class="fas fa-hand-holding-usd me-1"></i> Créditos
           </a>
           <ul class="dropdown-menu dropdown-menu-dark shadow">
-            <li><a class="dropdown-item" href="{{ url_for('creditos.creditos_corto') }}"><i class="fas fa-bolt me-2 text-warning"></i>Corto Plazo</a></li>
-            <li><a class="dropdown-item" href="{{ url_for('creditos.creditos_largo') }}"><i class="fas fa-calendar-alt me-2 text-info"></i>Largo Plazo (15 días)</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('creditos.creditos_largo') }}">Gestión Créditos</a></li>
           </ul>
         </li>
 
         <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('reportes.reportes') }}"><i class="fas fa-cash-register me-1"></i> Reportes / Caja </a>
+            <a class="nav-link" href="{{ url_for('reportes.reportes') }}"><i class="fas fa-cash-register me-1"></i> Reportes</a>
         </li>
 
         {% if current_user.rol.lower() == 'administrador' %}
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle text-info" href="#" data-bs-toggle="dropdown">Panel Admin</a>
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" style="color: var(--accent-blue) !important;">
+             <i class="fas fa-user-shield me-1"></i> Panel Admin
+          </a>
           <ul class="dropdown-menu dropdown-menu-dark shadow">
-            <li><a class="dropdown-item" href="{{ url_for('ventas.gestion_ventas') }}">Gestión Ventas</a></li>
             <li><a class="dropdown-item" href="{{ url_for('admin.usuarios') }}">Personal</a></li>
-            <li><a class="dropdown-item" href="{{ url_for('proveedores_gastos.enlista_proveedores') }}">Proveedores/Gastos</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('proveedores_gastos.enlista_proveedores') }}">Proveedores</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('proveedores_gastos.gastos') }}">Gastos</a></li>
           </ul>
         </li>
         {% endif %}
@@ -183,11 +158,9 @@
       <div class="d-flex align-items-center">
         <div class="text-white text-end me-3 d-none d-lg-block">
             <div class="small fw-bold">{{ current_user.nombre | upper }}</div>
-            <div class="badge bg-primary" style="font-size: 0.6rem;">{{ current_user.rol }}</div>
+            <div class="badge" style="background-color: var(--accent-blue);">{{ current_user.rol | upper }}</div>
         </div>
-        <a class="btn btn-outline-danger btn-sm fw-bold" href="{{ url_for('auth.logout') }}">
-            <i class="fas fa-power-off"></i> SALIR
-        </a>
+        <a class="btn btn-outline-danger btn-sm fw-bold" href="{{ url_for('auth.logout') }}">SALIR</a>
       </div>
     </div>
   </div>
@@ -198,8 +171,8 @@
   {% block breadcrumb %}
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ url_for('ventas.dashboard') }}" class="text-decoration-none">Inicio</a></li>
-      <li class="breadcrumb-item active" aria-current="page">{% block page %}{% endblock %}</li>
+      <li class="breadcrumb-item"><a href="{{ url_for('ventas.dashboard') }}" class="text-decoration-none" style="color: var(--accent-blue);">Inicio</a></li>
+      <li class="breadcrumb-item active">{% block page %}{% endblock %}</li>
     </ol>
   </nav>
   {% endblock %}
@@ -210,7 +183,7 @@
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         {% for category, message in messages %}
-        <div class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show shadow-sm">
+        <div class="alert alert-info alert-dismissible fade show shadow-sm">
           {{ message }}
           <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
@@ -224,36 +197,23 @@
 
 <footer>
   <div class="container">
-    <div class="mb-1"><strong>POS LICORERA PROFESIONAL</strong></div>
-    <div style="opacity: 0.6; font-size: 0.75rem;">
-        Desarrollado por: Lorena Rodriguez Ramos &copy; 2026
-    </div>
+    <div><strong>SAN ROQUE MB - SISTEMA POS</strong></div>
+    <div style="opacity: 0.6; font-size: 0.75rem;">Desarrollado por: Lorena Rodriguez Ramos &copy; 2026</div>
   </div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-  // 1. Notificaciones (Original)
-  function mostrarPuntoNotificacion() {
-    const punto = document.getElementById('alerta-punto');
-    if (punto) punto.style.display = 'block';
-  }
-
-  // 2. MAYÚSCULAS AUTOMÁTICAS (Valor real del dato)
   document.addEventListener('input', function (e) {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
         e.target.value = e.target.value.toUpperCase();
     }
   });
 
-  // 3. NAVEGACIÓN GLOBAL CON TECLADO
   document.addEventListener('keydown', function(e) {
     const selectores = 'input:not([type="hidden"]):not([disabled]), select:not([disabled]), button:not([disabled]), textarea:not([disabled])';
-    
-    // ENTER funciona como TABULADOR
     if (e.key === 'Enter') {
-        // No aplicamos si el usuario ya está en un botón o es un submit
         if (e.target.type !== 'submit' && e.target.tagName !== 'BUTTON') {
             const inputs = Array.from(document.querySelectorAll(selectores));
             const index = inputs.indexOf(e.target);
@@ -263,32 +223,219 @@
             }
         }
     }
-
-    // FLECHAS para moverse entre campos
-    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-        const inputs = Array.from(document.querySelectorAll(selectores));
-        const index = inputs.indexOf(e.target);
-        if (index > -1) {
-            if (e.key === 'ArrowDown' && index < inputs.length - 1) {
-                e.preventDefault();
-                inputs[index + 1].focus();
-            } else if (e.key === 'ArrowUp' && index > 0) {
-                e.preventDefault();
-                inputs[index - 1].focus();
-            }
-        }
-    }
-  });
-
-  // 4. FOCO AUTOMÁTICO AL CARGAR
-  window.addEventListener('DOMContentLoaded', (event) => {
-    const primerInput = document.querySelector('input:not([type="hidden"]):not([disabled])');
-    if (primerInput) {
-        primerInput.focus();
-    }
   });
 </script>
 
 {% block scripts %}{% endblock %}
+
+<!-- ================= CALCULADORA FLOTANTE PRO ================= -->
+
+<style>
+#calc-bubble{
+position: fixed;
+bottom: 90px; /* MÁS ARRIBA */
+right: 25px;
+width: 65px;
+height: 65px;
+background: linear-gradient(135deg, var(--primary-dark), var(--accent-blue));
+color: white;
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 24px;
+cursor: pointer;
+box-shadow: 0 0 20px rgba(99,179,237,0.7);
+transition: 0.2s ease;
+z-index: 9999;
+}
+
+#calc-bubble:hover{
+transform: scale(1.1);
+box-shadow: 0 0 30px rgba(99,179,237,1);
+}
+
+#calc-modal{
+display: none;
+position: fixed;
+bottom: 170px;
+right: 25px;
+width: 260px;
+background: white;
+border-radius: 16px;
+box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+padding: 20px;
+z-index: 9999;
+border: 1px solid var(--bg-card);
+}
+
+#calc-display{
+width: 100%;
+height: 55px;
+margin-bottom: 15px;
+text-align: right;
+font-size: 24px;
+border-radius: 10px;
+border: 1px solid var(--bg-card);
+padding: 10px;
+background: var(--bg-glacial);
+font-weight: 600;
+}
+
+.calc-grid{
+display: grid;
+grid-template-columns: repeat(4, 1fr);
+gap: 10px;
+}
+
+.calc-btn{
+height: 45px;
+border-radius: 10px;
+font-weight: 600;
+border: none;
+background: #f1f5f9;
+transition: 0.15s;
+}
+
+.calc-btn:hover{
+background: #e2e8f0;
+}
+
+.calc-op{
+background: var(--accent-blue);
+color: white;
+}
+
+.calc-op:hover{
+background: var(--primary-dark);
+}
+
+.calc-equal{
+grid-column: span 4;
+background: #198754;
+color: white;
+height: 50px;
+}
+
+.calc-equal:hover{
+background: #146c43;
+}
+</style>
+
+<div id="calc-bubble">
+<i class="fas fa-calculator"></i>
+</div>
+
+<div id="calc-modal">
+<input type="text" id="calc-display" readonly>
+
+<div class="calc-grid">
+<button class="calc-btn" onclick="calcPress('7')">7</button>
+<button class="calc-btn" onclick="calcPress('8')">8</button>
+<button class="calc-btn" onclick="calcPress('9')">9</button>
+<button class="calc-btn calc-op" onclick="calcPress('/')">÷</button>
+
+<button class="calc-btn" onclick="calcPress('4')">4</button>
+<button class="calc-btn" onclick="calcPress('5')">5</button>
+<button class="calc-btn" onclick="calcPress('6')">6</button>
+<button class="calc-btn calc-op" onclick="calcPress('*')">×</button>
+
+<button class="calc-btn" onclick="calcPress('1')">1</button>
+<button class="calc-btn" onclick="calcPress('2')">2</button>
+<button class="calc-btn" onclick="calcPress('3')">3</button>
+<button class="calc-btn calc-op" onclick="calcPress('-')">−</button>
+
+<button class="calc-btn" onclick="calcPress('0')">0</button>
+<button class="calc-btn" onclick="calcPress('.')">.</button>
+<button class="calc-btn" onclick="calcClear()">C</button>
+<button class="calc-btn calc-op" onclick="calcPress('+')">+</button>
+
+<button class="calc-btn calc-equal" onclick="calcEqual()">=</button>
+</div>
+</div>
+
+<script>
+let calcDisplay = document.getElementById("calc-display");
+let calcModal = document.getElementById("calc-modal");
+let calcBubble = document.getElementById("calc-bubble");
+
+// Abrir / cerrar
+calcBubble.addEventListener("click", function(){
+calcModal.style.display = calcModal.style.display === "block" ? "none" : "block";
+if(calcModal.style.display === "block"){
+    calcDisplay.focus();
+}
+});
+
+// Cerrar si hacen click fuera
+document.addEventListener("click", function(e){
+if(!calcModal.contains(e.target) && !calcBubble.contains(e.target)){
+calcModal.style.display = "none";
+}
+});
+
+// BOTONES
+function calcPress(value){
+calcDisplay.value += value;
+}
+
+function calcClear(){
+calcDisplay.value = "";
+}
+
+function calcEqual(){
+try{
+calcDisplay.value = Function('"use strict";return (' + calcDisplay.value + ')')();
+}catch{
+calcDisplay.value = "Error";
+}
+}
+
+// =========================
+// SOPORTE TECLADO 🔥
+// =========================
+document.addEventListener("keydown", function(e){
+
+// Solo si está abierta
+if(calcModal.style.display !== "block") return;
+
+// Números
+if(!isNaN(e.key)){
+calcDisplay.value += e.key;
+}
+
+// Operadores
+if(["+", "-", "*", "/"].includes(e.key)){
+calcDisplay.value += e.key;
+}
+
+// Punto decimal
+if(e.key === "."){
+calcDisplay.value += ".";
+}
+
+// Enter = calcular
+if(e.key === "Enter"){
+e.preventDefault();
+calcEqual();
+}
+
+// Backspace = borrar último
+if(e.key === "Backspace"){
+calcDisplay.value = calcDisplay.value.slice(0, -1);
+}
+
+// Escape = cerrar
+if(e.key === "Escape"){
+calcModal.style.display = "none";
+}
+
+});
+</script>
+
+
+<!-- ================= FIN CALCULADORA ================= -->
+
+
 </body>
 </html>

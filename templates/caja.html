@@ -1,18 +1,19 @@
 {% extends "base.html" %}
 
-{% block title %}Cierre de Caja - Gestión de Licorera{% endblock %}
+{% block title %}Cierre de Caja - SAN ROQUE MB{% endblock %}
 
 {% block content %}
 
 <style>
-    /* VARIABLES PROFESIONALES */
+    /* VARIABLES DE PALETA MEMORIZADA */
     :root {
-        --primary-blue: #0277bd;
-        --dark-slate: #263238;
-        --bg-light: #f8f9fa;
-        --success-green: #2e7d32;
-        --danger-red: #c62828;
-        --shadow-pro: 0 4px 12px rgba(0,0,0,0.1);
+        --primary-oxford: #1A365D;    /* Azul Oxford Oscuro */
+        --accent-sky: #63B3ED;        /* Azul Cielo Brillante */
+        --bg-pastel: #BEE3F8;         /* Azul Aire Pastel */
+        --success-cyan: #00A3C4;      /* Azul Cian Profundo (Ventas) */
+        --danger-red: #C53030;        /* Rojo Intenso (Egresos) */
+        --bg-glacial: #F0F7FF;        /* Fondo */
+        --shadow-pro: 0 4px 12px rgba(26, 54, 93, 0.15);
     }
 
     .caja-container {
@@ -33,21 +34,31 @@
         padding: 20px;
         border-radius: 12px;
         box-shadow: var(--shadow-pro);
-        border-left: 6px solid var(--primary-blue);
+        border-left: 6px solid var(--accent-sky);
         transition: transform 0.2s;
     }
 
     .kpi-card:hover { transform: scale(1.02); }
-    .kpi-ventas { border-left-color: var(--success-green); }
+    
+    /* Azul Cian para Ventas */
+    .kpi-ventas { border-left-color: var(--success-cyan); }
+    
+    /* Rojo para Gastos */
     .kpi-gastos { border-left-color: var(--danger-red); }
-    .kpi-neto { background: var(--dark-slate); color: white; border-left-color: #ffd600; }
+    
+    /* Azul Oxford para el Neto */
+    .kpi-neto { 
+        background: var(--primary-oxford); 
+        color: white; 
+        border-left-color: var(--accent-sky); 
+    }
 
     .kpi-card h3 { 
         font-size: 0.8rem; 
         text-transform: uppercase; 
         font-weight: 700; 
         margin-bottom: 10px; 
-        opacity: 0.8; 
+        opacity: 0.9; 
     }
     .kpi-card .value { font-size: 1.8rem; font-weight: 800; }
 
@@ -58,17 +69,18 @@
         padding: 25px;
         margin-bottom: 25px;
         box-shadow: var(--shadow-pro);
+        border: 1px solid var(--bg-pastel);
     }
 
     .section-title {
-        color: var(--dark-slate);
+        color: var(--primary-oxford);
         font-weight: 800;
         font-size: 1.2rem;
         margin-bottom: 20px;
         display: flex;
         align-items: center;
         gap: 10px;
-        border-bottom: 2px solid var(--bg-light);
+        border-bottom: 2px solid var(--bg-glacial);
         padding-bottom: 10px;
     }
 
@@ -77,12 +89,12 @@
     .clean-table th { 
         text-align: left; 
         padding: 12px; 
-        background: var(--bg-light); 
+        background: var(--bg-glacial); 
         font-size: 0.75rem; 
         text-transform: uppercase; 
-        color: #666;
+        color: var(--primary-oxford);
     }
-    .clean-table td { padding: 15px 12px; border-bottom: 1px solid #eee; font-size: 0.95rem; }
+    .clean-table td { padding: 15px 12px; border-bottom: 1px solid var(--bg-glacial); font-size: 0.95rem; }
 
     /* BADGES */
     .method-badge {
@@ -90,15 +102,16 @@
         border-radius: 6px;
         font-size: 0.7rem;
         font-weight: 700;
-        background: #e1f5fe;
-        color: #0277bd;
+        background: var(--bg-pastel);
+        color: var(--primary-oxford);
         text-transform: uppercase;
     }
 
+    /* BOTÓN DE CIERRE PROFESIONAL */
     .btn-cierre-pro {
-        background: var(--dark-slate);
+        background: var(--primary-oxford);
         color: white;
-        border: none;
+        border: 2px solid var(--accent-sky);
         padding: 15px;
         border-radius: 8px;
         width: 100%;
@@ -108,24 +121,35 @@
         transition: 0.3s;
         box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
-    .btn-cierre-pro:hover { background: #000; transform: translateY(-2px); }
+    .btn-cierre-pro:hover { 
+        background: #000; 
+        border-color: var(--white);
+        transform: translateY(-2px); 
+    }
+
+    .text-success-custom { color: var(--success-cyan) !important; }
+    .text-danger-custom { color: var(--danger-red) !important; }
 </style>
 
 <div class="caja-container">
     
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h4 fw-bold mb-0"><i class="fas fa-cash-register text-primary me-2"></i> Reporte de Turno Actual</h1>
-        <span class="badge bg-dark p-2">{{ hoy.strftime('%A, %d de %B %Y') }}</span>
+        <h1 class="h4 fw-bold mb-0" style="color: var(--primary-oxford);">
+            <i class="fas fa-cash-register me-2"></i> REPORTE DE TURNO ACTUAL
+        </h1>
+        <span class="badge p-2" style="background-color: var(--primary-oxford);">
+            {{ hoy.strftime('%A, %d de %B %Y') | upper }}
+        </span>
     </div>
 
     <div class="kpi-grid">
         <div class="kpi-card kpi-ventas">
             <h3>Total Ventas Brutas</h3>
-            <div class="value" style="color: var(--success-green);">$ {{ "{:,.0f}".format(total_diario) }}</div>
+            <div class="value text-success-custom">$ {{ "{:,.0f}".format(total_diario) }}</div>
         </div>
         <div class="kpi-card kpi-gastos">
             <h3>Salidas (Egresos/Gastos)</h3>
-            <div class="value" style="color: var(--danger-red);">- $ {{ "{:,.0f}".format(desglose.get('EGRESOS_TOTAL', 0)) }}</div>
+            <div class="value text-danger-custom">- $ {{ "{:,.0f}".format(desglose.get('EGRESOS_TOTAL', 0)) }}</div>
         </div>
         <div class="kpi-card kpi-neto">
             <h3>Efectivo Neto Esperado</h3>
@@ -136,7 +160,9 @@
     <div class="row">
         <div class="col-lg-7">
             <div class="section-card h-100">
-                <h2 class="section-title"><i class="fas fa-wallet text-primary"></i> Ingresos por Medio de Pago</h2>
+                <h2 class="section-title">
+                    <i class="fas fa-wallet" style="color: var(--success-cyan);"></i> Ingresos por Medio de Pago
+                </h2>
                 <table class="clean-table">
                     <thead>
                         <tr>
@@ -149,7 +175,7 @@
                         {% if metodo != 'EGRESOS_TOTAL' and metodo != 'EGRESOS_LISTA' %}
                         <tr>
                             <td><span class="method-badge">{{ metodo }}</span></td>
-                            <td class="text-end fw-bold text-success">$ {{ "{:,.0f}".format(monto) }}</td>
+                            <td class="text-end fw-bold text-success-custom">$ {{ "{:,.0f}".format(monto) }}</td>
                         </tr>
                         {% endif %}
                         {% endfor %}
@@ -160,7 +186,9 @@
 
         <div class="col-lg-5">
             <div class="section-card h-100">
-                <h2 class="section-title"><i class="fas fa-arrow-circle-down text-danger"></i> Gastos del Turno</h2>
+                <h2 class="section-title">
+                    <i class="fas fa-arrow-circle-down text-danger-custom"></i> Gastos del Turno
+                </h2>
                 <table class="clean-table">
                     <thead>
                         <tr>
@@ -171,12 +199,14 @@
                     <tbody>
                         {% for g in desglose.get('EGRESOS_LISTA', []) %}
                         <tr>
-                            <td>{{ g.concepto }}</td>
-                            <td class="text-end text-danger fw-bold">- $ {{ "{:,.0f}".format(g.monto) }}</td>
+                            <td>{{ g.concepto | upper }}</td>
+                            <td class="text-end text-danger-custom fw-bold">- $ {{ "{:,.0f}".format(g.monto) }}</td>
                         </tr>
                         {% endfor %}
                         {% if not desglose.get('EGRESOS_LISTA') %}
-                        <tr><td colspan="2" class="text-center py-4 text-muted">Sin egresos registrados</td></tr>
+                        <tr>
+                            <td colspan="2" class="text-center py-4 text-muted">No hay egresos en este turno</td>
+                        </tr>
                         {% endif %}
                     </tbody>
                 </table>
@@ -186,16 +216,18 @@
 
     <div class="mt-4">
         {% if not caja_cerrada_hoy %}
-        <form action="{{ url_for('reportes.ejecutar_cierre_caja') }}" method="POST" onsubmit="return confirm('¿Confirmas que la administradora ha validado el efectivo físico? No se podrán editar las ventas de hoy una vez cerrado.')">
+        <form action="{{ url_for('reportes.ejecutar_cierre_caja') }}" method="POST" onsubmit="return confirm('¿CONFIRMAS EL CIERRE? Asegúrate de que el efectivo físico coincida con el sistema.')">
             <button type="submit" class="btn-cierre-pro">
                 <i class="fas fa-lock me-2"></i> Finalizar Turno y Realizar Cierre de Caja
             </button>
         </form>
         {% else %}
-        <div class="alert alert-info text-center border-0 shadow-sm">
-            <i class="fas fa-check-circle me-2"></i> El cierre de caja para este turno ya fue realizado por la administración.
+        <div class="alert text-center border-0 shadow-sm" style="background-color: var(--bg-card); color: var(--primary-oxford);">
+            <i class="fas fa-check-circle me-2"></i> EL CIERRE DE CAJA PARA ESTE TURNO YA FUE REALIZADO.
             <br>
-            <a href="{{ url_for('reportes.historial_cierres') }}" class="btn btn-sm btn-outline-info mt-2">Ver Historial de Cierres</a>
+            <a href="{{ url_for('reportes.historial_cierres') }}" class="btn btn-sm mt-2 fw-bold" style="color: var(--primary-oxford); border: 1px solid var(--primary-oxford);">
+                VER HISTORIAL DE CIERRES
+            </a>
         </div>
         {% endif %}
     </div>

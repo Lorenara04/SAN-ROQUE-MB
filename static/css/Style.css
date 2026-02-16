@@ -1,236 +1,181 @@
 /* --------------------------------------------------------- */
-/* 1. VARIABLES Y CONFIGURACIÓN - SAN ROQUE PREMIUM DESIGN   */
+/* 1. VARIABLES - IDENTIDAD SAN ROQUE MB 2026                */
 /* --------------------------------------------------------- */
 :root {
-    /* Identidad de Marca: Azul San Roque y Dorado */
-    --color-principal: #1a3a5a;       /* Azul San Roque */
-    --color-principal-light: #2c5282;
-    --color-principal-dark: #0f172a;
-    --color-dorado: #b8860b;          /* Dorado de acento */
-    --color-dorado-light: #d4af37;
+    /* Paleta Oxford & Sky (Premium) */
+    --primary-oxford: #1A365D;    /* Azul Principal */
+    --accent-sky: #63B3ED;        /* Azul Cielo de Acento */
+    --bg-glacial: #F0F7FF;        /* Fondo de Interfaz */
+    --bg-card-blue: #BEE3F8;      /* Bordes y Separadores */
     
-    /* Paleta de Interfaz */
-    --bg-body: #f1f5f9;               
-    --bg-card: #ffffff;
-    --texto-oscuro: #1e293b;
-    --texto-muted: #64748b;
+    /* Colores de Estado */
+    --success-cyan: #00A3C4;
+    --danger-red: #C53030;
+    --warning-gold: #B8860B;
     
-    /* Estados */
-    --success: #10b981;
-    --danger: #be123c;
-    --warning: #f59e0b;
-    --info: #0288d1;
+    /* Neutros */
+    --white: #ffffff;
+    --text-dark: #2D3748;
+    --text-muted: #718096;
 
     /* UI Helpers */
-    --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
-    --shadow-md: 0 10px 25px -5px rgba(0,0,0,0.1);
-    --shadow-lg: 0 20px 40px -10px rgba(0,0,0,0.15);
-    --border-radius: 12px;
+    --shadow-sm: 0 4px 6px rgba(26, 54, 93, 0.05);
+    --shadow-md: 0 10px 25px rgba(26, 54, 93, 0.1);
+    --border-radius: 16px;
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Reset Profesional */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+/* Reset y Base */
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-    background-color: var(--bg-body);
-    color: var(--texto-oscuro);
-    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-glacial);
+    color: var(--text-dark);
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
     line-height: 1.6;
-    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
 }
 
 /* --------------------------------------------------------- */
-/* 2. NAVBAR PROFESIONAL (SAN ROQUE ELEGANT DARK)            */
+/* 2. COMPONENTES GLOBALES (CARDS & BUTTONS)                 */
 /* --------------------------------------------------------- */
-.nav-coquette { 
-    background: var(--color-principal-dark);
-    padding: 0.7rem 2rem;
-    border-bottom: 3px solid var(--color-dorado);
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: var(--shadow-md);
-}
 
-.logo-wrapper {
-    width: 45px;
-    height: 45px;
-    border-radius: 8px;
-    padding: 2px;
-    background: var(--bg-card);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: var(--transition);
-}
-
-.logo-wrapper:hover {
-    transform: rotate(5deg) scale(1.1);
-}
-
-.logo-coquette {
-    width: 90%;
-    height: 90%;
-    object-fit: contain;
-}
-
-.titulo-coquette {
-    font-size: 1.2rem;
-    font-weight: 800;
-    color: #ffffff;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    margin-left: 12px;
-}
-
-.nav-links-container {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-}
-
-.nav-link-coquette {
-    color: #e2e8f0 !important;
-    text-decoration: none;
-    font-size: 0.85rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    transition: var(--transition);
-    padding: 8px 12px;
-    border-radius: 6px;
-}
-
-.nav-link-coquette:hover {
-    color: var(--color-dorado-light) !important;
-    background: rgba(255, 255, 255, 0.05);
-}
-
-/* --------------------------------------------------------- */
-/* 3. TARJETAS Y CONTENEDORES (CARDS)                       */
-/* --------------------------------------------------------- */
-.card-pro {
-    background: var(--bg-card);
+/* Tarjetas Premium usadas en todo el sistema */
+.card-premium {
+    background: var(--white);
     border-radius: var(--border-radius);
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--bg-card-blue);
     box-shadow: var(--shadow-sm);
-    padding: 20px;
+    padding: 1.5rem;
     transition: var(--transition);
 }
 
-.card-pro:hover {
+.card-premium:hover {
     box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
 }
 
-/* --------------------------------------------------------- */
-/* 4. BOTONES (BUTTONS)                                      */
-/* --------------------------------------------------------- */
-.btn-pro {
-    padding: 10px 20px;
-    border-radius: 8px;
+/* Botonería Estandarizada */
+.btn-oxford {
+    background: var(--primary-oxford);
+    color: var(--white) !important;
+    border-radius: 12px;
+    padding: 12px 24px;
     font-weight: 700;
     text-transform: uppercase;
-    font-size: 0.8rem;
-    letter-spacing: 0.5px;
-    transition: var(--transition);
+    letter-spacing: 1px;
     border: none;
+    transition: var(--transition);
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     gap: 8px;
 }
 
-.btn-pro-primary {
-    background: var(--color-principal);
-    color: white;
-}
-
-.btn-pro-primary:hover {
-    background: var(--color-principal-dark);
+.btn-oxford:hover {
+    background: var(--accent-sky);
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(26, 58, 90, 0.3);
+    box-shadow: 0 8px 15px rgba(99, 179, 237, 0.3);
 }
 
-.btn-pro-dorado {
-    background: var(--color-dorado);
-    color: white;
+.btn-outline-sr {
+    border: 2px solid var(--primary-oxford);
+    color: var(--primary-oxford);
+    background: transparent;
+    border-radius: 12px;
+    font-weight: 700;
+    transition: var(--transition);
 }
 
-.btn-pro-dorado:hover {
-    background: var(--color-dorado-light);
-    transform: translateY(-2px);
+.btn-outline-sr:hover {
+    background: var(--primary-oxford);
+    color: var(--white);
 }
 
 /* --------------------------------------------------------- */
-/* 5. TABLAS MODERNAS (TABLES)                               */
+/* 3. MÓDULO POS (VENTAS Y MESAS)                            */
 /* --------------------------------------------------------- */
-.table-modern {
+.mesa-card {
+    background: var(--white);
+    border: 2px solid var(--bg-card-blue);
+    border-radius: 20px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.mesa-card.active {
+    background: var(--primary-oxford);
+    border-color: var(--primary-oxford);
+    color: var(--white);
+}
+
+.mesa-card.active .mesa-nombre { color: var(--accent-sky); }
+.mesa-card.active .mesa-total { color: var(--white); }
+
+.total-display-pos {
+    background: var(--primary-oxford);
+    color: var(--white);
+    padding: 2rem;
+    border-radius: 20px;
+    text-align: right;
+    box-shadow: var(--shadow-md);
+}
+
+.total-display-pos span {
+    font-size: 3.5rem;
+    font-weight: 900;
+    font-family: 'Courier New', monospace;
+}
+
+/* --------------------------------------------------------- */
+/* 4. TABLAS Y DATOS                                         */
+/* --------------------------------------------------------- */
+.table-sr {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
 }
 
-.table-modern thead th {
-    background: var(--color-principal-dark);
-    color: white;
-    padding: 15px;
+.table-sr thead th {
+    background: var(--primary-oxford);
+    color: var(--white);
+    padding: 18px;
     font-size: 0.75rem;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    text-align: left;
+    letter-spacing: 1.5px;
 }
 
-.table-modern thead th:first-child { border-radius: 10px 0 0 0; }
-.table-modern thead th:last-child { border-radius: 0 10px 0 0; }
-
-.table-modern tbody td {
+.table-sr tbody td {
     padding: 15px;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--bg-card-blue);
     font-size: 0.9rem;
-    color: var(--texto-oscuro);
-}
-
-.table-modern tbody tr:hover {
-    background-color: #f8fafc;
 }
 
 /* --------------------------------------------------------- */
-/* 6. COMPONENTES ESPECIALES                                 */
+/* 5. UTILIDADES Y ANIMACIONES                               */
 /* --------------------------------------------------------- */
-.badge-premium {
-    background: #fef3c7;
-    color: #b45309;
-    padding: 4px 10px;
-    border-radius: 999px;
+.mayuscula { text-transform: uppercase; }
+
+.badge-stock {
+    padding: 6px 12px;
+    border-radius: 10px;
     font-weight: 800;
-    font-size: 11px;
-    border: 1px solid #f59e0b;
+    font-size: 0.7rem;
 }
 
-.total-display {
-    font-size: 2.5rem;
-    font-weight: 900;
-    color: var(--color-principal-dark);
-    font-family: 'Courier New', monospace;
-}
-
-/* Utilidades Rápidas */
-.text-upper { text-transform: uppercase; }
-.text-bold { font-weight: 700; }
-
-/* Animación de entrada */
-@keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(20px); }
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-.animate-fade {
-    animation: fadeInUp 0.5s ease-out forwards;
+.animate-view {
+    animation: fadeIn 0.4s ease-out forwards;
 }
+
+/* Scrollbar Personalizado */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-glacial); }
+::-webkit-scrollbar-thumb { background: var(--bg-card-blue); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-sky); }

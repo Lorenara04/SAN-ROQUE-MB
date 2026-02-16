@@ -2,9 +2,8 @@ from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_user, logout_user, login_required, current_user
 from models import Usuario
 from sqlalchemy.exc import OperationalError
+from urllib.parse import urlparse
 
-# Definimos el Blueprint para autenticación
-# Se llama 'auth', por lo tanto en url_for se usa 'auth.login'
 auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
@@ -15,8 +14,8 @@ def login():
 
     if request.method == 'POST':
         # strip() elimina espacios accidentales al inicio o final
-        username = request.form.get('username', '').strip()
-        password = request.form.get('password', '')
+        username = (request.form.get('username') or '').strip()
+        password = request.form.get('password') or ''
 
         if not username or not password:
             flash('Por favor, ingresa todos los campos.', 'warning')
@@ -30,7 +29,14 @@ def login():
             if user and user.check_password(password):
                 login_user(user)
                 flash(f'¡Bienvenido, {user.nombre}! 🍷', 'success')
-                return redirect(url_for('ventas.dashboard'))
+                
+                # Manejo de redirección dinámica (parámetro next)
+                next_page = request.args.get('next')
+                # Verificamos que sea una ruta relativa para evitar Open Redirects
+                if not next_page or urlparse(next_page).netloc != '':
+                    next_page = url_for('ventas.dashboard')
+                
+                return redirect(next_page)
             else:
                 flash('Usuario o contraseña incorrectos.', 'danger')
 
@@ -40,7 +46,6 @@ def login():
         except Exception as e:
             flash(f'Ocurrió un error inesperado: {str(e)}', 'danger')
 
-    # IMPORTANTE: Asegúrate de que el archivo en templates se llame 'login.html'
     return render_template('login.html')
 
 @auth_bp.route('/logout')

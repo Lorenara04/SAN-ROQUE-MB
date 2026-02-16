@@ -4,91 +4,97 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
 <style>
+    /* VARIABLES MEMORIZADAS SAN ROQUE MB */
     :root { 
-        --blue-dark: #1a5276; 
-        --blue-primary: #3498db; 
-        --blue-soft-bg: #f0f7fc;
-        --blue-pastel: #d6eaf8;
-        --success-pastel: #d4edda;
+        --primary-oxford: #1A365D;    /* Azul Oxford Oscuro */
+        --accent-sky: #63B3ED;        /* Azul Cielo Brillante */
+        --bg-glacial: #F0F7FF;        /* Azul Pastel Glacial */
+        --bg-card-blue: #BEE3F8;      /* Azul Aire Pastel */
+        --success-cyan: #00A3C4;      /* Azul Cian Profundo */
+        --danger-red: #C53030;        /* Rojo Intenso */
         --border-color: #d1dce5;
+        --white: #ffffff;
     }
 
     body { 
-        background-color: #f8fbff; 
-        font-family: 'Inter', 'Segoe UI', sans-serif;
-        color: #34495e;
+        background-color: var(--bg-glacial); 
+        font-family: 'Inter', sans-serif;
+        color: var(--primary-oxford);
     }
 
-    /* Header Azul Profundo */
+    /* Header con Degradado de la Marca */
     .hero-san-roque { 
-        background: linear-gradient(135deg, #1a5276 0%, #2980b9 100%);
+        background: linear-gradient(135deg, var(--primary-oxford) 0%, var(--accent-sky) 100%);
         color: white; 
         padding: 2rem; 
         border-radius: 18px; 
-        box-shadow: 0 10px 30px rgba(41, 128, 185, 0.15);
+        box-shadow: 0 10px 30px rgba(26, 54, 93, 0.2);
         margin-bottom: 2rem;
     }
 
-    /* Cards Estilo Pastel */
+    /* Cards Estilo San Roque */
     .card-custom { 
-        border: 1px solid var(--border-color); 
+        border: 1px solid var(--bg-card-blue); 
         border-radius: 16px; 
-        background: #ffffff;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        background: var(--white);
+        box-shadow: 0 4px 15px rgba(26, 54, 93, 0.05);
     }
 
     .card-header-blue {
-        background-color: var(--blue-soft-bg);
-        border-bottom: 1px solid var(--border-color);
+        background-color: var(--bg-glacial);
+        border-bottom: 1px solid var(--bg-card-blue);
         padding: 1.2rem;
         border-radius: 16px 16px 0 0;
+        color: var(--primary-oxford);
     }
 
-    /* Inputs optimizados */
+    /* Inputs con enfoque azul cielo */
     .form-control, .form-select {
         border-radius: 10px;
-        border: 1.5px solid var(--blue-pastel);
+        border: 1.5px solid var(--bg-card-blue);
         padding: 10px 15px;
     }
     .form-control:focus {
-        border-color: var(--blue-primary);
-        box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1);
+        border-color: var(--accent-sky);
+        box-shadow: 0 0 0 4px rgba(99, 179, 237, 0.15);
     }
 
-    /* Botones Minimalistas */
+    /* Botones de Acción */
     .btn-action {
         border-radius: 10px;
         padding: 7px 15px;
-        font-weight: 500;
+        font-weight: 600;
         transition: all 0.2s;
         border: 1.5px solid;
         background: transparent;
         font-size: 0.85rem;
+        text-transform: uppercase;
     }
 
-    .btn-pago-blue { color: var(--blue-primary); border-color: var(--blue-primary); }
-    .btn-pago-blue:hover { background: var(--blue-primary); color: white; }
+    .btn-pago-blue { color: var(--primary-oxford); border-color: var(--primary-oxford); }
+    .btn-pago-blue:hover { background: var(--primary-oxford); color: white; }
 
-    .btn-hist-blue { color: #7f8c8d; border-color: #bdc3c7; }
-    .btn-hist-blue:hover { background: #f8f9fa; }
+    .btn-hist-blue { color: #7f8c8d; border-color: var(--bg-card-blue); }
+    .btn-hist-blue:hover { background: var(--bg-glacial); }
 
     .btn-delete-min {
         border: none;
-        background: #fdf2f2;
-        color: #e74c3c;
+        background: #fee2e2;
+        color: var(--danger-red);
         width: 36px;
         height: 36px;
         border-radius: 10px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        transition: 0.3s;
     }
-    .btn-delete-min:hover { background: #e74c3c; color: white; }
+    .btn-delete-min:hover { background: var(--danger-red); color: white; }
 
-    /* Tabla */
+    /* Estilo de Tabla */
     .table thead th {
-        background-color: var(--blue-soft-bg);
-        color: var(--blue-dark);
+        background-color: var(--bg-glacial);
+        color: var(--primary-oxford);
         font-size: 0.75rem;
         text-transform: uppercase;
         letter-spacing: 0.5px;
@@ -97,8 +103,8 @@
     }
 
     .saldo-text {
-        font-weight: 700;
-        color: var(--blue-primary);
+        font-weight: 800;
+        color: var(--success-cyan);
         font-size: 1.1rem;
     }
 
@@ -107,17 +113,18 @@
         border-radius: 8px;
         font-size: 0.7rem;
         font-weight: 700;
-        background: var(--blue-pastel);
-        color: var(--blue-dark);
+        background: var(--bg-card-blue);
+        color: var(--primary-oxford);
+        text-transform: uppercase;
     }
     
-    .badge-pago { background: var(--success-pastel); color: #155724; }
+    .badge-pago { background: #c6f6d5; color: #22543d; }
 
     .history-box {
-        background: #fcfdfe;
+        background: var(--bg-glacial);
         border-radius: 12px;
         padding: 15px;
-        border: 1px dashed var(--blue-pastel);
+        border: 1px dashed var(--accent-sky);
     }
 </style>
 
@@ -127,10 +134,10 @@
         <div class="row align-items-center">
             <div class="col-md-7">
                 <h2 class="fw-bold mb-0">SAN ROQUE M.B</h2>
-                <p class="opacity-75 mb-0">Control de Cartera y Abonos</p>
+                <p class="opacity-75 mb-0 text-uppercase" style="font-size: 0.9rem;">Control de Cartera y Gestión de Abonos</p>
             </div>
             <div class="col-md-5 text-md-end mt-3 mt-md-0">
-                <div class="d-inline-block bg-white bg-opacity-10 p-2 px-3 rounded-pill">
+                <div class="d-inline-block bg-white bg-opacity-20 p-2 px-3 rounded-pill">
                     <i class="bi bi-calendar-check me-2"></i> {{ hoy }}
                 </div>
             </div>
@@ -141,36 +148,37 @@
         
         <div class="col-lg-4">
             <div class="card card-custom p-4">
-                <div class="d-flex align-items-center mb-4 text-primary">
+                <div class="d-flex align-items-center mb-4" style="color: var(--primary-oxford);">
                     <i class="bi bi-upc-scan fs-4 me-2"></i>
-                    <h5 class="fw-bold mb-0">Registrar Venta</h5>
+                    <h5 class="fw-bold mb-0">CARGAR A CUENTA</h5>
                 </div>
 
-                <form method="POST" id="formVenta">
+                <form action="{{ url_for('creditos.creditos_largo') }}" method="POST" id="formVenta">
                     <div class="mb-3">
-                        <label class="small fw-bold text-muted mb-1">CÓDIGO / PRODUCTO</label>
+                        <label class="small fw-bold text-muted mb-1 text-uppercase">Código del Producto</label>
                         <input name="producto" id="inputProducto" class="form-control" 
-                               placeholder="Escanee el código..." required autofocus>
+                               placeholder="Escanee o escriba código..." required autofocus>
                     </div>
 
                     <div class="mb-3">
-                        <label class="small fw-bold text-muted mb-1">CLIENTE</label>
-                        <input name="cliente" class="form-control text-uppercase" placeholder="Nombre completo" required>
+                        <label class="small fw-bold text-muted mb-1 text-uppercase">Nombre del Cliente</label>
+                        <input name="cliente" class="form-control mayuscula" placeholder="EJ: JUAN PÉREZ" required>
                     </div>
 
                     <div class="row g-2 mb-4">
                         <div class="col-6">
-                            <label class="small fw-bold text-muted mb-1">CANTIDAD</label>
-                            <input type="number" name="cantidad" value="1" class="form-control text-center">
+                            <label class="small fw-bold text-muted mb-1 text-uppercase">Cantidad</label>
+                            <input type="number" name="cantidad" value="1" min="1" class="form-control text-center">
                         </div>
                         <div class="col-6">
-                            <label class="small fw-bold text-muted mb-1">FECHA</label>
+                            <label class="small fw-bold text-muted mb-1 text-uppercase">Fecha Venta</label>
                             <input type="date" name="fecha" value="{{ hoy }}" class="form-control">
                         </div>
                     </div>
 
-                    <button class="btn btn-primary w-100 py-3 fw-bold border-0" style="background: var(--blue-primary); border-radius: 12px;">
-                        Guardar en Cuenta
+                    <button type="submit" class="btn w-100 py-3 fw-bold text-white shadow-sm" 
+                            style="background: var(--accent-sky); border-radius: 12px; border: none;">
+                        GUARDAR EN CUENTA
                     </button>
                 </form>
             </div>
@@ -179,16 +187,16 @@
         <div class="col-lg-8">
             <div class="card card-custom overflow-hidden">
                 <div class="card-header-blue">
-                    <h5 class="fw-bold mb-0 text-dark">Estado de Cartera</h5>
+                    <h5 class="fw-bold mb-0 text-uppercase" style="font-size: 1rem;">Estado de Cuentas por Cobrar</h5>
                 </div>
                 
                 <div class="table-responsive">
-                    <table class="table align-middle mb-0">
+                    <table class="table align-middle mb-0" id="tablaCreditos">
                         <thead>
                             <tr class="text-center">
                                 <th class="text-start">Cliente</th>
-                                <th>Consumido</th>
-                                <th>Saldo</th>
+                                <th>Total Consumido</th>
+                                <th>Saldo Pendiente</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -197,8 +205,8 @@
                             {% set saldo = (c.total_consumido or 0) - (c.abonado or 0) %}
                             <tr class="text-center">
                                 <td class="text-start py-3">
-                                    <div class="fw-bold text-dark">{{ c.cliente }}</div>
-                                    <span class="badge-status {{ 'badge-pago' if saldo <= 0 }}">
+                                    <div class="fw-bold text-dark text-uppercase">{{ c.cliente }}</div>
+                                    <span class="badge-status {{ 'badge-pago' if c.estado == 'cerrado' or saldo <= 0 }}">
                                         {{ c.estado }}
                                     </span>
                                 </td>
@@ -212,18 +220,20 @@
                                 </td>
                                 <td>
                                     <div class="d-flex gap-2 justify-content-center">
+                                        {% if saldo > 0 %}
                                         <button class="btn-action btn-pago-blue" 
                                             onclick="abrirModalAbono('{{ c.id }}','{{ c.cliente }}','{{ saldo|int }}')">
                                             Abonar
                                         </button>
+                                        {% endif %}
                                         
                                         <button class="btn-action btn-hist-blue" 
                                             data-bs-toggle="collapse" data-bs-target="#h-{{ c.id }}">
-                                            <i class="bi bi-list-ul"></i>
+                                            <i class="bi bi-clock-history"></i>
                                         </button>
 
                                         <form action="{{ url_for('creditos.eliminar_credito', credito_id=c.id) }}" 
-                                              method="POST" onsubmit="return confirm('¿Eliminar cuenta?')">
+                                              method="POST" onsubmit="return confirm('¿ELIMINAR ESTE REGISTRO DE CRÉDITO DEFINITIVAMENTE?')">
                                             <button class="btn-delete-min"><i class="bi bi-trash3"></i></button>
                                         </form>
                                     </div>
@@ -231,17 +241,19 @@
                             </tr>
 
                             <tr class="collapse" id="h-{{ c.id }}">
-                                <td colspan="4" class="p-3 bg-light">
+                                <td colspan="4" class="p-3" style="background-color: #fafbfc;">
                                     <div class="history-box shadow-sm">
-                                        <h6 class="small fw-bold text-primary mb-3">Últimos Pagos:</h6>
-                                        {% for abono in c.abonos %}
-                                        <div class="d-flex justify-content-between border-bottom py-2 small">
-                                            <span><i class="bi bi-check2-circle text-success me-2"></i>{{ abono.fecha.strftime('%d/%m/%Y') }} - {{ abono.medio_pago }}</span>
-                                            <span class="fw-bold text-success">+${{ "{:,.0f}".format(abono.monto) }}</span>
-                                        </div>
+                                        <h6 class="small fw-bold mb-3 text-uppercase" style="color: var(--primary-oxford);">Historial de Abonos:</h6>
+                                        {% if c.abonos %}
+                                            {% for abono in c.abonos %}
+                                            <div class="d-flex justify-content-between border-bottom py-2 small">
+                                                <span><i class="bi bi-check-circle-fill text-success me-2"></i>{{ abono.fecha.strftime('%d/%m/%Y') }} - {{ abono.medio_pago | upper }}</span>
+                                                <span class="fw-bold text-success">+${{ "{:,.0f}".format(abono.monto) }}</span>
+                                            </div>
+                                            {% endfor %}
                                         {% else %}
-                                        <div class="text-muted small italic">No hay registros de pagos aún.</div>
-                                        {% endfor %}
+                                            <div class="text-muted small italic">No hay registros de pagos aún.</div>
+                                        {% endif %}
                                     </div>
                                 </td>
                             </tr>
@@ -265,37 +277,38 @@
                     <input type="hidden" name="credito_id" id="modal_credito_id">
                     
                     <div class="text-center mb-4">
-                        <div class="bg-primary bg-opacity-10 d-inline-block p-3 rounded-circle mb-3">
-                            <i class="bi bi-cash-stack fs-2 text-primary"></i>
+                        <div class="d-inline-block p-3 rounded-circle mb-3" style="background-color: var(--bg-glacial);">
+                            <i class="bi bi-cash-stack fs-2" style="color: var(--success-cyan);"></i>
                         </div>
-                        <h6 class="text-muted mb-1">REGISTRAR ABONO PARA:</h6>
-                        <h4 id="nombreClienteModal" class="fw-bold text-dark"></h4>
-                        <h2 class="fw-bold text-primary">$<span id="saldoPendienteModal"></span></h2>
+                        <h6 class="text-muted mb-1 text-uppercase small">Registrar Abono para:</h6>
+                        <h4 id="nombreClienteModal" class="fw-bold text-uppercase" style="color: var(--primary-oxford);"></h4>
+                        <h2 class="fw-bold" style="color: var(--success-cyan);">$<span id="saldoPendienteModal"></span></h2>
                     </div>
 
                     <div class="mb-3">
-                        <label class="small fw-bold mb-1">¿CUÁNTO PAGÓ?</label>
+                        <label class="small fw-bold mb-1 text-uppercase">Monto del Pago</label>
                         <input type="number" name="monto_abono" id="inputMonto" class="form-control form-control-lg text-center fw-bold" required>
                     </div>
 
                     <div class="row g-2">
                         <div class="col-6">
-                            <label class="small fw-bold mb-1">MÉTODO</label>
+                            <label class="small fw-bold mb-1 text-uppercase">Método</label>
                             <select name="medio_pago" class="form-select">
-                                <option>Efectivo</option>
-                                <option>Nequi</option>
-                                <option>Transferencia</option>
+                                <option>EFECTIVO</option>
+                                <option>NEQUI</option>
+                                <option>TRANSFERENCIA</option>
+                                <option>DAVIPLATA</option>
                             </select>
                         </div>
                         <div class="col-6">
-                            <label class="small fw-bold mb-1">FECHA</label>
+                            <label class="small fw-bold mb-1 text-uppercase">Fecha</label>
                             <input type="date" name="fecha_pago" value="{{ hoy }}" class="form-control">
                         </div>
                     </div>
                 </div>
                 <div class="px-4 pb-4">
-                    <button class="btn btn-primary w-100 py-3 fw-bold border-0 shadow" style="border-radius: 12px; background: var(--blue-primary);">
-                        Finalizar Abono
+                    <button class="btn w-100 py-3 fw-bold text-white shadow" style="border-radius: 12px; background: var(--primary-oxford); border: none;">
+                        FINALIZAR ABONO
                     </button>
                 </div>
             </form>
@@ -304,23 +317,26 @@
 </div>
 
 <script>
-    // Foco automático para el lector de barras al cargar
+    // Foco automático para el lector de barras
     window.onload = function() {
-        document.getElementById("inputProducto").focus();
+        const inputProd = document.getElementById("inputProducto");
+        if(inputProd) inputProd.focus();
     };
 
     function abrirModalAbono(id, cliente, saldo){
         document.getElementById("modal_credito_id").value = id;
         document.getElementById("nombreClienteModal").innerText = cliente;
-        document.getElementById("saldoPendienteModal").innerText = Number(saldo).toLocaleString();
+        document.getElementById("saldoPendienteModal").innerText = Number(saldo).toLocaleString('es-CO');
         document.getElementById("inputMonto").value = saldo;
         new bootstrap.Modal(document.getElementById("modalAbono")).show();
     }
 
-    // Si haces clic fuera de un input, el foco vuelve al producto (para el lector)
+    // Mantener foco para lector
     document.addEventListener('click', function(e) {
-        if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT' && e.target.tagName !== 'BUTTON') {
-            document.getElementById("inputProducto").focus();
+        const inputProd = document.getElementById("inputProducto");
+        const modalAbierto = document.querySelector('.modal.show');
+        if(!modalAbierto && inputProd && e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT' && e.target.tagName !== 'BUTTON') {
+            inputProd.focus();
         }
     });
 </script>

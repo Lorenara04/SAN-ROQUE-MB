@@ -3,97 +3,96 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <title>Informe Ejecutivo de Ventas - Licorera Olimpo</title>
+  <title>Reporte Ejecutivo - SAN ROQUE MB</title>
 </head>
 
-<body style="margin:0;padding:0;background:#f1f5f9;font-family:'Segoe UI',Arial,sans-serif;color:#1e293b;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f1f5f9;padding:24px 0;">
+<body style="margin:0;padding:0;background:#F0F7FF;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;color:#2D3748;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F0F7FF;padding:30px 0;">
     <tr>
       <td align="center">
 
-        <table role="presentation" width="720" cellpadding="0" cellspacing="0" border="0" style="width:720px;max-width:720px;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 10px 25px rgba(30,41,59,0.1);">
+        <table role="presentation" width="720" cellpadding="0" cellspacing="0" border="0" style="width:720px;max-width:720px;background:#ffffff;border-radius:20px;overflow:hidden;box-shadow:0 15px 35px rgba(26,54,93,0.1);">
 
           <tr>
-            <td style="background:#1a3a5a;padding:0;">
+            <td style="background:#1A365D;padding:0;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td style="padding:24px 30px;">
+                  <td style="padding:30px 40px;">
                     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                       <tr>
                         <td valign="middle">
-                          <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#94a3b8;font-weight:700;">
-                            Auditoría de Ventas & Recaudos
+                          <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#63B3ED;font-weight:800;">
+                            Auditoría de Gestión
                           </div>
-                          <div style="font-size:24px;font-weight:700;color:#ffffff;margin-top:4px;letter-spacing:-0.5px;">
-                            Licores El Olimpo
+                          <div style="font-size:28px;font-weight:800;color:#ffffff;margin-top:5px;letter-spacing:-0.5px;text-transform:uppercase;">
+                            SAN ROQUE MB
                           </div>
-                          <div style="font-size:13px;color:#cbd5e1;margin-top:6px;line-height:1.4;">
-                            Periodo de Gestión: <b style="color:#ffffff;">{{ fecha_inicio }}</b> a <b style="color:#ffffff;">{{ fecha_fin }}</b>
+                          <div style="font-size:13px;color:#BEE3F8;margin-top:8px;line-height:1.4;">
+                            Periodo: <b style="color:#ffffff;">{{ fecha_inicio }}</b> al <b style="color:#ffffff;">{{ fecha_fin }}</b>
                           </div>
                         </td>
 
                         <td align="right" valign="middle">
-                          <div style="display:inline-block;border:1px solid #b8860b;background:rgba(184,134,11,0.15);color:#f3d277;padding:10px 16px;border-radius:6px;font-size:11px;font-weight:700;text-transform:uppercase;">
-                            Reporte Ejecutivo
+                          <div style="display:inline-block;border:2px solid #63B3ED;background:rgba(99,179,237,0.1);color:#ffffff;padding:12px 20px;border-radius:12px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;">
+                            REPORTE EJECUTIVO
                           </div>
                         </td>
                       </tr>
                     </table>
                   </td>
                 </tr>
-
                 <tr>
-                  <td style="height:4px;background:#b8860b;line-height:4px;font-size:0;">&nbsp;</td>
+                  <td style="height:6px;background:#63B3ED;line-height:6px;font-size:0;">&nbsp;</td>
                 </tr>
               </table>
             </td>
           </tr>
 
           <tr>
-            <td style="padding:20px 20px 10px 20px;">
+            <td style="padding:30px 30px 10px 30px;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
 
-                  <td width="33.33%" style="padding:8px;">
-                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;">
+                  <td width="33.33%" style="padding:10px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F0F7FF;border:1px solid #BEE3F8;border-radius:15px;">
                       <tr>
-                        <td style="padding:16px;">
-                          <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#64748b;letter-spacing:1px;">Cierre Diario</div>
-                          <div style="font-size:22px;font-weight:700;color:#1a3a5a;margin-top:8px;">
+                        <td style="padding:20px;">
+                          <div style="font-size:10px;font-weight:800;text-transform:uppercase;color:#4A5568;letter-spacing:1px;">CIERRE DIARIO</div>
+                          <div style="font-size:22px;font-weight:800;color:#1A365D;margin-top:10px;">
                             ${{ "{:,.0f}".format(total_hoy or 0) }}
                           </div>
-                          <div style="font-size:10px;color:#94a3b8;margin-top:4px;">Turno hoy (COP)</div>
+                          <div style="font-size:10px;color:#718096;margin-top:5px;font-weight:600;">RECAUDO HOY</div>
                         </td>
                       </tr>
                     </table>
                   </td>
 
-                  <td width="33.33%" style="padding:8px;">
-                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;">
+                  <td width="33.33%" style="padding:10px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F0F7FF;border:1px solid #BEE3F8;border-radius:15px;">
                       <tr>
-                        <td style="padding:16px;">
-                          <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#64748b;letter-spacing:1px;">Acum. Semana</div>
-                          <div style="font-size:22px;font-weight:700;color:#1a3a5a;margin-top:8px;">
+                        <td style="padding:20px;">
+                          <div style="font-size:10px;font-weight:800;text-transform:uppercase;color:#4A5568;letter-spacing:1px;">ACUM. SEMANA</div>
+                          <div style="font-size:22px;font-weight:800;color:#1A365D;margin-top:10px;">
                             ${{ "{:,.0f}".format(total_semana or 0) }}
                           </div>
-                          <div style="font-size:10px;color:#94a3b8;margin-top:4px;">Corte lunes → hoy</div>
+                          <div style="font-size:10px;color:#718096;margin-top:5px;font-weight:600;">CORTE ACTUAL</div>
                         </td>
                       </tr>
                     </table>
                   </td>
 
-                  <td width="33.33%" style="padding:8px;">
-                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f0f7ff;border:1px solid #90caf9;border-radius:8px;">
+                  <td width="33.33%" style="padding:10px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#1A365D;border-radius:15px;">
                       <tr>
-                        <td style="padding:16px;">
-                          <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#2c5282;letter-spacing:1px;">
-                            Consolidado {{ mes_label }}
+                        <td style="padding:20px;">
+                          <div style="font-size:10px;font-weight:800;text-transform:uppercase;color:#63B3ED;letter-spacing:1px;">
+                            {{ (mes_label or 'MES ACTUAL') | upper }}
                           </div>
-                          <div style="font-size:22px;font-weight:700;color:#1a3a5a;margin-top:8px;">
+                          <div style="font-size:22px;font-weight:800;color:#ffffff;margin-top:10px;">
                             ${{ "{:,.0f}".format(total_mes or 0) }}
                           </div>
-                          <div style="font-size:10px;color:#64748b;margin-top:4px;">
-                            Periodo: <b>${{ "{:,.0f}".format(total_ingresos or 0) }}</b>
+                          <div style="font-size:10px;color:#BEE3F8;margin-top:5px;font-weight:600;">
+                            TOTAL FACTURADO
                           </div>
                         </td>
                       </tr>
@@ -106,51 +105,47 @@
           </tr>
 
           <tr>
-            <td style="padding:20px 28px;">
-              <div style="font-size:16px;font-weight:700;color:#1e293b;border-left:4px solid #b8860b;padding-left:12px;">
-                Desglose Financiero por Canal
+            <td style="padding:20px 40px;">
+              <div style="font-size:18px;font-weight:800;color:#1A365D;border-left:5px solid #63B3ED;padding-left:15px;text-transform:uppercase;letter-spacing:1px;">
+                Desglose por Canales de Pago
               </div>
               
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:20px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:25px;">
                 <tr>
-                  <td width="55%" valign="top" style="padding-right:15px;">
-                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #e2e8f0;border-radius:8px;background:#ffffff;">
+                  <td width="55%" valign="top" style="padding-right:20px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #E2E8F0;border-radius:15px;background:#ffffff;overflow:hidden;">
                       <tr>
-                        <td style="padding:20px;">
+                        <td style="padding:25px;">
                           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                             <tr>
-                              <td width="50%" style="padding-right:8px;">
-                                <div style="background:#1e293b;padding:12px;border-radius:6px;">
-                                  <div style="font-size:9px;color:#94a3b8;text-transform:uppercase;font-weight:700;">Efectivo</div>
-                                  <div style="font-size:16px;color:#ffffff;font-weight:700;margin-top:4px;">${{ "{:,.0f}".format(total_efectivo or 0) }}</div>
+                              <td width="50%" style="padding-right:10px;">
+                                <div style="background:#2D3748;padding:15px;border-radius:10px;">
+                                  <div style="font-size:10px;color:#A0AEC0;text-transform:uppercase;font-weight:800;">EFECTIVO</div>
+                                  <div style="font-size:18px;color:#ffffff;font-weight:800;margin-top:5px;">${{ "{:,.0f}".format(total_efectivo or 0) }}</div>
                                 </div>
                               </td>
-                              <td width="50%" style="padding-left:8px;">
-                                <div style="background:#f1f5f9;border:1px solid #cbd5e1;padding:12px;border-radius:6px;">
-                                  <div style="font-size:9px;color:#64748b;text-transform:uppercase;font-weight:700;">Electrónico</div>
-                                  <div style="font-size:16px;color:#1e293b;font-weight:700;margin-top:4px;">${{ "{:,.0f}".format(total_electronico or 0) }}</div>
+                              <td width="50%" style="padding-left:10px;">
+                                <div style="background:#F7FAFC;border:2px solid #E2E8F0;padding:15px;border-radius:10px;">
+                                  <div style="font-size:10px;color:#718096;text-transform:uppercase;font-weight:800;">ELECTRÓNICO</div>
+                                  <div style="font-size:18px;color:#1A365D;font-weight:800;margin-top:5px;">${{ "{:,.0f}".format(total_electronico or 0) }}</div>
                                 </div>
                               </td>
                             </tr>
                           </table>
 
-                          <div style="margin-top:20px;border-top:1px solid #f1f5f9;padding-top:15px;">
-                            <table role="presentation" width="100%" style="font-size:13px;color:#475569;">
+                          <div style="margin-top:25px;border-top:2px dashed #F1F5F9;padding-top:20px;">
+                            <table role="presentation" width="100%" style="font-size:14px;color:#4A5568;">
                               <tr>
-                                <td style="padding:4px 0;">Nequi</td>
-                                <td align="right" style="font-weight:700;color:#1e293b;">${{ "{:,.0f}".format(nequi or 0) }}</td>
+                                <td style="padding:6px 0;font-weight:600;">Nequi</td>
+                                <td align="right" style="font-weight:800;color:#1A365D;">${{ "{:,.0f}".format(nequi or 0) }}</td>
                               </tr>
                               <tr>
-                                <td style="padding:4px 0;">Daviplata</td>
-                                <td align="right" style="font-weight:700;color:#1e293b;">${{ "{:,.0f}".format(daviplata or 0) }}</td>
+                                <td style="padding:6px 0;font-weight:600;">Daviplata</td>
+                                <td align="right" style="font-weight:800;color:#1A365D;">${{ "{:,.0f}".format(daviplata or 0) }}</td>
                               </tr>
                               <tr>
-                                <td style="padding:4px 0;">Transferencia / QR</td>
-                                <td align="right" style="font-weight:700;color:#1e293b;">${{ "{:,.0f}".format(transferencia or 0) }}</td>
-                              </tr>
-                              <tr>
-                                <td style="padding:4px 0;">Tarjeta / Bold</td>
-                                <td align="right" style="font-weight:700;color:#1e293b;">${{ "{:,.0f}".format(tarjeta or 0) }}</td>
+                                <td style="padding:6px 0;font-weight:600;">Tarjeta / Bold</td>
+                                <td align="right" style="font-weight:800;color:#1A365D;">${{ "{:,.0f}".format(tarjeta or 0) }}</td>
                               </tr>
                             </table>
                           </div>
@@ -160,23 +155,23 @@
                   </td>
 
                   <td width="45%" valign="top">
-                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #e2e8f0;border-radius:8px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #E2E8F0;border-radius:15px;background:#F8FAFC;">
                       <tr>
-                        <td style="padding:20px;">
-                          <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:15px;">Eficiencia Operativa</div>
+                        <td style="padding:25px;">
+                          <div style="font-size:14px;font-weight:800;color:#1A365D;margin-bottom:20px;text-transform:uppercase;">Eficiencia de Ventas</div>
                           
-                          <table role="presentation" width="100%" style="font-size:12px;">
+                          <table role="presentation" width="100%" style="font-size:13px;">
                             <tr>
-                              <td style="padding:8px 0;color:#64748b;border-bottom:1px solid #f1f5f9;">Turnos con actividad</td>
-                              <td align="right" style="font-weight:700;color:#1a3a5a;border-bottom:1px solid #f1f5f9;">{{ total_dias or 0 }}</td>
+                              <td style="padding:10px 0;color:#718096;border-bottom:1px solid #EDF2F7;">Días con actividad</td>
+                              <td align="right" style="font-weight:800;color:#1A365D;border-bottom:1px solid #EDF2F7;">{{ total_dias or 0 }}</td>
                             </tr>
                             <tr>
-                              <td style="padding:8px 0;color:#64748b;border-bottom:1px solid #f1f5f9;">Ticket promedio</td>
-                              <td align="right" style="font-weight:700;color:#1a3a5a;border-bottom:1px solid #f1f5f9;">${{ "{:,.0f}".format(promedio or 0) }}</td>
+                              <td style="padding:10px 0;color:#718096;border-bottom:1px solid #EDF2F7;">Ticket promedio</td>
+                              <td align="right" style="font-weight:800;color:#1A365D;border-bottom:1px solid #EDF2F7;">${{ "{:,.0f}".format(promedio or 0) }}</td>
                             </tr>
                             <tr>
-                              <td style="padding:8px 0;color:#64748b;">Pico de ventas</td>
-                              <td align="right" style="font-weight:700;color:#1a3a5a;">${{ "{:,.0f}".format(mejor_dia_valor or 0) }}</td>
+                              <td style="padding:10px 0;color:#718096;">Día Récord</td>
+                              <td align="right" style="font-weight:800;color:#00A3C4;">${{ "{:,.0f}".format(mejor_dia_valor or 0) }}</td>
                             </tr>
                           </table>
                         </td>
@@ -189,30 +184,32 @@
           </tr>
 
           <tr>
-            <td style="padding:0 28px 30px 28px;">
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;">
-                <tr style="background:#f8fafc;">
-                  <td style="padding:15px;border-bottom:1px solid #e2e8f0;">
-                    <span style="font-size:13px;font-weight:700;color:#1a3a5a;">Rendimiento por Cajero / Colaborador</span>
+            <td style="padding:10px 40px 40px 40px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #E2E8F0;border-radius:15px;overflow:hidden;">
+                <tr style="background:#F1F5F9;">
+                  <td style="padding:15px 20px;border-bottom:1px solid #E2E8F0;">
+                    <span style="font-size:14px;font-weight:800;color:#1A365D;text-transform:uppercase;">Rendimiento de Colaboradores</span>
                   </td>
                 </tr>
                 <tr>
                   <td style="padding:0;">
                     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                       <tr>
-                        <th align="left" style="padding:12px 15px;font-size:11px;color:#64748b;text-transform:uppercase;background:#f1f5f9;">Cajero</th>
-                        <th align="right" style="padding:12px 15px;font-size:11px;color:#64748b;text-transform:uppercase;background:#f1f5f9;">Total Recaudado</th>
+                        <th align="left" style="padding:12px 20px;font-size:11px;color:#718096;text-transform:uppercase;background:#F8FAFC;font-weight:800;">CAJERO / VENDEDOR</th>
+                        <th align="right" style="padding:12px 20px;font-size:11px;color:#718096;text-transform:uppercase;background:#F8FAFC;font-weight:800;">TOTAL RECAUDADO</th>
                       </tr>
                       {% for r in (ventas_por_vendedor or []) %}
                       <tr>
-                        <td style="padding:12px 15px;border-bottom:1px solid #f1f5f9;font-size:13px;"><b>{{ r.vendedor | upper }}</b></td>
-                        <td align="right" style="padding:12px 15px;border-bottom:1px solid #f1f5f9;font-size:13px;font-weight:700;color:#1a3a5a;">
+                        <td style="padding:14px 20px;border-bottom:1px solid #F1F5F9;font-size:14px;color:#2D3748;">
+                          <b>{{ r.vendedor | upper }}</b>
+                        </td>
+                        <td align="right" style="padding:14px 20px;border-bottom:1px solid #F1F5F9;font-size:14px;font-weight:800;color:#1A365D;">
                           ${{ "{:,.0f}".format(r.total or 0) }}
                         </td>
                       </tr>
                       {% else %}
                       <tr>
-                        <td colspan="2" style="padding:20px;text-align:center;color:#94a3b8;font-size:12px;">No se registran transacciones en este periodo.</td>
+                        <td colspan="2" style="padding:30px;text-align:center;color:#A0AEC0;font-size:13px;font-style:italic;">No se registraron ventas en este periodo.</td>
                       </tr>
                       {% endfor %}
                     </table>
@@ -223,17 +220,22 @@
           </tr>
 
           <tr>
-            <td style="padding:20px;background:#f8fafc;border-top:1px solid #e2e8f0;">
-              <div style="text-align:center;color:#94a3b8;font-size:11px;line-height:1.6;">
-                <strong>Licores El Olimpo - Sistema de Gestión</strong><br>
-                Este documento es un informe confidencial de carácter ejecutivo.<br>
-                Generado automáticamente el {{ hoy }}
+            <td style="padding:30px;background:#F8FAFC;border-top:1px solid #E2E8F0;">
+              <div style="text-align:center;color:#718096;font-size:11px;line-height:1.8;text-transform:uppercase;letter-spacing:1px;">
+                <strong>SAN ROQUE MB • SISTEMA POS PREMIUM</strong><br>
+                Este documento es un informe de carácter confidencial.<br>
+                Generado el {{ hoy }}
               </div>
             </td>
           </tr>
 
         </table>
-        </td>
+        
+        <div style="margin-top:25px;text-align:center;font-size:10px;color:#A0AEC0;text-transform:uppercase;letter-spacing:1px;font-weight:700;">
+          &copy; 2026 DESARROLLADO POR LORENA RODRIGUEZ RAMOS
+        </div>
+
+      </td>
     </tr>
   </table>
 </body>

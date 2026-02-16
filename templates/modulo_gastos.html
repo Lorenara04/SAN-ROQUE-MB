@@ -1,320 +1,256 @@
 {% extends 'base.html' %}
-
 {% block content %}
+
 <style>
-    /* Estética Unificada y Profesional para San Roque M.B. */
+    /* VARIABLES SAN ROQUE MB */
     :root {
-        --btn-size: 38px;
-        --san-roque-dark: #1e293b;
-        --san-roque-emerald: #10b981;
-        --san-roque-sapphire: #3b82f6;
-        --san-roque-ruby: #ef4444;
-        --bg-main: #f8fafc;
+        --primary-oxford: #1A365D;
+        --accent-sky: #63B3ED;
+        --bg-glacial: #F0F7FF;
+        --bg-card-blue: #BEE3F8;
+        --success-cyan: #00A3C4;
+        --danger-red: #C53030;
+        --text-dark: #2D3748;
     }
 
-    body {
-        background-color: var(--bg-main);
+    body { background-color: var(--bg-glacial); font-family: 'Inter', sans-serif; }
+
+    .titulo-seccion {
+        color: var(--primary-oxford);
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
 
-    /* Botones de Acción Ultra-Profesionales con Tooltips */
-    .btn-action-pro {
-        width: auto(--btn-size);
-        height: var(--btn-size);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 8px; 
-        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        border: none;
-        padding: 0 15px;
-        font-size: 1.1rem;
-        background: #ffffff;
-        cursor: pointer;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        position: relative;
-        text-decoration: none !important;
+    .card-premium {
+        background: white;
+        border-radius: 20px;
+        border: 1px solid var(--bg-card-blue);
+        box-shadow: 0 10px 25px rgba(26, 54, 93, 0.05);
     }
 
-    .btn-action-pro:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 6px 15px rgba(0,0,0,0.1);
-    }
-
-    /* Tooltip personalizado */
-    .btn-action-pro::after {
-        content: attr(data-tooltip);
-        position: absolute;
-        bottom: 125%;
-        left: 50%;
-        transform: translateX(-50%) translateY(10px);
-        background: var(--san-roque-dark);
+    /* Tablas Oxford Style */
+    .table-gastos thead th {
+        background-color: var(--primary-oxford);
         color: white;
-        padding: 5px 10px;
-        border-radius: 6px;
-        font-size: 0.7rem;
-        white-space: nowrap;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s ease;
-        z-index: 100;
-    }
-
-    .btn-action-pro:hover::after {
-        opacity: 1;
-        visibility: visible;
-        transform: translateX(-50%) translateY(0);
-    }
-
-    /* Variantes de botones con colores vibrantes */
-    .btn-abonar-prof { border: 1px solid #d1fae5; color: var(--san-roque-emerald); }
-    .btn-abonar-prof:hover { background: var(--san-roque-emerald); color: white; }
-
-    .btn-edit-prof { border: 1px solid #dbeafe; color: var(--san-roque-sapphire); }
-    .btn-edit-prof:hover { background: var(--san-roque-sapphire); color: white; }
-
-    .btn-delete-prof { border: 1px solid #fee2e2; color: var(--san-roque-ruby); }
-    .btn-delete-prof:hover { background: var(--san-roque-ruby); color: white; }
-
-    /* Cards y Tabla */
-    .card-luxury {
-        border-radius: 16px;
-        border: 1px solid rgba(0,0,0,0.05);
-        box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-        background: #ffffff;
-    }
-
-    .text-negro-pro {
-        color: #0f172a !important;
-        font-weight: 700;
-    }
-
-    .table thead th {
-        background: #f1f5f9;
-        color: #64748b;
         text-transform: uppercase;
         font-size: 0.75rem;
-        letter-spacing: 0.05em;
-        border: none;
+        letter-spacing: 1px;
         padding: 15px;
+        border: none;
     }
 
-    .table tbody td {
-        padding: 18px 15px;
-        border-bottom: 1px solid #f1f5f9;
+    .table-gastos tbody tr:hover { background-color: #e2f0fb; }
+
+    /* Estilos de Inputs */
+    label {
+        font-size: 11px;
+        font-weight: 800;
+        color: var(--primary-oxford);
+        text-transform: uppercase;
+        margin-bottom: 5px;
+        display: block;
     }
 
-    /* Badge de Estado */
-    .badge-status {
-        padding: 6px 12px;
-        border-radius: 6px;
-        font-weight: 600;
-        font-size: 0.75rem;
+    .form-control, .form-select {
+        border-radius: 10px;
+        border: 2px solid var(--bg-card-blue);
+        padding: 10px 15px;
+        font-size: 14px;
+        transition: 0.3s;
     }
 
-    .bg-pagado { background: #dcfce7; color: #15803d; }
-    .text-saldo-pendiente { color: var(--san-roque-ruby); font-weight: 700; }
+    .form-control:focus {
+        border-color: var(--accent-sky);
+        box-shadow: 0 0 0 4px rgba(99, 179, 237, 0.1);
+    }
 
-    .shadow-inner-soft {
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
+    .btn-oxford { background: var(--primary-oxford); color: white; border-radius: 10px; font-weight: 700; border: none; }
+    .btn-oxford:hover { background: var(--accent-sky); color: white; transform: translateY(-2px); }
+
+    .abono-section {
+        background-color: #ffffff;
+        border: 2px dashed var(--bg-card-blue);
+        border-radius: 15px;
+        margin: 10px;
+    }
+
+    .mayuscula { text-transform: uppercase; }
+    
+    .soporte-link {
+        color: var(--accent-sky);
+        text-decoration: none;
+        font-weight: bold;
     }
 </style>
 
-<div class="container-fluid mt-4 px-4" style="position: relative; z-index: 1;">
-    
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="p-4 card-luxury d-flex justify-content-between align-items-center">
-                <div>
-                    <h2 class="text-negro-pro mb-1">📉 Gestión de Gastos y Egresos</h2>
-                    <p class="text-muted mb-0">Control financiero y seguimiento — <strong>San Roque M.B.</strong></p>
-                </div>
-                <div class="d-flex gap-2">
-                    <a href="{{ url_for('ventas.dashboard') }}" class="btn btn-light fw-bold border px-4 rounded-3">Dashboard</a>
-                    <a href="{{ url_for('proveedores_gastos.exportar_proveedores') }}" class="btn btn-dark fw-bold px-4 rounded-3 shadow-sm">Exportar Reporte</a>
-                </div>
-            </div>
+<div class="container-fluid mt-4 px-4">
+
+    <div class="d-flex align-items-center mb-4">
+        <div class="p-3 rounded-4 me-3" style="background-color: var(--bg-card-blue);">
+            <i class="fas fa-wallet fs-3" style="color: var(--primary-oxford);"></i>
+        </div>
+        <div>
+            <h2 class="titulo-seccion m-0">Gestión de Gastos</h2>
+            <p class="text-muted small m-0 font-weight-bold uppercase">Administración de Egresos • SAN ROQUE MB</p>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-lg-4 mb-4">
-            <div class="card card-luxury p-4 h-100">
-                <h5 class="mb-4 text-negro-pro d-flex align-items-center">
-                    <span class="me-2 text-primary">●</span> Nuevo Gasto Operativo
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card card-premium p-4" style="border-top: 8px solid var(--primary-oxford);">
+                <h5 class="fw-bold mb-4" style="color: var(--primary-oxford);">
+                    <i class="fas fa-plus-circle me-2"></i> NUEVO GASTO
                 </h5>
 
-                <form method="POST" action="{{ url_for('proveedores_gastos.gastos') }}">
+                <form method="POST" action="{{ url_for('proveedores_gastos.gastos') }}" enctype="multipart/form-data">
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-muted">CATEGORÍA</label>
-                        <select name="categoria" class="form-select border-0 bg-light p-3 rounded-3" required>
-                            <option value="">Seleccionar...</option>
-                            <option>Arriendo</option>
-                            <option>Servicios Públicos</option>
-                            <option>Mantenimiento</option>
-                            <option>Nómina / Personal</option>
-                            <option>Insumos Bodega</option>
-                            <option>Otros</option>
+                        <label>Categoría</label>
+                        <select name="categoria" class="form-select" required>
+                            <option value="ARRIENDO">ARRIENDO</option>
+                            <option value="SERVICIOS PÚBLICOS">SERVICIOS PÚBLICOS</option>
+                            <option value="MANTENIMIENTO">MANTENIMIENTO</option>
+                            <option value="NÓMINA">NÓMINA</option>
+                            <option value="INSUMOS">INSUMOS</option>
+                            <option value="OTROS">OTROS GASTOS</option>
                         </select>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-muted">CONCEPTO DETALLADO</label>
-                        <input type="text" name="concepto" class="form-control border-0 bg-light p-3 rounded-3" placeholder="Ej: Pago de Luz Enero" required>
+                        <label>Concepto / Detalle</label>
+                        <input type="text" name="concepto" class="form-control mayuscula" placeholder="Especifique el gasto..." required>
                     </div>
 
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold text-muted">VALOR TOTAL ($)</label>
-                            <input type="number" step="0.01" name="total" class="form-control border-0 bg-light p-3 rounded-3" placeholder="0.00" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold text-muted">FECHA</label>
-                            <input type="date" name="fecha" class="form-control border-0 bg-light p-3 rounded-3" value="{{ hoy }}">
-                        </div>
+                    <div class="mb-3">
+                        <label>Valor Total ($)</label>
+                        <input type="number" step="0.01" name="total" class="form-control fw-bold" placeholder="0.00" required>
                     </div>
 
-                    <button type="submit" class="btn btn-primary w-100 fw-bold py-3 rounded-3 shadow-sm">
-                        <i class="bi bi-save me-2"></i>REGISTRAR EGRESO
+                    <div class="mb-3">
+                        <label>Fecha</label>
+                        <input type="date" name="fecha" class="form-control" value="{{ hoy }}">
+                    </div>
+
+                    <div class="mb-4">
+                        <label>Comprobante (Imagen/PDF)</label>
+                        <input type="file" name="soporte_foto" class="form-control form-control-sm">
+                    </div>
+
+                    <button class="btn btn-oxford w-100 py-3 text-uppercase shadow-sm">
+                        <i class="fas fa-save me-2"></i> Registrar Gasto
                     </button>
                 </form>
             </div>
         </div>
 
         <div class="col-lg-8">
-            <div class="card card-luxury overflow-hidden">
-                <div class="p-4 bg-white border-bottom">
-                    <h5 class="m-0 text-negro-pro">📋 Historial de Movimientos</h5>
-                </div>
-
+            <div class="card card-premium overflow-hidden">
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
+                    <table class="table table-gastos align-middle mb-0 text-center">
                         <thead>
                             <tr>
-                                <th class="ps-4">Fecha</th>
-                                <th>Concepto / Categoría</th>
-                                <th>Monto</th>
-                                <th>Abonado</th>
-                                <th>Saldo Actual</th>
-                                <th class="text-center">Acciones</th>
+                                <th>FECHA</th>
+                                <th>CATEGORÍA</th>
+                                <th>CONCEPTO</th>
+                                <th>TOTAL</th>
+                                <th>SALDO</th>
+                                <th>ACCIONES</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for g in gastos %}
                             <tr>
-                                <td class="ps-4 text-muted small">{{ g.fecha.strftime('%d/%m/%Y') if g.fecha else '—' }}</td>
+                                <td class="small fw-bold">{{ g.fecha.strftime('%d/%m/%Y') if g.fecha else 'S/F' }}</td>
+                                <td><span class="badge bg-light text-dark border px-2 py-1">{{ g.categoria }}</span></td>
+                                <td class="text-start small fw-bold mayuscula">{{ g.concepto }}</td>
+                                <td class="fw-bold">$ {{ "{:,.0f}".format(g.total) }}</td>
                                 <td>
-                                    <span class="fw-bold d-block text-dark">{{ g.categoria }}</span>
-                                    <small class="text-muted">{{ g.concepto }}</small>
-                                </td>
-                                <td class="fw-bold text-dark">${{ "{:,.0f}".format(g.total) }}</td>
-                                <td class="text-success fw-bold">${{ "{:,.0f}".format(g.abonado) }}</td>
-                                <td>
-                                    {% if g.saldo <= 0 %}
-                                        <span class="badge-status bg-pagado">PAGADO</span>
+                                    {% if g.saldo > 0 %}
+                                    <span class="fw-bold px-2 py-1 rounded" style="color: var(--danger-red); background: #fee2e2;">$ {{ "{:,.0f}".format(g.saldo) }}</span>
                                     {% else %}
-                                        <span class="text-saldo-pendiente">${{ "{:,.0f}".format(g.saldo) }}</span>
+                                    <span class="badge px-3 py-2" style="background: var(--success-cyan);">PAGADO</span>
                                     {% endif %}
                                 </td>
-                                <td class="text-center">
-                                    <div class="d-flex justify-content-center gap-2">
-                                        <button class="btn-action-pro btn-abonar-prof" 
-                                                data-bs-toggle="collapse" data-bs-target="#abonoG{{ g.id }}" 
-                                                data-tooltip="Abonar / Historial">
-                                            <i <button class="btn-action-prof btn-abonar-prof" data-bs-toggle="collapse" data-bs-target="#abonoG{{ g.id }}">ABONAR</button> </i>
+                                <td>
+                                    <div class="d-flex gap-1 justify-content-center">
+                                        <button class="btn btn-success btn-sm px-3" data-bs-toggle="collapse" data-bs-target="#ab{{ g.id }}" title="Abonos">
+                                            <i class="fas fa-coins"></i>
                                         </button>
-                                        
-                                        <button class="btn-action-pro btn-edit-prof" 
-                                                data-bs-toggle="modal" data-bs-target="#editGasto{{ g.id }}" 
-                                                data-tooltip="Editar Registro">
-                                            editar
+                                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#edit{{ g.id }}">
+                                            <i class="fas fa-edit"></i>
                                         </button>
-
-                                        <a href="{{ url_for('proveedores_gastos.eliminar_gasto', gasto_id=g.id) }}" 
-                                           class="btn-action-pro btn-delete-prof" 
-                                           data-tooltip="Eliminar"
-                                           onclick="return confirm('¿Eliminar gasto y su historial?')">
-                                            eliminar
-                                        </a>
+                                        <form method="POST" action="{{ url_for('proveedores_gastos.eliminar_gasto', gasto_id=g.id) }}">
+                                            <button class="btn btn-danger btn-sm" onclick="return confirm('¿Seguro que desea eliminar este gasto?')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
                                     </div>
                                 </td>
                             </tr>
 
-                            <tr class="collapse" id="abonoG{{ g.id }}">
-                                <td colspan="6" class="p-0 border-0">
-                                    <div class="p-4 mx-4 my-2 shadow-inner-soft">
+                            <tr id="ab{{ g.id }}" class="collapse">
+                                <td colspan="6" class="p-0">
+                                    <div class="abono-section p-4">
                                         <div class="row">
-                                            <div class="col-md-5 border-end pe-4">
-                                                <h6 class="fw-bold mb-3"><i class="bi bi-plus-circle me-2"></i>Nuevo Abono</h6>
+                                            <div class="col-md-5 border-end">
+                                                <h6 class="fw-bold text-oxford mb-3 uppercase small">Registrar Abono</h6>
                                                 {% if g.saldo > 0 %}
-                                                <form action="{{ url_for('proveedores_gastos.abonar') }}" method="POST">
+                                                <form method="POST" action="{{ url_for('proveedores_gastos.abonar') }}">
                                                     <input type="hidden" name="gasto_id" value="{{ g.id }}">
-                                                    <div class="mb-3">
-                                                        <input type="number" step="0.01" name="monto" max="{{ g.saldo }}" class="form-control rounded-3" placeholder="Monto a pagar..." required>
-                                                        <div class="form-text text-end">Saldo pendiente: ${{ "{:,.0f}".format(g.saldo) }}</div>
+                                                    <div class="mb-2">
+                                                        <label>Monto</label>
+                                                        <input type="number" name="monto" step="0.01" max="{{ g.saldo }}" class="form-control form-control-sm fw-bold" required>
                                                     </div>
-                                                    <div class="mb-3">
-                                                        <select name="medio" class="form-select rounded-3">
-                                                            <option value="Efectivo">Efectivo</option>
-                                                            <option value="Nequi">Nequi</option>
-                                                            <option value="Daviplata">Daviplata</option>
-                                                            <option value="Transferencia">Transferencia</option>
+                                                    <div class="mb-2">
+                                                        <label>Medio</label>
+                                                        <select name="medio" class="form-select form-select-sm">
+                                                            <option>EFECTIVO</option>
+                                                            <option>NEQUI</option>
+                                                            <option>DAVIPLATA</option>
+                                                            <option>TRANSFERENCIA</option>
                                                         </select>
                                                     </div>
-                                                    <div class="mb-3">
-                                                        <input type="date" name="fecha_abono" class="form-control rounded-3" value="{{ hoy }}">
-                                                    </div>
-                                                    <button type="submit" class="btn btn-success w-100 fw-bold">PROCESAR PAGO</button>
+                                                    <input type="date" name="fecha_abono" value="{{ hoy }}" class="form-control form-control-sm mb-3">
+                                                    <button class="btn btn-oxford btn-sm w-100 fw-bold">PAGAR AHORA</button>
                                                 </form>
                                                 {% else %}
-                                                <div class="alert alert-light border text-success text-center fw-bold py-4">
-                                                    <i class="bi bi-check-all fs-4 d-block"></i> CUENTA SALDADA
+                                                <div class="text-center py-3">
+                                                    <i class="fas fa-check-double fa-2x text-success mb-2"></i>
+                                                    <p class="text-success fw-bold m-0 small">CUENTA SALDADA</p>
                                                 </div>
                                                 {% endif %}
                                             </div>
                                             <div class="col-md-7 ps-4">
-                                                <h6 class="fw-bold mb-3"><i class="bi bi-clock-history me-2"></i>Historial de Pagos</h6>
-                                                <div class="table-responsive" style="max-height: 200px;">
-                                                    <table class="table table-sm table-borderless">
-                                                        <thead class="border-bottom">
-                                                            <tr class="text-muted" style="font-size: 0.7rem;">
-                                                                <th>FECHA</th>
-                                                                <th>MONTO</th>
-                                                                <th>MEDIO</th>
-                                                                <th class="text-end">BORRAR</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody style="font-size: 0.85rem;">
-                                                            {% for abono in g.lista_abonos %}
-                                                            <tr>
-                                                                <td>{{ abono.fecha.strftime('%d/%m/%Y') }}</td>
-                                                                <td class="fw-bold text-dark">${{ "{:,.0f}".format(abono.monto) }}</td>
-                                                                <td><span class="badge bg-light text-dark">{{ abono.medio_pago }}</span></td>
-                                                                <td class="text-end">
-                                                                    <a href="{{ url_for('proveedores_gastos.eliminar_abono_proveedor', abono_id=abono.id) }}" 
-                                                                       class="text-danger" onclick="return confirm('¿Borrar pago?')">
-                                                                        <i class="bi bi-trash-fill"></i>
-                                                                    </a>
-                                                                </td>
-                                                            </tr>
-                                                            {% else %}
-                                                            <tr>
-                                                                <td colspan="4" class="text-center py-4 text-muted small italic">No hay pagos registrados</td>
-                                                            </tr>
-                                                            {% endfor %}
-                                                        </tbody>
-                                                    </table>
-                                                </div>
+                                                <h6 class="fw-bold text-oxford mb-3 uppercase small">Pagos Realizados</h6>
+                                                <table class="table table-sm table-borderless" style="font-size: 12px;">
+                                                    <thead class="text-muted border-bottom">
+                                                        <tr>
+                                                            <th>FECHA</th>
+                                                            <th>MONTO</th>
+                                                            <th>MEDIO</th>
+                                                            <th class="text-end">BORRAR</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for a in g.lista_abonos %}
+                                                        <tr>
+                                                            <td>{{ a.fecha.strftime('%d/%m/%Y') if a.fecha else 'S/F' }}</td>
+                                                            <td class="fw-bold text-success">$ {{ "{:,.0f}".format(a.monto) }}</td>
+                                                            <td><span class="badge bg-white text-dark border">{{ a.medio_pago }}</span></td>
+                                                            <td class="text-end">
+                                                                <form method="POST" action="{{ url_for('proveedores_gastos.eliminar_abono_proveedor', abono_id=a.id) }}">
+                                                                    <button class="btn btn-link text-danger p-0" onclick="return confirm('¿Revertir este abono?')">
+                                                                        <i class="fas fa-trash-alt"></i>
+                                                                    </button>
+                                                                </form>
+                                                            </td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
                                             </div>
                                         </div>
                                     </div>
-                                </td>
-                            </tr>
-                            {% else %}
-                            <tr>
-                                <td colspan="6" class="text-center py-5">
-                                    <p class="text-muted m-0">No se encontraron gastos registrados.</p>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -327,46 +263,65 @@
 </div>
 
 {% for g in gastos %}
-<div class="modal fade" id="editGasto{{ g.id }}" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="edit{{ g.id }}" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <form method="POST" action="{{ url_for('proveedores_gastos.editar_gasto', gasto_id=g.id) }}" class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
-            <div class="modal-header border-0 p-4 pb-0">
-                <h5 class="modal-title fw-bold">Editar Registro</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+            <div class="modal-header text-white" style="background: var(--primary-oxford); border-bottom: 4px solid var(--accent-sky);">
+                <h5 class="modal-title fw-bold small">EDITAR GASTO #{{ g.id }}</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body p-4">
-                <div class="mb-3">
-                    <label class="small fw-bold text-muted mb-1 text-uppercase">Categoría</label>
-                    <select name="categoria" class="form-select bg-light border-0 p-3">
-                        <option {% if g.categoria == 'Arriendo' %}selected{% endif %}>Arriendo</option>
-                        <option {% if g.categoria == 'Servicios Públicos' %}selected{% endif %}>Servicios Públicos</option>
-                        <option {% if g.categoria == 'Mantenimiento' %}selected{% endif %}>Mantenimiento</option>
-                        <option {% if g.categoria == 'Nómina / Personal' %}selected{% endif %}>Nómina / Personal</option>
-                        <option {% if g.categoria == 'Insumos Bodega' %}selected{% endif %}>Insumos Bodega</option>
-                        <option {% if g.categoria == 'Otros' %}selected{% endif %}>Otros</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label class="small fw-bold text-muted mb-1 text-uppercase">Concepto</label>
-                    <input type="text" name="concepto" value="{{ g.concepto }}" class="form-control bg-light border-0 p-3" required>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="small fw-bold text-muted mb-1 text-uppercase">Total ($)</label>
-                        <input type="number" step="0.01" name="total" value="{{ g.total }}" class="form-control bg-light border-0 p-3" required>
+            <form method="POST" action="{{ url_for('proveedores_gastos.editar_gasto', gasto_id=g.id) }}" enctype="multipart/form-data">
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label>Categoría</label>
+                        <select name="categoria" class="form-select">
+                            <option value="ARRIENDO" {% if g.categoria == 'ARRIENDO' %}selected{% endif %}>ARRIENDO</option>
+                            <option value="SERVICIOS PÚBLICOS" {% if g.categoria == 'SERVICIOS PÚBLICOS' %}selected{% endif %}>SERVICIOS PÚBLICOS</option>
+                            <option value="MANTENIMIENTO" {% if g.categoria == 'MANTENIMIENTO' %}selected{% endif %}>MANTENIMIENTO</option>
+                            <option value="NÓMINA" {% if g.categoria == 'NÓMINA' %}selected{% endif %}>NÓMINA</option>
+                            <option value="INSUMOS" {% if g.categoria == 'INSUMOS' %}selected{% endif %}>INSUMOS</option>
+                            <option value="OTROS" {% if g.categoria == 'OTROS' %}selected{% endif %}>OTROS GASTOS</option>
+                        </select>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="small fw-bold text-muted mb-1 text-uppercase">Fecha</label>
-                        <input type="date" name="fecha" value="{{ g.fecha.strftime('%Y-%m-%d') if g.fecha else '' }}" class="form-control bg-light border-0 p-3">
+                    <div class="mb-3">
+                        <label>Concepto</label>
+                        <input name="concepto" value="{{ g.concepto }}" class="form-control mayuscula">
                     </div>
+                    <div class="mb-3">
+                        <label>Total</label>
+                        <input type="number" name="total" value="{{ g.total }}" class="form-control fw-bold">
+                    </div>
+                    <div class="mb-3">
+                        <label>Fecha</label>
+                        <input type="date" name="fecha" value="{{ g.fecha.strftime('%Y-%m-%d') if g.fecha else '' }}" class="form-control">
+                    </div>
+                    <div class="mb-2">
+                        <label>Actualizar Soporte</label>
+                        <input type="file" name="soporte_foto" class="form-control form-control-sm">
+                    </div>
+                    {% if g.soporte_foto %}
+                    <div class="mt-2">
+                        <small class="text-muted">Archivo actual: <a href="{{ url_for('static', filename='uploads/gastos/' + g.soporte_foto) }}" target="_blank" class="soporte-link">Ver Recibo</a></small>
+                    </div>
+                    {% endif %}
                 </div>
-            </div>
-            <div class="modal-footer border-0 p-4 pt-0">
-                <button type="submit" class="btn btn-primary w-100 fw-bold py-3 rounded-3 shadow-sm">Actualizar Gasto</button>
-            </div>
-        </form>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-link text-muted fw-bold text-decoration-none" data-bs-dismiss="modal">DESCARTAR</button>
+                    <button type="submit" class="btn btn-oxford px-4">GUARDAR CAMBIOS</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 {% endfor %}
+
+<script>
+    // Mayúsculas automáticas
+    document.querySelectorAll('.mayuscula').forEach(input => {
+        input.addEventListener('input', (e) => {
+            e.target.value = e.target.value.toUpperCase();
+        });
+    });
+</script>
 
 {% endblock %}

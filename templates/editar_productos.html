@@ -1,150 +1,158 @@
 {% extends "base.html" %}
 
-{% block title %}Editar {{ producto.nombre }}{% endblock %}
+{% block title %}EDITAR {{ producto.nombre | upper }}{% endblock %}
 
 {% block content %}
 
-<h2 class="mb-4 text-center fw-bold" style="color:#1a3a5a;">🛡️ Gestión de Producto 🛡️</h2>
+<h2 class="mb-4 text-center fw-bold" style="color: var(--primary-oxford);">🛡️ GESTIÓN DE PRODUCTO 🛡️</h2>
 
 <div class="row g-4">
 
     <div class="col-md-7">
         <div class="card shadow-lg p-4 border-0" 
-            style="border-radius:15px; background:#f0f7ff; border-left:6px solid #1a3a5a;">
+            style="border-radius:20px; background: var(--bg-glacial); border-left:8px solid var(--primary-oxford);">
 
-            <h3 class="fw-bold mb-3" style="color:#1a3a5a;">
-                📦 Detalles de Inventario
+            <h3 class="fw-bold mb-3" style="color: var(--primary-oxford);">
+                <i class="fas fa-boxes me-2"></i> DETALLES DE INVENTARIO
             </h3>
 
-            <form action="{{ url_for('editar_producto', producto_id=producto.id) }}" method="POST">
+            <form action="{{ url_for('inventario.editar_producto', producto_id=producto.id) }}" method="POST">
                 
                 {% set es_admin = (current_user.rol.lower() == 'administrador') %}
                 {% set readonly = 'readonly' if not es_admin else '' %}
 
                 <div class="mb-3">
-                    <label class="form-label fw-bold" style="color:#2c5282;">Código (SKU / Barras)</label>
+                    <label class="form-label fw-bold">CÓDIGO (SKU / BARRAS)</label>
                     <input type="text" name="codigo" class="form-control shadow-sm border-0"
-                        value="{{ producto.codigo }}" required {{ readonly }} style="border-radius:8px;">
+                        value="{{ producto.codigo }}" required {{ readonly }} style="border-radius:10px;">
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label fw-bold" style="color:#2c5282;">Nombre del Licor / Producto</label>
-                    <input type="text" name="nombre" class="form-control shadow-sm border-0"
-                        value="{{ producto.nombre }}" required {{ readonly }} style="border-radius:8px;">
+                    <label class="form-label fw-bold">NOMBRE DEL PRODUCTO</label>
+                    <input type="text" name="nombre" class="form-control shadow-sm border-0 mayuscula"
+                        value="{{ producto.nombre }}" required {{ readonly }} style="border-radius:10px;">
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label fw-bold" style="color:#2c5282;">Descripción / Notas</label>
-                    <textarea name="descripcion" class="form-control shadow-sm border-0" rows="3" {{ readonly }} style="border-radius:8px;">{{ producto.descripcion }}</textarea>
+                    <label class="form-label fw-bold">MARCA / CATEGORÍA</label>
+                    <input type="text" name="marca" class="form-control shadow-sm border-0 mayuscula"
+                        value="{{ producto.marca or 'S.M' }}" required {{ readonly }} style="border-radius:10px;">
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label fw-bold" style="color:#2c5282;">Stock Actual (Unidades)</label>
+                    <label class="form-label fw-bold">STOCK ACTUAL (UNIDADES)</label>
                     <input type="number" name="cantidad" class="form-control shadow-sm border-0"
-                        value="{{ producto.cantidad }}" min="0" required {{ readonly }} style="border-radius:8px;">
+                        value="{{ producto.cantidad }}" min="0" required {{ readonly }} style="border-radius:10px;">
                 </div>
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold" style="color:#2c5282;">Costo Interno ($)</label>
+                        <label class="form-label fw-bold">COSTO INTERNO ($)</label>
                         <input type="number" name="valor_interno" class="form-control shadow-sm border-0"
-                            value="{{ producto.valor_interno }}" step="0.01" required {{ readonly }} style="border-radius:8px;">
+                            value="{{ producto.valor_interno }}" step="0.01" required {{ readonly }} style="border-radius:10px;">
                     </div>
 
                     <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold" style="color:#2c5282;">Precio de Venta ($)</label>
+                        <label class="form-label fw-bold">PRECIO DE VENTA ($)</label>
                         <input type="number" name="valor_venta" class="form-control shadow-sm border-0"
-                            value="{{ producto.valor_venta }}" step="0.01" required {{ readonly }} style="border-radius:8px;">
+                            value="{{ producto.valor_venta }}" step="0.01" required {{ readonly }} style="border-radius:10px;">
                     </div>
                 </div>
 
                 {% if es_admin %}
-                <button type="submit" class="btn w-100 mt-3 fw-bold text-white"
-                    style="background:#1a3a5a; border-radius:8px; padding: 12px;">
-                    <i class="fas fa-save"></i> Actualizar Registro
+                <button type="submit" class="btn w-100 mt-3 fw-bold text-white shadow"
+                    style="background: var(--primary-oxford); border-radius:12px; padding: 14px;">
+                    <i class="fas fa-save me-2"></i> ACTUALIZAR REGISTRO
                 </button>
                 {% else %}
-                <div class="alert alert-warning mt-3 py-2 text-center" style="border-radius:8px;">
-                    <i class="fas fa-lock"></i> Solo administradores pueden editar.
+                <div class="alert alert-warning mt-3 py-2 text-center" style="border-radius:10px;">
+                    <i class="fas fa-lock me-2"></i> SOLO ADMINISTRADORES PUEDEN EDITAR.
                 </div>
                 {% endif %}
 
-                <a href="{{ url_for('inventario') }}" 
-                    class="btn btn-outline-secondary w-100 mt-2 fw-bold"
-                    style="border-radius:8px;">
-                    <i class="fas fa-arrow-left"></i> Regresar al Inventario
+                <a href="{{ url_for('inventario.inventario') }}" 
+                    class="btn btn-outline-secondary w-100 mt-3 fw-bold"
+                    style="border-radius:12px; border: 2px solid var(--bg-card-blue); color: var(--primary-oxford);">
+                    <i class="fas fa-arrow-left me-2"></i> REGRESAR AL INVENTARIO
                 </a>
             </form>
         </div>
     </div>
 
-
     <div class="col-md-5">
         <div class="card shadow-lg p-4 text-center border-0"
-            style="border-radius:15px; background:#ffffff; border-top:6px solid #b8860b;">
+            style="border-radius:20px; background:#ffffff; border-top:8px solid var(--accent-sky);">
 
-            <h3 class="fw-bold mb-3" style="color:#1a3a5a;">🏷️ Etiqueta de Producto</h3>
+            <h3 class="fw-bold mb-3" style="color: var(--primary-oxford);"><i class="fas fa-tag me-2"></i> ETIQUETA</h3>
 
             {% if barcode_img %}
-            <div id="printArea" class="p-3" style="background: white; border: 1px solid #eee; border-radius: 10px;">
-                <img src="{{ barcode_img }}" class="w-100 mb-2">
-                <p class="fs-5 fw-bold mb-0" style="color:#1a3a5a; letter-spacing: 2px;">{{ producto.codigo }}</p>
-                <small class="text-muted">{{ producto.nombre }}</small>
+            <div id="printArea" class="p-4" style="background: white; border: 2px dashed var(--bg-card-blue); border-radius: 15px;">
+                <img src="{{ barcode_img }}" class="w-100 mb-3" style="max-height: 100px; object-fit: contain;">
+                <p class="fs-4 fw-bold mb-0" style="color: var(--primary-oxford); letter-spacing: 3px;">{{ producto.codigo }}</p>
+                <p class="text-uppercase fw-bold mb-1" style="color: var(--text-dark);">{{ producto.nombre }}</p>
+                <h2 class="fw-extrabold" style="color: var(--success-cyan);">$ {{ "{:,.0f}".format(producto.valor_venta) }}</h2>
             </div>
 
-            <button type="button" class="btn w-100 mt-4 fw-bold text-white" 
+            <button type="button" class="btn w-100 mt-4 fw-bold text-white shadow-sm" 
                 onclick="imprimirEtiqueta()"
-                style="background:#000; border-radius:8px; padding: 12px;">
-                <i class="fas fa-print"></i> Generar Impresión
+                style="background: var(--accent-sky); border-radius:12px; padding: 14px; border: none;">
+                <i class="fas fa-print me-2"></i> IMPRIMIR ETIQUETA
             </button>
 
             <script>
             function imprimirEtiqueta() {
                 const formattedPrice = "{{ '{:,.0f}'.format(producto.valor_venta) }}"; 
-                
                 const printContent = `
-                    <div style="font-family: 'Segoe UI', sans-serif; padding: 15px; width: 280px; text-align: center; border: 1px solid #333;">
-                        <h3 style="margin: 0; color: #1a3a5a; text-transform: uppercase; font-size: 14px;">
-                            LICORES EL OLIMPO
-                        </h3>
-                        <hr style="border: 0; border-top: 1px solid #ccc; margin: 8px 0;">
-                        <img src="{{ barcode_img }}" style="width: 100%; max-width: 220px; margin: 5px 0;">
-                        <p style="margin: 5px 0; font-size: 13px; font-weight: 600;">{{ producto.nombre }}</p>
-                        <p style="margin: 0; font-weight: bold; font-size: 20px; color: #000;">
+                    <div style="font-family: 'Inter', sans-serif; padding: 20px; width: 300px; text-align: center; border: 2px solid #1A365D; border-radius: 10px;">
+                        <h2 style="margin: 0; color: #1A365D; text-transform: uppercase; font-size: 18px; font-weight: 800;">
+                            SAN ROQUE MB
+                        </h2>
+                        <div style="border-top: 2px solid #63B3ED; margin: 10px 0;"></div>
+                        <img src="{{ barcode_img }}" style="width: 100%; max-height: 80px; margin: 10px 0;">
+                        <p style="margin: 5px 0; font-size: 14px; font-weight: 700; text-transform: uppercase;">{{ producto.nombre }}</p>
+                        <p style="margin: 5px 0; font-weight: 900; font-size: 28px; color: #000;">
                             $ ${formattedPrice}
-                        </p>
-                        <p style="margin-top: 5px; font-size: 9px; color: #666;">Calidad Garantizada</p>
+                        </h2>
+                        <p style="margin-top: 10px; font-size: 10px; color: #666; font-weight: 600;">CALIDAD GARANTIZADA</p>
                     </div>
                 `;
                 
-                const printWindow = window.open('', '', 'width=400,height=400');
-                printWindow.document.write('<html><head><title>Etiqueta Licorera</title>');
-                printWindow.document.write('<style>body { margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }</style>');
+                const printWindow = window.open('', '', 'width=450,height=500');
+                printWindow.document.write('<html><head><title>ETIQUETA SAN ROQUE MB</title>');
+                printWindow.document.write('<style>body { margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: white; }</style>');
                 printWindow.document.write('</head><body>');
                 printWindow.document.write(printContent);
                 printWindow.document.write('</body></html>');
-                
                 printWindow.document.close();
                 printWindow.focus();
                 setTimeout(() => {
                     printWindow.print();
                     printWindow.close();
-                }, 600); 
+                }, 700); 
             }
             </script>
 
             {% else %}
-            <div class="alert alert-danger">
-                <i class="fas fa-exclamation-triangle"></i> Error al generar código.
+            <div class="alert alert-danger" style="border-radius:10px;">
+                <i class="fas fa-exclamation-triangle me-2"></i> ERROR AL GENERAR CÓDIGO.
             </div>
             {% endif %}
             
-            <div class="mt-4 p-3 bg-light" style="border-radius: 10px; font-size: 12px; color: #666;">
-                <i class="fas fa-info-circle"></i> Use papel adhesivo de 8x5cm para mejores resultados en la estantería.
+            <div class="mt-4 p-3 shadow-sm" style="border-radius: 12px; font-size: 12px; color: var(--primary-oxford); background: var(--bg-glacial);">
+                <i class="fas fa-info-circle me-2"></i> SUGERENCIA: USE PAPEL ADHESIVO TÉRMICO DE 8X5CM PARA MEJORES RESULTADOS.
             </div>
         </div>
     </div>
 
 </div>
+
+<script>
+    // Forzar mayúsculas en tiempo real
+    document.querySelectorAll('.mayuscula').forEach(input => {
+        input.addEventListener('input', (e) => {
+            e.target.value = e.target.value.toUpperCase();
+        });
+    });
+</script>
 
 {% endblock %}

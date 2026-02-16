@@ -1,74 +1,184 @@
 {% extends "base.html" %}
-{% block title %}Editar Usuario - Licorera{% endblock %}
+{% block title %}EDITAR COLABORADOR - SAN ROQUE MB{% endblock %}
 
 {% block content %}
 
-<h2 class="text-center fw-bold mb-4" style="color:#1a3a5a;">
-    👤 Gestión de Colaboradores 👤
-</h2>
+<style>
+    /* VARIABLES MEMORIZADAS SAN ROQUE MB */
+    :root {
+        --primary-oxford: #1A365D;    /* Azul Oxford Oscuro */
+        --accent-sky: #63B3ED;        /* Azul Cielo Brillante */
+        --bg-glacial: #F0F7FF;        /* Azul Pastel Glacial */
+        --bg-card-blue: #BEE3F8;      /* Azul Aire Pastel */
+        --text-dark: #2D3748;
+        --white: #ffffff;
+    }
 
-<div class="card shadow-lg p-4 mx-auto border-0"
-     style="max-width:600px; border-radius:15px; background:#f0f7ff; border-top:6px solid #1a3a5a;">
+    .edit-user-wrapper {
+        min-height: 70vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--bg-glacial);
+        border-radius: 20px;
+        padding: 40px 20px;
+    }
 
-    <form method="POST">
+    .card-user {
+        width: 100%;
+        max-width: 550px;
+        background: var(--white);
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(26, 54, 93, 0.1);
+        border-top: 8px solid var(--primary-oxford);
+    }
 
-        <div class="mb-3">
-            <label class="form-label fw-bold" style="color:#2c5282;">Nombre de Usuario</label>
-            <input type="text" name="username" class="form-control shadow-sm border-0"
-                   value="{{ usuario.username }}" required style="border-radius:8px;">
-        </div>
+    .card-user h2 {
+        color: var(--primary-oxford);
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 30px;
+    }
 
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label class="form-label fw-bold" style="color:#2c5282;">Nombre</label>
-                <input type="text" name="nombre" class="form-control shadow-sm border-0"
-                       value="{{ usuario.nombre }}" required style="border-radius:8px;">
+    label {
+        display: block;
+        font-weight: 800;
+        color: var(--primary-oxford);
+        font-size: 11px;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .form-control, .form-select {
+        width: 100%;
+        padding: 12px 18px;
+        border-radius: 10px;
+        border: 2px solid var(--bg-card-blue);
+        background: var(--white);
+        color: var(--text-dark);
+        font-size: 15px;
+        transition: 0.3s;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--accent-sky);
+        box-shadow: 0 0 0 4px rgba(99, 179, 237, 0.15);
+        outline: none;
+    }
+
+    .btn-save-user {
+        background: var(--primary-oxford);
+        color: white;
+        border: none;
+        padding: 15px;
+        border-radius: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        transition: 0.3s;
+        box-shadow: 0 4px 12px rgba(26, 54, 93, 0.2);
+    }
+
+    .btn-save-user:hover {
+        background: var(--accent-sky);
+        transform: translateY(-2px);
+    }
+
+    .btn-cancel-user {
+        background: var(--bg-glacial);
+        color: var(--primary-oxford);
+        border: 2px solid var(--bg-card-blue);
+        padding: 12px;
+        border-radius: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        text-decoration: none;
+        text-align: center;
+        transition: 0.3s;
+    }
+
+    .btn-cancel-user:hover {
+        background: var(--bg-card-blue);
+    }
+
+    .mayuscula { text-transform: uppercase; }
+</style>
+
+<div class="edit-user-wrapper">
+    <div class="card-user">
+        <h2 class="text-center"><i class="fas fa-user-edit me-2"></i> EDITAR COLABORADOR</h2>
+
+        <form method="POST">
+            <div class="mb-3">
+                <label>Nombre de Usuario (Login)</label>
+                <input type="text" name="username" class="form-control"
+                       value="{{ usuario.username }}" required>
             </div>
 
-            <div class="col-md-6 mb-3">
-                <label class="form-label fw-bold" style="color:#2c5282;">Apellido</label>
-                <input type="text" name="apellido" class="form-control shadow-sm border-0"
-                       value="{{ usuario.apellido }}" required style="border-radius:8px;">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label>Nombre</label>
+                    <input type="text" name="nombre" class="form-control mayuscula"
+                           value="{{ usuario.nombre }}" required>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label>Apellido</label>
+                    <input type="text" name="apellido" class="form-control mayuscula"
+                           value="{{ usuario.apellido }}" required>
+                </div>
             </div>
+
+            <div class="mb-3">
+                <label>Rol en el Sistema</label>
+                <select name="rol" class="form-select" required>
+                    <option value="Administrador" {% if usuario.rol == 'Administrador' %}selected{% endif %}>
+                        ADMINISTRADOR (ACCESO TOTAL)
+                    </option>
+                    <option value="Vendedor" {% if usuario.rol in ['Vendedor', 'Vendedora'] %}selected{% endif %}>
+                        VENDEDOR (PUNTO DE VENTA)
+                    </option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label>Actualizar Contraseña</label>
+                <input type="password" name="password" class="form-control"
+                       placeholder="DEJAR EN BLANCO PARA MANTENER LA ACTUAL">
+                <small class="text-muted mt-2 d-block" style="font-size: 10px;">
+                    <i class="fas fa-shield-alt me-1"></i> LA SEGURIDAD ES PRIORIDAD EN SAN ROQUE MB.
+                </small>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn-save-user">
+                    <i class="fas fa-user-check me-2"></i> GUARDAR CAMBIOS
+                </button>
+
+                <a href="{{ url_for('admin.usuarios') }}" class="btn-cancel-user">
+                    <i class="fas fa-times me-2"></i> CANCELAR OPERACIÓN
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <div class="mt-4 text-center">
+        <div class="badge p-2" style="background-color: var(--bg-card-blue); color: var(--primary-oxford); border-radius: 8px;">
+            <i class="fas fa-info-circle me-2"></i> LOS CAMBIOS DE ROL AFECTARÁN LOS PERMISOS DE INMEDIATO.
         </div>
-
-        <div class="mb-3">
-            <label class="form-label fw-bold" style="color:#2c5282;">Rol en el Sistema</label>
-            <select name="rol" class="form-select shadow-sm border-0" required style="border-radius:8px;">
-                <option value="Administrador" {% if usuario.rol=='Administrador' %}selected{% endif %}>
-                    Administrador (Acceso Total)
-                </option>
-                <option value="Vendedor" {% if usuario.rol in ['Vendedor', 'Vendedora'] %}selected{% endif %}>
-                    Vendedor (Punto de Venta)
-                </option>
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label fw-bold" style="color:#2c5282;">Actualizar Contraseña</label>
-            <input type="password" name="password" class="form-control shadow-sm border-0"
-                   placeholder="Dejar en blanco para mantener la actual" style="border-radius:8px;">
-        </div>
-
-        <button type="submit"
-                class="btn w-100 fw-bold text-white mt-2"
-                style="background:#1a3a5a; border-radius:8px; padding: 12px;">
-            <i class="fas fa-user-check"></i> Guardar Cambios
-        </button>
-
-        <a href="{{ url_for('usuarios') }}"
-           class="btn btn-outline-secondary w-100 mt-3 fw-bold"
-           style="border-radius:8px;">
-            <i class="fas fa-times"></i> Cancelar Operación
-        </a>
-
-    </form>
+    </div>
 </div>
 
-<div class="mt-4 text-center">
-    <small class="text-muted">
-        <i class="fas fa-info-circle"></i> Los cambios de rol afectarán los permisos de acceso de inmediato.
-    </small>
-</div>
+<script>
+    // Asegurar mayúsculas en los campos de nombre/apellido
+    document.querySelectorAll('.mayuscula').forEach(el => {
+        el.addEventListener('input', (e) => {
+            e.target.value = e.target.value.toUpperCase();
+        });
+    });
+</script>
 
 {% endblock %}

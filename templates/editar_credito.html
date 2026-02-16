@@ -4,54 +4,78 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
 <style>
-    /* Quitamos el flex del body para no afectar la navbar ni el footer */
-    .main-wrapper {
-        min-height: 80vh; /* Altura suficiente para que se vea centrado */
+    /* VARIABLES MEMORIZADAS SAN ROQUE MB */
+    :root {
+        --primary-oxford: #1A365D;
+        --accent-sky: #63B3ED;
+        --bg-glacial: #F0F7FF;
+        --bg-card-blue: #BEE3F8;
+        --text-dark: #2D3748;
+        --white: #ffffff;
+    }
+
+    .main-wrapper-edit {
+        min-height: 70vh;
         display: flex;
         justify-content: center;
         align-items: center;
-        padding: 40px 20px;
-        background: #f1f5f9; /* Color de fondo para esta sección */
+        padding: 20px;
+        background: var(--bg-glacial);
+        border-radius: 15px;
     }
 
     .card-edit {
         width: 100%;
         max-width: 550px;
-        background: white;
+        background: var(--white);
         padding: 40px;
-        border-radius: 12px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        border-top: 6px solid #1e3a8a; /* Azul San Roque */
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(26, 54, 93, 0.1);
+        border-top: 8px solid var(--primary-oxford);
     }
 
-    /* Estilos de formulario (se mantienen igual) */
     .card-edit h2 {
         text-align: center;
-        color: #0f172a;
+        color: var(--primary-oxford);
         margin-bottom: 30px;
         font-weight: 800;
         text-transform: uppercase;
+        letter-spacing: 1px;
     }
 
     .form-group { margin-bottom: 20px; }
     
     label {
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 800;
         text-transform: uppercase;
         margin-bottom: 8px;
         display: block;
-        color: #334155;
+        color: var(--primary-oxford);
+        letter-spacing: 0.5px;
     }
 
     input {
         width: 100%;
         padding: 12px 15px;
-        border-radius: 8px;
-        border: 2px solid #cbd5e1;
+        border-radius: 10px;
+        border: 2px solid var(--bg-card-blue);
+        color: var(--text-dark);
+        transition: 0.3s;
     }
 
-    input:disabled { background-color: #f8fafc; color: #94a3b8; cursor: not-allowed; }
+    input:focus {
+        outline: none;
+        border-color: var(--accent-sky);
+        box-shadow: 0 0 0 4px rgba(99, 179, 237, 0.1);
+    }
+
+    input:disabled { 
+        background-color: var(--bg-glacial); 
+        color: #718096; 
+        cursor: not-allowed; 
+        border-style: dashed;
+    }
 
     .row-dates {
         display: grid;
@@ -68,7 +92,7 @@
     .btn-pos {
         flex: 1;
         padding: 14px;
-        border-radius: 8px;
+        border-radius: 12px;
         font-weight: 700;
         display: flex;
         align-items: center;
@@ -76,31 +100,50 @@
         gap: 10px;
         text-decoration: none;
         border: none;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        transition: 0.3s;
     }
 
-    .btn-save { background: #1e3a8a; color: white; }
-    .btn-cancel { background: #f1f5f9; color: #475569; border: 2px solid #e2e8f0; }
+    .btn-save { 
+        background: var(--primary-oxford); 
+        color: white; 
+    }
+    .btn-save:hover { 
+        background: var(--accent-sky); 
+        transform: translateY(-2px);
+    }
+
+    .btn-cancel { 
+        background: var(--white); 
+        color: var(--primary-oxford); 
+        border: 2px solid var(--bg-card-blue); 
+    }
+    .btn-cancel:hover { 
+        background: var(--bg-glacial);
+    }
 
     .alert-info-pos {
         margin-top: 20px;
-        background: #f0f7ff;
-        border-left: 4px solid #3b82f6;
+        background: var(--bg-glacial);
+        border-left: 4px solid var(--accent-sky);
         padding: 15px;
-        border-radius: 6px;
-        font-size: 13px;
+        border-radius: 8px;
+        font-size: 12px;
         display: flex;
         gap: 10px;
+        color: var(--primary-oxford);
     }
 </style>
 
-<div class="main-wrapper">
+<div class="main-wrapper-edit">
     <div class="card-edit">
         <form method="POST">
-            <h2><i class="bi bi-pencil-square me-2"></i>Edición de Crédito</h2>
+            <h2><i class="bi bi-pencil-square me-2"></i>EDITAR CRÉDITO</h2>
 
             <div class="form-group">
                 <label>Nombre del Cliente</label>
-                <input name="cliente" value="{{ credito.cliente }}" required>
+                <input name="cliente" value="{{ credito.cliente }}" class="mayuscula" required>
             </div>
 
             <div class="row-dates">
@@ -110,37 +153,45 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Fecha Vencimiento</label>
+                    <label>Vencimiento</label>
                     <input type="date" name="fecha_vencimiento" value="{{ credito.fecha_vencimiento }}">
                 </div>
             </div>
 
             <div class="form-group">
-                <label>Total de Consumo Acumulado</label>
-                <input type="text" value="${{ "{:,.0f}".format(credito.total_consumido) }}" disabled>
+                <label>Consumo Acumulado (Protegido)</label>
+                <input type="text" value="$ {{ "{:,.0f}".format(credito.total_consumido or 0) }}" disabled>
             </div>
 
             <div class="form-group">
-                <label>Total Abonado a la Fecha</label>
-                <input type="text" value="${{ "{:,.0f}".format(credito.abonado) }}" disabled>
+                <label>Total Abonado (Protegido)</label>
+                <input type="text" value="$ {{ "{:,.0f}".format(credito.abonado or 0) }}" disabled>
             </div>
 
             <div class="alert-info-pos">
-                <i class="bi bi-info-circle-fill text-primary"></i>
-                <p class="m-0">Los valores de consumo y abono son protegidos. Se actualizan automáticamente mediante registros.</p>
+                <i class="bi bi-info-circle-fill" style="color: var(--accent-sky);"></i>
+                <p class="m-0 fw-bold">LOS VALORES MONETARIOS SE ACTUALIZAN AUTOMÁTICAMENTE DESDE EL MÓDULO DE VENTAS Y ABONOS.</p>
             </div>
 
             <div class="buttons-container">
-                <button type="submit" class="btn-pos btn-save">
+                <button type="submit" class="btn-pos btn-save shadow-sm">
                     <i class="bi bi-check-lg"></i> GUARDAR CAMBIOS
                 </button>
 
-                <a href="{{ url_for('creditos.creditos_corto') if credito.tipo == 'corto' else url_for('creditos.creditos_largo') }}" class="btn-pos btn-cancel">
+                {% set url_retorno = url_for('creditos.creditos_corto') if credito.tipo == 'corto' else url_for('creditos.creditos_largo') %}
+                <a href="{{ url_retorno }}" class="btn-pos btn-cancel">
                     <i class="bi bi-x-lg"></i> CANCELAR
                 </a>
             </div>
         </form>
     </div>
 </div>
+
+<script>
+    // Asegurar que el nombre siempre esté en mayúsculas
+    document.querySelector('input[name="cliente"]').addEventListener('input', function(e) {
+        e.target.value = e.target.value.toUpperCase();
+    });
+</script>
 
 {% endblock %}

@@ -7,142 +7,32 @@ from datetime import datetime, date
 creditos_bp = Blueprint('creditos', __name__, url_prefix='/creditos')
 
 # --------------------------------------------------
-# BUSCAR PRODUCTO
+# BUSCAR PRODUCTO (PARA AGREGAR AL CRÉDITO)
 # --------------------------------------------------
 @creditos_bp.route('/buscar_producto/<codigo>')
 @login_required
 def buscar_producto(codigo):
-    producto = Producto.query.filter(
-        (Producto.codigo_barra == codigo) |
-        (Producto.codigo == codigo)
-    ).first()
+    producto = Producto.query.filter_by(codigo=codigo).first()
 
     if producto:
         return jsonify({
             "nombre": producto.nombre,
             "precio": producto.valor_venta,
-            "costo": producto.valor_interno
+            "costo": producto.valor_interno,
+            "stock": producto.cantidad
         })
 
     return jsonify({"error": "Producto no encontrado"}), 404
 
 
 # --------------------------------------------------
-# CREDITOS CORTOS
-# --------------------------------------------------
-@creditos_bp.route('/corto', methods=['GET', 'POST'])
-@login_required
-def creditos_corto():
-
-    if request.method == "POST":
-
-        nombre_cliente = request.form.get('cliente', '').strip().upper()
-        codigo = request.form.get('producto')
-        cantidad = int(request.form.get('cantidad', 1))
-        fecha_str = request.form.get('fecha')
-
-        # ------------------------
-        # VALIDAR CLIENTE
-        # ------------------------
-        if not nombre_cliente:
-            flash("Debe ingresar el nombre del cliente", "danger")
-            return redirect(url_for('creditos.creditos_corto'))
-
-        # ------------------------
-        # CREAR CLIENTE SI NO EXISTE
-        # ------------------------
-        cliente_db = Cliente.query.filter_by(nombre=nombre_cliente).first()
-        if not cliente_db:
-            cliente_db = Cliente(nombre=nombre_cliente)
-            db.session.add(cliente_db)
-            db.session.flush()
-
-        # ------------------------
-        # BUSCAR PRODUCTO
-        # ------------------------
-        producto_db = Producto.query.filter(
-            (Producto.codigo_barra == codigo) |
-            (Producto.codigo == codigo)
-        ).first()
-
-        if not producto_db:
-            flash("Producto no encontrado", "danger")
-            return redirect(url_for('creditos.creditos_corto'))
-
-        # ------------------------
-        # FECHA
-        # ------------------------
-        fecha_item = datetime.strptime(fecha_str, '%Y-%m-%d').date() if fecha_str else date.today()
-
-        # ------------------------
-        # BUSCAR CRÉDITO ABIERTO
-        # ------------------------
-        credito = Credito.query.filter_by(
-            cliente=cliente_db.nombre,
-            tipo='corto',
-            estado='abierto'
-        ).first()
-
-        if not credito:
-            credito = Credito(
-                cliente=cliente_db.nombre,
-                tipo='corto',
-                estado='abierto',
-                fecha_inicio=fecha_item,
-                total_consumido=0,
-                abonado=0
-            )
-            db.session.add(credito)
-            db.session.flush()
-
-        # ------------------------
-        # ITEM
-        # ------------------------
-        nuevo_item = CreditoItem(
-            credito_id=credito.id,
-            producto=producto_db.nombre.upper(),
-            cantidad=cantidad,
-            precio_unit=producto_db.valor_venta,
-            total_linea=producto_db.valor_venta * cantidad,
-            fecha=fecha_item
-        )
-
-        credito.total_consumido += nuevo_item.total_linea
-
-        db.session.add(nuevo_item)
-        db.session.commit()
-
-        flash(f"Se agregó {producto_db.nombre} a la cuenta de {cliente_db.nombre}", "success")
-        return redirect(url_for('creditos.creditos_corto'))
-
-    # ------------------------
-    # GET
-    # ------------------------
-    creditos = Credito.query.filter_by(
-        tipo='corto',
-        estado='abierto'
-    ).order_by(Credito.fecha_inicio.desc()).all()
-
-    inventario = Producto.query.all()
-
-    return render_template(
-        "creditos_corto.html",
-        creditos=creditos,
-        inventario=inventario,
-        hoy=date.today().strftime('%Y-%m-%d')
-    )
-
-
-# --------------------------------------------------
-# CREDITOS LARGOS
+# CRÉDITOS LARGOS (GESTIÓN)
 # --------------------------------------------------
 @creditos_bp.route('/largo', methods=['GET', 'POST'])
 @login_required
 def creditos_largo():
-
     if request.method == "POST":
-
-        nombre_cliente = request.form.get('cliente', '').strip().upper()
+        nombre_cliente = (request.form.get('cliente') or '').strip().upper()
         codigo = request.form.get('producto')
         cantidad = int(request.form.get('cantidad', 1))
         fecha_str = request.form.get('fecha')
@@ -151,23 +41,27 @@ def creditos_largo():
             flash("Debe ingresar el nombre del cliente", "danger")
             return redirect(url_for('creditos.creditos_largo'))
 
+        # Buscar producto
+        producto_db = Producto.query.filter_by(codigo=codigo).first()
+        if not producto_db:
+            flash("Producto no encontrado", "danger")
+            return redirect(url_for('creditos.creditos_largo'))
+
+        # --- CORRECCIÓN: Validar Stock ---
+        if producto_db.cantidad < cantidad:
+            flash(f"Stock insuficiente para {producto_db.nombre}. Disponible: {producto_db.cantidad}", "warning")
+            return redirect(url_for('creditos.creditos_largo'))
+
+        # Buscar o crear cliente
         cliente_db = Cliente.query.filter_by(nombre=nombre_cliente).first()
         if not cliente_db:
             cliente_db = Cliente(nombre=nombre_cliente)
             db.session.add(cliente_db)
             db.session.flush()
 
-        producto_db = Producto.query.filter(
-            (Producto.codigo_barra == codigo) |
-            (Producto.codigo == codigo)
-        ).first()
-
-        if not producto_db:
-            flash("Producto no encontrado", "danger")
-            return redirect(url_for('creditos.creditos_largo'))
-
         fecha_item = datetime.strptime(fecha_str, '%Y-%m-%d').date() if fecha_str else date.today()
 
+        # Buscar crédito largo abierto
         credito = Credito.query.filter_by(
             cliente=cliente_db.nombre,
             tipo='largo',
@@ -186,25 +80,30 @@ def creditos_largo():
             db.session.add(credito)
             db.session.flush()
 
+        # Crear item del crédito
+        total_linea = producto_db.valor_venta * cantidad
+
         nuevo_item = CreditoItem(
             credito_id=credito.id,
             producto=producto_db.nombre.upper(),
             cantidad=cantidad,
             precio_unit=producto_db.valor_venta,
-            total_linea=producto_db.valor_venta * cantidad,
+            total_linea=total_linea,
             fecha=fecha_item
         )
 
-        credito.total_consumido += nuevo_item.total_linea
+        # Actualizar totales y RESTAR del inventario
+        credito.total_consumido += total_linea
+        producto_db.cantidad -= cantidad 
 
         db.session.add(nuevo_item)
         db.session.commit()
 
+        flash(f"✅ Cargado: {cantidad}x {producto_db.nombre} a {nombre_cliente}", "success")
         return redirect(url_for('creditos.creditos_largo'))
 
-    creditos = Credito.query.filter_by(tipo='largo') \
-        .order_by(Credito.fecha_inicio.desc()).all()
-
+    # Listado créditos largos
+    creditos = Credito.query.filter_by(tipo='largo').order_by(Credito.fecha_inicio.desc()).all()
     inventario = Producto.query.all()
 
     return render_template(
@@ -218,155 +117,121 @@ def creditos_largo():
 # --------------------------------------------------
 # REGISTRAR ABONO
 # --------------------------------------------------
-@creditos_bp.route('/registrar_abono', methods=['POST'], endpoint='registrar_abono')
+@creditos_bp.route('/registrar_abono', methods=['POST'])
 @login_required
-def abonar_credito():
-
+def registrar_abono():
     credito_id = request.form.get('credito_id')
-    monto = float(request.form.get('monto_abono', 0))
+    monto_raw = request.form.get('monto_abono', '0')
+    monto = float(monto_raw) if monto_raw else 0.0
     medio = request.form.get('medio_pago', 'Efectivo')
     fecha_pago_str = request.form.get('fecha_pago')
 
     credito = Credito.query.get_or_404(credito_id)
-    redir = 'largo' if credito.tipo == 'largo' else 'corto'
 
-    if monto > 0:
+    if monto <= 0:
+        flash("Monto inválido", "danger")
+        return redirect(url_for('creditos.creditos_largo'))
 
-        fecha_pago = datetime.strptime(fecha_pago_str, '%Y-%m-%d').date() if fecha_pago_str else date.today()
+    fecha_pago = datetime.strptime(fecha_pago_str, '%Y-%m-%d').date() if fecha_pago_str else date.today()
 
-        nuevo_abono = AbonoCredito(
-            credito_id=credito.id,
-            monto=monto,
-            medio_pago=medio,
-            fecha=fecha_pago
-        )
+    # Registrar abono
+    nuevo_abono = AbonoCredito(
+        credito_id=credito.id,
+        monto=monto,
+        medio_pago=medio,
+        fecha=fecha_pago
+    )
+    db.session.add(nuevo_abono)
 
-        db.session.add(nuevo_abono)
+    credito.abonado += monto
+    credito.fecha_ultimo_abono = fecha_pago
 
-        credito.abonado += monto
-        credito.fecha_ultimo_abono = fecha_pago
+    # Registrar el abono como venta diaria
+    venta = Venta(
+        fecha=datetime.now(),
+        total=monto,
+        usuario_id=current_user.id,
+        tipo_pago=medio,
+        detalle_pago=f"ABONO CRÉDITO - CLIENTE: {credito.cliente}"
+    )
+    db.session.add(venta)
+    db.session.flush()
 
-        nueva_venta = Venta(
-            fecha=datetime.now(),
-            total=monto,
-            usuario_id=current_user.id,
-            tipo_pago=medio,
-            detalle_pago=f"ABONO CRÉDITO - CLIENTE: {credito.cliente}"
-        )
+    detalle = VentaDetalle(
+        venta_id=venta.id,
+        producto_id=None,
+        cantidad=1,
+        precio_unitario=monto,
+        subtotal=monto
+    )
+    db.session.add(detalle)
 
-        db.session.add(nueva_venta)
-        db.session.flush()
+    # Cerrar crédito si está saldado (o sobre-saldado)
+    if (credito.total_consumido - credito.abonado) <= 0:
+        credito.estado = 'cerrado'
+        credito.fecha_cierre = date.today()
+        flash(f"🎉 Cuenta de {credito.cliente} SALDADA.", "success")
+    else:
+        flash(f"💰 Abono de ${monto:,.0f} registrado.", "success")
 
-        detalle = VentaDetalle(
-            venta_id=nueva_venta.id,
-            producto_id=None,
-            cantidad=1,
-            precio_unitario=monto,
-            subtotal=monto
-        )
-
-        db.session.add(detalle)
-
-        if (credito.total_consumido - credito.abonado) <= 0:
-            credito.estado = 'cerrado'
-            credito.fecha_cierre = date.today()
-            flash(f"Cuenta de {credito.cliente} SALDADA.", "success")
-        else:
-            flash(f"Abono de ${monto:,.0f} registrado.", "success")
-
-        db.session.commit()
-
-    return redirect(url_for(f'creditos.creditos_{redir}'))
+    db.session.commit()
+    return redirect(url_for('creditos.creditos_largo'))
 
 
 # --------------------------------------------------
-# ELIMINAR
+# ELIMINAR CRÉDITO
 # --------------------------------------------------
 @creditos_bp.route('/eliminar/<int:credito_id>', methods=['POST'])
 @login_required
 def eliminar_credito(credito_id):
-
     credito = Credito.query.get_or_404(credito_id)
-    tipo = credito.tipo
-
-    CreditoItem.query.filter_by(credito_id=credito.id).delete()
-    AbonoCredito.query.filter_by(credito_id=credito.id).delete()
-
-    db.session.delete(credito)
-    db.session.commit()
-
-    flash("Registro eliminado.", "danger")
-
-    return redirect(
-        url_for('creditos.creditos_largo'
-                if tipo == 'largo'
-                else 'creditos.creditos_corto')
-    )
-
-
-# --------------------------------------------------
-# EDITAR
-# --------------------------------------------------
-@creditos_bp.route('/editar/<int:credito_id>', methods=['GET', 'POST'])
-@login_required
-def editar_credito(credito_id):
-
-    credito = Credito.query.get_or_404(credito_id)
-
-    if request.method == "POST":
-
-        nuevo_nombre = request.form.get("cliente", "").strip().upper()
-
-        if not nuevo_nombre:
-            flash("Nombre inválido", "danger")
-            return redirect(request.url)
-
-        credito.cliente = nuevo_nombre
+    try:
+        CreditoItem.query.filter_by(credito_id=credito.id).delete()
+        AbonoCredito.query.filter_by(credito_id=credito.id).delete()
+        db.session.delete(credito)
         db.session.commit()
+        flash("Registro de crédito eliminado.", "info")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error al eliminar: {str(e)}", "danger")
+        
+    return redirect(url_for('creditos.creditos_largo'))
 
-        flash("Datos actualizados.", "success")
 
-        return redirect(
-            url_for('creditos.creditos_largo'
-                    if credito.tipo == 'largo'
-                    else 'creditos.creditos_corto')
-        )
-
-    return render_template("editar_credito.html", credito=credito)
 # --------------------------------------------------
-# EDITAR ITEM DE CREDITO
+# EDITAR ITEM DEL CRÉDITO
 # --------------------------------------------------
 @creditos_bp.route('/editar_item/<int:item_id>', methods=['POST'])
 @login_required
 def editar_item_credito(item_id):
-
     item = CreditoItem.query.get_or_404(item_id)
-    credito = Credito.query.get(item.credito_id)
+    credito = Credito.query.get_or_404(item.credito_id)
 
     codigo = request.form.get("producto")
     cantidad = int(request.form.get("cantidad", 1))
 
-    producto_db = Producto.query.filter(
-        (Producto.codigo_barra == codigo) |
-        (Producto.codigo == codigo)
-    ).first()
-
+    producto_db = Producto.query.filter_by(codigo=codigo).first()
     if not producto_db:
         flash("Producto no encontrado", "danger")
         return redirect(request.referrer)
 
-    # 🔁 Ajustar total crédito
+    # Revertir stock y total antes de actualizar
+    producto_anterior = Producto.query.filter_by(nombre=item.producto).first()
+    if producto_anterior:
+        producto_anterior.cantidad += item.cantidad
+
     credito.total_consumido -= item.total_linea
 
+    # Aplicar nuevos valores
     item.producto = producto_db.nombre.upper()
     item.cantidad = cantidad
     item.precio_unit = producto_db.valor_venta
-    item.total_linea = cantidad * producto_db.valor_venta
+    item.total_linea = producto_db.valor_venta * cantidad
 
+    # Descontar nuevo stock y sumar nuevo total
+    producto_db.cantidad -= cantidad
     credito.total_consumido += item.total_linea
 
     db.session.commit()
-
-    flash("Producto actualizado correctamente", "success")
+    flash("Item y stock actualizados", "success")
     return redirect(request.referrer)
-

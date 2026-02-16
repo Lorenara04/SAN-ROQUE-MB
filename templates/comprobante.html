@@ -9,32 +9,34 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <style>
+        /* VARIABLES MEMORIZADAS SAN ROQUE MB */
         :root {
-            --azul-principal: #1a3a5a; 
-            --azul-pastel: #e3f2fd;    
-            --azul-medio: #90caf9;     
-            --azul-acento: #42a5f5;    
-            --whatsapp: #25d366;
-            --blanco: #ffffff;
-            --negro: #212121;
+            --primary-oxford: #1A365D;    /* Azul Oxford Oscuro */
+            --accent-sky: #63B3ED;        /* Azul Cielo Brillante */
+            --bg-glacial: #F0F7FF;        /* Azul Pastel Glacial */
+            --bg-card-blue: #BEE3F8;      /* Azul Aire Pastel */
+            --whatsapp-green: #25d366;
+            --danger-red: #C53030;
+            --white: #ffffff;
+            --text-dark: #2D3748;
         }
 
         body {
             margin: 0;
             padding: 0;
-            background: #f0f4f8; 
+            background: var(--bg-glacial); 
             font-family: "Poppins", sans-serif;
-            color: var(--negro);
+            color: var(--text-dark);
         }
 
         .main-wrapper {
             max-width: 400px;
             margin: 20px auto;
             padding: 20px;
-            background: var(--blanco);
+            background: var(--white);
             border-radius: 12px;
-            border-top: 8px solid var(--azul-principal);
-            box-shadow: 0 10px 30px rgba(26, 58, 90, 0.1);
+            border-top: 8px solid var(--primary-oxford);
+            box-shadow: 0 10px 30px rgba(26, 54, 93, 0.1);
             position: relative;
         }
 
@@ -43,87 +45,86 @@
             font-family: 'Playfair Display', serif;
             font-size: 1.4em;
             margin: 0;
-            color: var(--azul-principal);
+            color: var(--primary-oxford);
             text-transform: uppercase;
         }
 
-        .header .store-info { font-size: 10.5px; color: #5a6b7d; line-height: 1.2; }
+        .header .store-info { font-size: 10.5px; color: #5a6b7d; line-height: 1.4; }
 
         .divider {
             display: flex; align-items: center; text-align: center;
-            margin: 5px 0; color: var(--azul-medio);
+            margin: 5px 0; color: var(--accent-sky);
         }
-        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--azul-medio); }
+        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--accent-sky); }
         .divider i { padding: 0 8px; font-size: 10px; }
 
         .info-details {
             display: grid; grid-template-columns: 1fr 1fr;
-            gap: 2px; font-size: 9.5px; background: var(--azul-pastel);
-            padding: 8px; border-radius: 6px; border: 1px solid var(--azul-medio);
+            gap: 4px; font-size: 10px; background: var(--bg-glacial);
+            padding: 10px; border-radius: 8px; border: 1px solid var(--bg-card-blue);
         }
-        .info-details div b { color: var(--azul-principal); }
+        .info-details div b { color: var(--primary-oxford); text-transform: uppercase; }
 
         .client-box {
-            grid-column: span 2; border-top: 1px solid var(--azul-medio);
-            padding-top: 4px; margin-top: 2px; line-height: 1.2;
+            grid-column: span 2; border-top: 1px solid var(--bg-card-blue);
+            padding-top: 6px; margin-top: 4px; line-height: 1.3;
         }
 
-        table { width: 100%; border-collapse: collapse; margin: 8px 0; }
+        table { width: 100%; border-collapse: collapse; margin: 10px 0; }
         thead th {
-            text-align: left; font-size: 8.5px; text-transform: uppercase;
-            color: var(--azul-principal); border-bottom: 2px solid var(--azul-medio); padding: 4px 2px;
+            text-align: left; font-size: 9px; text-transform: uppercase;
+            color: var(--primary-oxford); border-bottom: 2px solid var(--accent-sky); padding: 6px 2px;
         }
 
-        tbody td { padding: 4px 2px; font-size: 10px; border-bottom: 1px solid #f0f4f8; }
+        tbody td { padding: 6px 2px; font-size: 11px; border-bottom: 1px solid var(--bg-glacial); }
 
-        .prod-name { font-weight: 600; display: block; color: var(--azul-principal); text-transform: uppercase; font-size: 10px; }
-        .prod-brand { font-size: 8.5px; color: #78909c; font-style: italic; }
+        .prod-name { font-weight: 600; display: block; color: var(--primary-oxford); text-transform: uppercase; }
+        .prod-brand { font-size: 9px; color: #78909c; font-style: italic; }
 
-        .summary-box { text-align: right; padding: 5px 0; }
-        .total-label { font-size: 9px; font-weight: 700; color: #5a6b7d; }
-        .total-amount { font-size: 22px; font-weight: 800; color: var(--azul-principal); display: block; }
+        .summary-box { text-align: right; padding: 10px 0; border-top: 2px dashed var(--bg-card-blue); }
+        .total-label { font-size: 10px; font-weight: 700; color: #5a6b7d; }
+        .total-amount { font-size: 24px; font-weight: 800; color: var(--primary-oxford); display: block; }
+
+        /* Estilo para el desglose de pago */
+        .payment-details-box {
+            background: #fff;
+            border: 1px solid var(--bg-card-blue);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 5px;
+            font-size: 10px;
+        }
+        .payment-row { display: flex; justify-content: space-between; margin-bottom: 3px; }
+        .payment-row b { color: var(--primary-oxford); }
 
         .payment-card {
-            background: #fafafa; padding: 6px; border-left: 3px solid var(--azul-acento);
-            border-radius: 4px; margin-top: 4px;
+            background: var(--bg-glacial); padding: 8px; border-left: 4px solid var(--accent-sky);
+            border-radius: 4px; margin-top: 10px;
         }
-        .payment-card .title { font-size: 8.5px; font-weight: 800; text-transform: uppercase; color: var(--azul-principal); }
+        .payment-card .title { font-size: 9px; font-weight: 800; text-transform: uppercase; color: var(--primary-oxford); }
 
-        .footer { text-align: center; margin-top: 10px; font-size: 8.5px; }
-        .slogan { font-family: 'Playfair Display', serif; font-style: italic; font-size: 11px; color: var(--azul-principal); }
+        .footer { text-align: center; margin-top: 15px; font-size: 9px; }
+        .slogan { font-family: 'Playfair Display', serif; font-style: italic; font-size: 12px; color: var(--primary-oxford); }
 
-        .no-print { margin-top: 15px; display: grid; gap: 6px; }
+        .no-print { margin-top: 15px; display: grid; gap: 8px; }
         .btn {
-            padding: 8px; border-radius: 50px; text-decoration: none;
+            padding: 10px; border-radius: 8px; text-decoration: none;
             font-weight: bold; font-size: 11px; cursor: pointer; border: none;
-            display: flex; align-items: center; justify-content: center; gap: 5px; color: white;
+            display: flex; align-items: center; justify-content: center; gap: 8px; color: white;
+            text-transform: uppercase;
         }
-        .btn-blue { background: var(--azul-principal); }
-        .btn-ws { background: var(--whatsapp); }
-        .btn-outline { border: 1px solid var(--azul-principal); color: var(--azul-principal); background: transparent; }
+        .btn-blue { background: var(--primary-oxford); }
+        .btn-ws { background: var(--whatsapp-green); }
+        .btn-outline { border: 1px solid var(--primary-oxford); color: var(--primary-oxford); background: transparent; }
 
         @media print {
-            @page { 
-                size: auto; 
-                margin: 0 !important; 
-            }
-            html, body { 
-                height: 100vh; 
-                overflow: hidden !important;
-                background: white;
-            }
-            body * { visibility: hidden; }
-            .main-wrapper, .main-wrapper * { visibility: visible; }
+            body { background: white; }
             .main-wrapper { 
-                position: absolute; 
-                left: 50%; 
-                top: 50%;
-                transform: translate(-50%, -50%);
                 margin: 0 !important; 
-                box-shadow: none; 
-                border: 1px solid #eee;
-                width: 350px !important; 
-                padding: 15px !important;
+                box-shadow: none !important; 
+                border: none !important; 
+                width: 100% !important; 
+                max-width: 100% !important;
             }
             .no-print { display: none !important; }
         }
@@ -133,7 +134,7 @@
 
 <div class="main-wrapper">
     <div class="header">
-        <h3>BAR LICORERA SAN ROQUE M.B</h3>
+        <h3>SAN ROQUE M.B</h3>
         <div class="store-info">
             <i class="bi bi-geo-alt"></i> Avenida Calle 145 128 40 Local 18<br>
             <i class="bi bi-telephone"></i> 3227089110 | NIT: 1.019.133.801-4 
@@ -144,17 +145,17 @@
 
     <div class="info-details">
         <div><b>Recibo:</b> #{{ venta.id }}</div>
-        <div style="text-align: right;"><b>Fecha:</b> {{ venta.fecha.strftime('%d/%m/%Y %H:%M') }}</div>
-        <div style="grid-column: span 2; border-top: 1px solid var(--azul-medio); padding-top: 3px;">
-            <b>Atendió:</b> {{ venta.usuario.username if venta.usuario else 'Sistema' }}
+        <div style="text-align: right;"><b>Fecha:</b> {{ venta.fecha.strftime('%d/%m/%y %H:%M') }}</div>
+        <div style="grid-column: span 2; border-top: 1px solid var(--bg-card-blue); padding-top: 5px;">
+            <b>Atendió:</b> {{ venta.usuario.username if venta.usuario else 'SISTEMA' }}
         </div>
         <div class="client-box">
-            <i class="bi bi-person-heart"></i> <b>CLIENTE</b><br>
+            <i class="bi bi-person-fill"></i> <b>CLIENTE</b><br>
             {% if cliente and cliente.id != 1 %}
-                {{ cliente.nombre }} | CC: {{ cliente.cedula or 'N/A' }}<br>
-                Tel: {{ cliente.telefono or 'N/A' }}
+                {{ cliente.nombre | upper }}<br>
+                TEL: {{ cliente.telefono or 'N/A' }}
             {% else %}
-                Consumidor Final
+                {{ venta.nombre_cliente | upper if venta.nombre_cliente else 'CONSUMIDOR FINAL' }}
             {% endif %}
         </div>
     </div>
@@ -171,11 +172,11 @@
             {% for d in detalles %}
             <tr>
                 <td>
-                    <span class="prod-name">{{ d.producto.nombre }}</span>
-                    {% if d.producto.marca %}<span class="prod-brand">{{ d.producto.marca }}</span>{% endif %}
+                    <span class="prod-name">{{ d.producto.nombre if d.producto else 'PRODUCTO ELIMINADO' }}</span>
+                    {% if d.producto and d.producto.marca %}<span class="prod-brand">{{ d.producto.marca }}</span>{% endif %}
                 </td>
                 <td style="text-align: center;">{{ d.cantidad }}</td>
-                <td style="text-align: right;">${{ "{:,.0f}".format(d.subtotal) }}</td>
+                <td style="text-align: right;">$ {{ "{:,.0f}".format(d.subtotal) }}</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -183,35 +184,54 @@
 
     <div class="summary-box">
         <span class="total-label">TOTAL A PAGAR</span>
-        <span class="total-amount">${{ "{:,.0f}".format(venta.total) }}</span>
+        <span class="total-amount">$ {{ "{:,.0f}".format(venta.total) }}</span>
+    </div>
+
+    <div class="payment-details-box">
+        <div class="payment-row">
+            <span>MEDIO DE PAGO:</span>
+            <b>{{ pagos.metodo if pagos.metodo else venta.tipo_pago }}</b>
+        </div>
+        {% if pagos.metodo == 'EFECTIVO' %}
+        <div class="payment-row">
+            <span>RECIBIDO:</span>
+            <span>$ {{ "{:,.0f}".format(pagos.recibido) }}</span>
+        </div>
+        <div class="payment-row" style="border-top: 1px solid #eee; margin-top: 2px; padding-top: 2px;">
+            <span>CAMBIO:</span>
+            <b style="color: #2F855A;">$ {{ "{:,.0f}".format(pagos.recibido - venta.total) }}</b>
+        </div>
+        {% endif %}
     </div>
 
     <div class="payment-card">
-        <span class="title">✨ Estado</span>
-        <p style="font-size: 8.5px; margin: 0; color: #546e7a;">Venta procesada. Verifique su mercancía antes de salir.</p>
+        <span class="title">✨ ¡GRACIAS POR SU COMPRA!</span>
+        <p style="font-size: 8.5px; margin: 0; color: #546e7a;">Verifique su pedido antes de retirarse del establecimiento.</p>
     </div>
 
     <div class="footer">
         <div class="divider"><i class="bi bi-suit-heart-fill"></i></div>
         <div class="slogan">Calidad garantizada en cada gota</div>
-        <p style="margin-top: 4px; font-weight: bold; color: var(--azul-principal);">¡Vuelva pronto!</p>
-        <p style="font-size: 7.5px; color: #90a4ae; margin-top: 5px;">
-            Software por Lorena Rodriguez | Soporte: 322 282 3687
+        <p style="margin-top: 5px; font-weight: bold; color: var(--primary-oxford);">¡LO ESPERAMOS PRONTO!</p>
+        <p style="font-size: 8px; color: #90a4ae; margin-top: 8px;">
+            Soporte: 322 282 3687 | Lorena Rodriguez Ramos
         </p>
     </div>
 
     <div class="no-print">
-        <button onclick="window.print()" class="btn btn-blue">
-            <i class="bi bi-printer"></i> Imprimir
+        <button onclick="window.print()" class="btn btn-blue shadow-sm">
+            <i class="bi bi-printer"></i> IMPRIMIR RECIBO
         </button>
         
-        <a href="https://wa.me/{{ cliente.telefono if cliente and cliente.telefono else '' }}?text={{ mensaje_wa }}" 
-           target="_blank" 
-           class="btn btn-ws">
-            <i class="fab fa-whatsapp"></i> WhatsApp
+        {% if cliente and cliente.telefono %}
+        <a href="https://wa.me/57{{ cliente.telefono }}?text=Hola%20{{ cliente.nombre }},%20gracias%20por%20comprar%20en%20San%20Roque%20MB.%20Tu%20recibo%20#{{ venta.id }}%20es%20por%20${{ '{:,.0f}'.format(venta.total) }}" 
+            target="_blank" 
+            class="btn btn-ws shadow-sm">
+            <i class="fab fa-whatsapp"></i> ENVIAR POR WHATSAPP
         </a>
+        {% endif %}
 
-        <a href="{{ url_for('ventas.nueva_venta') }}" class="btn btn-outline">Nueva Venta</a>
+        <a href="{{ url_for('ventas.dashboard') }}" class="btn btn-outline">VOLVER A NUEVA VENTA</a>
     </div>
 </div>
 
