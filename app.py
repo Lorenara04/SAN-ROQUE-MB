@@ -77,7 +77,7 @@ def create_app():
     from routes.creditos import creditos_bp
 
     app.register_blueprint(auth_bp, url_prefix='/auth')
-    app.register_blueprint(inventario_bp, url_prefix='/inventario')
+    app.register_blueprint(inventario_bp)
     app.register_blueprint(ventas_bp, url_prefix='/ventas')
     app.register_blueprint(reportes_bp, url_prefix='/reportes')
     app.register_blueprint(admin_bp, url_prefix='/admin')

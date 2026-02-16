@@ -42,25 +42,28 @@ class Producto(db.Model):
     cantidad = db.Column(db.Integer, default=0)
     categoria = db.Column(db.String(50))
 
-    movimientos_rel = db.relationship(
+    # RELACIÓN CORREGIDA: Eliminamos la duplicidad para evitar el error 404
+    movimientos = db.relationship(
         'MovimientoStock',
-        backref='producto_rel',
-        lazy=True,
-        cascade="all, delete-orphan"
+        back_populates='producto',
+        cascade="all, delete-orphan",
+        lazy=True
     )
 
 
 class MovimientoStock(db.Model):
     __tablename__ = 'movimientos_stock'
-
     id = db.Column(db.Integer, primary_key=True)
     producto_id = db.Column(db.Integer, db.ForeignKey('productos.id'), nullable=False)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=True)
     cantidad = db.Column(db.Integer, nullable=False)
-    tipo = db.Column(db.String(20), nullable=False)
-    motivo = db.Column(db.String(255))
-    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'))
+    tipo = db.Column(db.String(50), nullable=False) # 'CREACIÓN', 'AJUSTE', 'VENTA'
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
+    motivo = db.Column(db.String(200))
 
+    # PUENTES DEFINITIVOS (BACK_POPULATES es más estable para lo que necesitas)
+    producto = db.relationship('Producto', back_populates='movimientos')
+    usuario = db.relationship('Usuario', backref=db.backref('movimientos_stock', lazy=True))
 
 # ======================================================
 # 3. GESTIÓN DE MESAS (POS)
@@ -74,7 +77,7 @@ class Mesa(db.Model):
 
     items = db.relationship(
         'MesaItem',
-        backref='mesa',
+        backref='mesa_rel',
         lazy=True,
         cascade="all, delete-orphan"
     )
@@ -104,7 +107,7 @@ class Cliente(db.Model):
 
     creditos_cliente = db.relationship(
         'Credito',
-        backref='cliente',
+        backref='cliente_rel',
         lazy=True,
         cascade="all, delete-orphan"
     )
@@ -118,44 +121,28 @@ class Credito(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     cliente_id = db.Column(db.Integer, db.ForeignKey('clientes.id'), nullable=False)
-
     fecha_inicio = db.Column(db.DateTime, default=datetime.utcnow)
     fecha_vencimiento = db.Column(db.DateTime)
-
     total = db.Column(db.Float, default=0.0)
     estado = db.Column(db.String(20), default='pendiente')
     tipo = db.Column(db.String(50), default='PERSONAL')
 
-    items = db.relationship(
-        'CreditoItem',
-        backref='credito',
-        lazy=True,
-        cascade="all, delete-orphan"
-    )
-
-    abonos = db.relationship(
-        'AbonoCredito',
-        backref='credito',
-        lazy=True,
-        cascade="all, delete-orphan"
-    )
+    items = db.relationship('CreditoItem', backref='credito_rel', lazy=True, cascade="all, delete-orphan")
+    abonos = db.relationship('AbonoCredito', backref='credito_rel', lazy=True, cascade="all, delete-orphan")
 
 
 class CreditoItem(db.Model):
     __tablename__ = 'credito_items'
-
     id = db.Column(db.Integer, primary_key=True)
     credito_id = db.Column(db.Integer, db.ForeignKey('creditos.id'), nullable=False)
     producto_id = db.Column(db.Integer, db.ForeignKey('productos.id'), nullable=False)
     cantidad = db.Column(db.Integer, nullable=False)
     subtotal = db.Column(db.Float, nullable=False)
-
     producto = db.relationship('Producto')
 
 
 class AbonoCredito(db.Model):
     __tablename__ = 'abonos_credito'
-
     id = db.Column(db.Integer, primary_key=True)
     credito_id = db.Column(db.Integer, db.ForeignKey('creditos.id'), nullable=False)
     monto = db.Column(db.Float, nullable=False)
@@ -168,7 +155,6 @@ class AbonoCredito(db.Model):
 # ======================================================
 class CierreCaja(db.Model):
     __tablename__ = 'cierres_caja'
-
     id = db.Column(db.Integer, primary_key=True)
     fecha_apertura = db.Column(db.DateTime, default=datetime.utcnow)
     fecha_cierre = db.Column(db.DateTime)
@@ -183,7 +169,6 @@ class CierreCaja(db.Model):
 
 class AcumuladoMensual(db.Model):
     __tablename__ = 'acumulados_mensuales'
-
     id = db.Column(db.Integer, primary_key=True)
     mes = db.Column(db.Integer, nullable=False)
     anio = db.Column(db.Integer, nullable=False)
@@ -197,48 +182,32 @@ class AcumuladoMensual(db.Model):
 # ======================================================
 class Factura(db.Model):
     __tablename__ = 'facturas'
-
     id = db.Column(db.Integer, primary_key=True)
     numero = db.Column(db.String(50))
     proveedor = db.Column(db.String(100), nullable=False)
     total = db.Column(db.Float, default=0.0)
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
     soporte_foto = db.Column(db.String(255))
-
-    abonos = db.relationship(
-        'Abono',
-        backref='factura',
-        lazy=True,
-        cascade="all, delete-orphan"
-    )
+    abonos = db.relationship('Abono', backref='factura_rel', lazy=True, cascade="all, delete-orphan")
 
 
 class Gasto(db.Model):
     __tablename__ = 'gastos'
-
     id = db.Column(db.Integer, primary_key=True)
     categoria = db.Column(db.String(100), nullable=False)
     concepto = db.Column(db.String(255), nullable=False)
     total = db.Column(db.Float, default=0.0)
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
     soporte_foto = db.Column(db.String(255))
-
-    abonos = db.relationship(
-        'Abono',
-        backref='gasto',
-        lazy=True,
-        cascade="all, delete-orphan"
-    )
+    abonos = db.relationship('Abono', backref='gasto_rel', lazy=True, cascade="all, delete-orphan")
 
 
 class Abono(db.Model):
     __tablename__ = 'abonos'
-
     id = db.Column(db.Integer, primary_key=True)
     monto = db.Column(db.Float, nullable=False)
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
     medio_pago = db.Column(db.String(50))
-
     factura_id = db.Column(db.Integer, db.ForeignKey('facturas.id'))
     gasto_id = db.Column(db.Integer, db.ForeignKey('gastos.id'))
 
@@ -248,14 +217,11 @@ class Abono(db.Model):
 # ======================================================
 class Venta(db.Model):
     __tablename__ = 'ventas'
-
     id = db.Column(db.Integer, primary_key=True)
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
     total = db.Column(db.Float, default=0.0)
     estado = db.Column(db.String(20), default='abierta')
-
     nombre_cliente = db.Column(db.String(100))
-
     metodo_pago = db.Column(db.String(50))
     pago_efectivo = db.Column(db.Float, default=0.0)
     cambio = db.Column(db.Float, default=0.0)
@@ -265,23 +231,15 @@ class Venta(db.Model):
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'))
     cliente_id = db.Column(db.Integer, db.ForeignKey('clientes.id'))
 
-    detalles = db.relationship(
-        'VentaDetalle',
-        backref='venta',
-        lazy=True,
-        cascade="all, delete-orphan"
-    )
+    detalles = db.relationship('VentaDetalle', backref='venta_rel', lazy=True, cascade="all, delete-orphan")
 
 
 class VentaDetalle(db.Model):
     __tablename__ = 'venta_detalles'
-
     id = db.Column(db.Integer, primary_key=True)
     venta_id = db.Column(db.Integer, db.ForeignKey('ventas.id'))
     producto_id = db.Column(db.Integer, db.ForeignKey('productos.id'))
-
     cantidad = db.Column(db.Integer)
     precio_unitario = db.Column(db.Float)
     subtotal = db.Column(db.Float)
-
     producto = db.relationship('Producto')
