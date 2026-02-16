@@ -27,10 +27,11 @@ def create_app():
     app.config.from_object(Config)
 
     # --------------------------------------------------
-    # CONFIGURACIÓN DE BASE DE DATOS (Heroku + SQLite)
+    # CONFIGURACIÓN DE BASE DE DATOS (Render / Local)
     # --------------------------------------------------
     database_url = os.getenv("DATABASE_URL")
     if database_url and "postgresql" in database_url:
+        # Corrección necesaria para Render/Heroku
         if database_url.startswith("postgres://"):
             database_url = database_url.replace("postgres://", "postgresql://", 1)
         app.config["SQLALCHEMY_DATABASE_URI"] = database_url
@@ -61,10 +62,15 @@ def create_app():
         return Usuario.query.get(int(user_id))
 
     # --------------------------------------------------
-    # SINCRONIZACIÓN DE TABLAS Y LÓGICA INICIAL
+    # SINCRONIZACIÓN DE TABLAS (RESET DE PRODUCCIÓN)
     # --------------------------------------------------
     with app.app_context():
+        # ESTA LÍNEA ES LA "BOMBA DE LIMPIEZA" PARA RENDER
+        # Borra todo lo viejo que está dando error y lo crea de nuevo
+        print("🚀 RESETEANDO BASE DE DATOS EN RENDER...")
+        db.drop_all() 
         db.create_all()
+        print("✅ BASE DE DATOS RECONSTRUIDA.")
 
         # Inicializar las 12 mesas si la base de datos está vacía
         if Mesa.query.count() == 0:
@@ -89,18 +95,17 @@ def create_app():
             print("👤 USUARIO ADMIN: Creado por defecto (admin / 1234)")
 
     # --------------------------------------------------
-    # FILTROS JINJA (Para que los precios se vean melos)
+    # FILTROS JINJA
     # --------------------------------------------------
     @app.template_filter("format_number")
     def format_number(value):
         try:
-            # Formato colombiano: $ 1.000
             return f"{float(value):,.0f}".replace(",", ".")
         except:
             return "0"
 
     # --------------------------------------------------
-    # REGISTRO DE BLUEPRINTS (Rutas separadas)
+    # REGISTRO DE BLUEPRINTS
     # --------------------------------------------------
     from routes.auth import auth_bp
     from routes.inventario import inventario_bp
@@ -120,19 +125,14 @@ def create_app():
     app.register_blueprint(proveedores_gastos_bp, url_prefix='/proveedores')
     app.register_blueprint(creditos_bp, url_prefix='/creditos')
 
-    # --------------------------------------------------
-    # RUTAS ADICIONALES Y UTILIDADES
-    # --------------------------------------------------
     @app.route("/")
     def index():
         return redirect(url_for("ventas.dashboard"))
 
-    # Ruta para generar códigos de barras dinámicamente
     @app.route("/generar_codigo/<codigo>")
     def generar_codigo(codigo):
         if not barcode:
             return "Librería 'python-barcode' no instalada", 404
-        
         EAN = barcode.get_barcode_class('code128')
         ean = EAN(codigo, writer=ImageWriter())
         buffer = io.BytesIO()
@@ -147,7 +147,6 @@ def create_app():
             rol = getattr(current_user, 'rol', '')
             if rol and rol.lower() == 'administrador':
                 es_admin = True
-                
         return {
             "ahora_col": obtener_hora_colombia(),
             "timedelta": timedelta,
@@ -157,12 +156,7 @@ def create_app():
 
     return app
 
-# --------------------------------------------------
-# EJECUCIÓN
-# --------------------------------------------------
 app = create_app()
-
-
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
