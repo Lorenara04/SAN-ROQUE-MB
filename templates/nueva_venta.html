@@ -13,42 +13,40 @@
         --text-main: #1e293b;
     }
 
-    /* Estilos de Pestañas con botón de cierre */
     .pos-tabs-container {
         display: flex; gap: 10px; border-bottom: 3px solid var(--azul-oscuro);
         margin-bottom: 25px; overflow-x: auto; padding-bottom: 10px; align-items: center;
     }
-    
-    .pos-tab-wrapper { 
-        position: relative; 
-        display: flex; 
-        align-items: center; 
+
+    .pos-tab-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
     }
 
     .pos-tab {
-        padding: 12px 45px 12px 20px; /* Espacio para la X */
-        border-radius: 15px 15px 0 0; 
+        padding: 12px 45px 12px 20px;
+        border-radius: 15px 15px 0 0;
         background: var(--azul-bebe);
-        border: 1px solid var(--azul-primario); 
-        border-bottom: none; 
+        border: 1px solid var(--azul-primario);
+        border-bottom: none;
         color: var(--azul-oscuro);
-        text-decoration: none; 
-        font-weight: 800; 
+        text-decoration: none;
+        font-weight: 800;
         font-size: 0.85rem;
-        display: flex; 
-        align-items: center; 
-        transition: 0.3s; 
+        display: flex;
+        align-items: center;
+        transition: 0.3s;
         white-space: nowrap;
     }
 
     .pos-tab.active {
-        background: var(--azul-oscuro); 
-        color: white; 
+        background: var(--azul-oscuro);
+        color: white;
         border-color: var(--azul-oscuro);
         box-shadow: 0 -5px 15px rgba(3, 105, 161, 0.2);
     }
 
-    /* Botón X para borrar pestaña */
     .btn-close-tab {
         position: absolute;
         right: 12px;
@@ -67,24 +65,53 @@
         transition: 0.2s;
         z-index: 5;
     }
-    .pos-tab.active + .btn-close-tab { color: white; background: rgba(255, 255, 255, 0.2); }
-    .btn-close-tab:hover { background: #ef4444 !important; color: white !important; transform: translateY(-50%) scale(1.1); }
+
+    .pos-tab.active + .btn-close-tab {
+        color: white;
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-close-tab:hover {
+        background: #ef4444 !important;
+        color: white !important;
+        transform: translateY(-50%) scale(1.1);
+    }
 
     .btn-quick-add {
-        border-radius: 50%; width: 42px; height: 42px;
-        background: var(--azul-oscuro); color: white; border: none;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1.2rem; transition: 0.3s; text-decoration: none;
+        border-radius: 50%;
+        width: 42px;
+        height: 42px;
+        background: var(--azul-oscuro);
+        color: white;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        transition: 0.3s;
+        text-decoration: none;
     }
-    .btn-quick-add:hover { background: var(--text-main); transform: scale(1.1); color: white; }
-    
-    .pos-card { border-radius: 20px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+
+    .btn-quick-add:hover {
+        background: var(--text-main);
+        transform: scale(1.1);
+        color: white;
+    }
+
+    .pos-card {
+        border-radius: 20px;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+
     .qty-input {
-        width: 70px; text-align: center; font-weight: bold;
-        border: 2px solid var(--azul-pastel); border-radius: 8px;
+        width: 70px;
+        text-align: center;
+        font-weight: bold;
+        border: 2px solid var(--azul-pastel);
+        border-radius: 8px;
     }
-    
-    /* Evitar que el input se vea azul feo al tener el foco siempre */
+
     #barcode_input:focus {
         border-color: var(--azul-primario);
         box-shadow: 0 0 0 0.25rem rgba(125, 211, 252, 0.25);
@@ -92,56 +119,80 @@
 </style>
 
 <div class="container-fluid mt-4">
+
+    <!-- PESTAÑAS -->
     <div class="pos-tabs-container">
         {% for v in pestañas_activas %}
         <div class="pos-tab-wrapper">
-            <a href="{{ url_for('ventas.ver_mesa', mesa_id=v.mesa_id) }}" 
+            <a href="{{ url_for('ventas.ver_mesa', mesa_id=v.mesa_id) }}"
                class="pos-tab {% if venta.id == v.id %}active{% endif %}">
-                <i class="fas fa-receipt me-2"></i> 
+                <i class="fas fa-receipt me-2"></i>
                 {{ v.nombre_cliente | upper }}
                 <span class="badge {% if venta.id == v.id %}bg-light text-dark{% else %}bg-primary{% endif %} ms-2">
                     $ {{ v.total | format_number }}
                 </span>
             </a>
-            <button class="btn-close-tab" onclick="confirmarBorrarPestaña({{ v.id }}, '{{ v.nombre_cliente }}')" title="Cerrar orden">
+
+            <button class="btn-close-tab"
+                    onclick="confirmarBorrarPestaña({{ v.id }}, '{{ v.nombre_cliente }}')">
                 <i class="fas fa-times"></i>
             </button>
         </div>
         {% endfor %}
-        
-        <a href="{{ url_for('ventas.abrir_pestana') }}" class="btn-quick-add ms-3 shadow-sm" title="Venta Rápida">
+
+        <a href="{{ url_for('ventas.abrir_pestana') }}" class="btn-quick-add ms-3 shadow-sm">
             <i class="fas fa-plus"></i>
         </a>
     </div>
 
     <div class="row">
+
+        <!-- IZQUIERDA -->
         <div class="col-lg-8">
             <div class="card pos-card p-4 bg-white mb-4">
+
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
                         <h4 class="fw-bold m-0 text-dark">
-                            IDENTIFICACIÓN: <span class="text-primary">{{ venta.nombre_cliente | upper }}</span>
+                            IDENTIFICACIÓN:
+                            <span class="text-primary">{{ venta.nombre_cliente | upper }}</span>
                         </h4>
+
                         <div class="mt-2">
-                            <select id="select_cliente" class="form-select form-select-sm border-primary fw-bold" onchange="asignarCliente(this.value)" style="max-width: 280px;">
+                            <select id="select_cliente"
+                                    class="form-select form-select-sm border-primary fw-bold"
+                                    onchange="asignarCliente(this.value)"
+                                    style="max-width: 280px;">
                                 <option value="">👤 ASIGNAR CLIENTE (Opcional)</option>
                                 {% for c in clientes %}
-                                <option value="{{ c.id }}" {% if venta.cliente_id == c.id %}selected{% endif %}>
-                                    {{ c.nombre | upper }} {% if c.tipo == 'premium' %}(⭐ PREMIUM){% endif %}
+                                <option value="{{ c.id }}"
+                                    {% if venta.cliente_id == c.id %}selected{% endif %}>
+                                    {{ c.nombre | upper }}
+                                    {% if c.tipo == 'premium' %}(⭐ PREMIUM){% endif %}
                                 </option>
                                 {% endfor %}
                             </select>
                         </div>
                     </div>
-                    <span class="badge bg-light text-muted border px-3 py-2">TICKET #{{ venta.id }}</span>
+
+                    <span class="badge bg-light text-muted border px-3 py-2">
+                        TICKET #{{ venta.id }}
+                    </span>
                 </div>
 
+                <!-- SCANNER -->
                 <div class="input-group input-group-lg mb-4 shadow-sm">
-                    <span class="input-group-text bg-white border-end-0"><i class="fas fa-barcode text-primary"></i></span>
-                    <input type="text" id="barcode_input" class="form-control border-start-0 fw-bold" 
-                           placeholder="ESCANEÉ CÓDIGO AHORA..." autofocus autocomplete="off">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="fas fa-barcode text-primary"></i>
+                    </span>
+                    <input type="text"
+                           id="barcode_input"
+                           class="form-control border-start-0 fw-bold"
+                           placeholder="ESCANEÉ CÓDIGO AHORA..."
+                           autofocus autocomplete="off">
                 </div>
 
+                <!-- TABLA -->
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
                         <thead class="table-dark">
@@ -156,17 +207,30 @@
                         <tbody>
                             {% for d in detalles %}
                             <tr id="fila-{{ d.id }}">
-                                <td class="ps-4 fw-bold text-dark">{{ d.producto.nombre | upper }}</td>
+                                <td class="ps-4 fw-bold text-dark">
+                                    {{ d.producto.nombre | upper }}
+                                </td>
+
                                 <td class="text-center">
-                                    <input type="number" class="qty-input" value="{{ d.cantidad }}" min="1"
+                                    <input type="number"
+                                           class="qty-input"
+                                           value="{{ d.cantidad }}"
+                                           min="1"
                                            onchange="actualizarCantidad({{ d.id }}, this.value)">
                                 </td>
-                                <td class="text-end text-muted">{{ d.precio_unitario | format_number }}</td>
-                                <td class="text-end fw-bold text-primary" id="subtotal-{{ d.id }}">
-                                     $ {{ d.subtotal | format_number }}
+
+                                <td class="text-end text-muted">
+                                    {{ d.precio_unitario | format_number }}
                                 </td>
+
+                                <td class="text-end fw-bold text-primary"
+                                    id="subtotal-{{ d.id }}">
+                                    $ {{ d.subtotal | format_number }}
+                                </td>
+
                                 <td class="text-center">
-                                    <button class="btn btn-link text-danger p-0" onclick="eliminarProducto({{ d.id }})">
+                                    <button class="btn btn-link text-danger p-0"
+                                            onclick="eliminarProducto({{ d.id }})">
                                         <i class="fas fa-trash-alt fa-lg"></i>
                                     </button>
                                 </td>
@@ -175,15 +239,18 @@
                         </tbody>
                     </table>
                 </div>
+
             </div>
         </div>
 
+        <!-- DERECHA -->
         <div class="col-lg-4">
             <div class="card pos-card p-4 bg-white border-top border-5 border-success">
+
                 <div class="text-center mb-4">
                     <h6 class="text-muted fw-bold mb-1">TOTAL A PAGAR</h6>
                     <h1 class="display-4 fw-bold text-dark" id="total-display">
-                         $ {{ venta.total | format_number }}
+                        $ {{ venta.total | format_number }}
                     </h1>
                 </div>
 
@@ -201,7 +268,9 @@
                     <label class="form-label small fw-bold text-muted">¿CON CUÁNTO PAGA?</label>
                     <div class="input-group input-group-lg">
                         <span class="input-group-text bg-success text-white border-0">$</span>
-                        <input type="number" id="pago_efectivo" class="form-control fw-bold text-success" placeholder="0">
+                        <input type="number" id="pago_efectivo"
+                               class="form-control fw-bold text-success"
+                               placeholder="0">
                     </div>
                 </div>
 
@@ -210,28 +279,31 @@
                     <h3 class="m-0 fw-bold text-dark" id="cambio-txt">$ 0</h3>
                 </div>
 
-                <button class="btn btn-success btn-lg w-100 py-3 fw-bold shadow-sm" onclick="cerrarVenta()">
-                    <i class="fas fa-file-invoice-dollar me-2"></i> FINALIZAR Y FACTURAR
+                <button class="btn btn-success btn-lg w-100 py-3 fw-bold shadow-sm"
+                        onclick="cerrarVenta()">
+                    <i class="fas fa-file-invoice-dollar me-2"></i>
+                    FINALIZAR Y FACTURAR
                 </button>
+
             </div>
         </div>
+
     </div>
 </div>
-
 <script>
 let totalVentaGlobal = {{ venta.total }};
 let ventaIdActual = {{ venta.id }};
 
-// --- FUNCIÓN PARA MANTENER EL FOCO SIEMPRE ---
 function resetFocus() {
     document.getElementById('barcode_input').focus();
 }
 
 window.onload = resetFocus;
 
-// Si el usuario hace clic fuera, devolvemos el cursor al input después de un segundo
 document.addEventListener('click', function(e) {
-    if(e.target.id !== 'select_cliente' && e.target.id !== 'metodo_pago' && e.target.id !== 'pago_efectivo') {
+    if(e.target.id !== 'select_cliente' &&
+       e.target.id !== 'metodo_pago' &&
+       e.target.id !== 'pago_efectivo') {
         setTimeout(resetFocus, 500);
     }
 });
@@ -240,8 +312,28 @@ function formatMoney(amount) {
     return '$ ' + Number(amount).toLocaleString('de-DE');
 }
 
-// BORRAR PESTAÑA COMPLETAMENTE
+/* ✅ FIX: Si Swal no existe, usamos alert normal */
+function alerta(titulo, texto, tipo="info") {
+    if(typeof Swal !== "undefined") {
+        return Swal.fire(titulo, texto, tipo);
+    } else {
+        alert(titulo + ": " + texto);
+    }
+}
+
+/* ============================================
+   BORRAR PESTAÑA
+============================================ */
 function confirmarBorrarPestaña(ventaId, nombre) {
+
+    if(typeof Swal === "undefined") {
+        if(confirm("¿Seguro que deseas borrar " + nombre + "?")) {
+            fetch(`/ventas/eliminar_venta/${ventaId}`, { method: "POST" })
+            .then(() => location.reload());
+        }
+        return;
+    }
+
     Swal.fire({
         title: `¿Borrar ${nombre}?`,
         text: "Se eliminarán los productos y se liberará la mesa.",
@@ -256,8 +348,7 @@ function confirmarBorrarPestaña(ventaId, nombre) {
             .then(res => res.json())
             .then(data => {
                 if(data.success) {
-                    if(ventaId == ventaIdActual) window.location.href = "{{ url_for('ventas.dashboard') }}";
-                    else location.reload();
+                    window.location.href = "{{ url_for('ventas.dashboard') }}";
                 }
             });
         } else {
@@ -266,11 +357,14 @@ function confirmarBorrarPestaña(ventaId, nombre) {
     });
 }
 
-// ESCÁNER / LECTOR DE BARRAS
+/* ============================================
+   ESCÁNER DE CÓDIGO
+============================================ */
 document.getElementById('barcode_input').addEventListener('keydown', function(e){
     if(e.key === "Enter"){
         e.preventDefault();
         let codigo = e.target.value.trim();
+
         if(codigo !== ""){
             fetch("/ventas/buscar_producto/" + codigo)
             .then(res => res.json())
@@ -278,11 +372,11 @@ document.getElementById('barcode_input').addEventListener('keydown', function(e)
                 if(data.success) {
                     agregarProductoAjax(data.producto_id);
                 } else {
-                    Swal.fire({title: "No encontrado", icon: "warning", timer: 1000, showConfirmButton: false});
-                    resetFocus();
+                    alerta("No encontrado", "Producto no existe", "warning");
                 }
             });
         }
+
         e.target.value = "";
     }
 });
@@ -291,24 +385,31 @@ function agregarProductoAjax(productoId){
     fetch("{{ url_for('ventas.agregar_producto') }}", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ venta_id: ventaIdActual, producto_id: productoId })
+        body: JSON.stringify({
+            venta_id: ventaIdActual,
+            producto_id: productoId
+        })
     })
     .then(res => res.json())
     .then(data => {
         if(data.success) location.reload();
-        else {
-            Swal.fire("Error", data.message, "error");
-            resetFocus();
-        }
+        else alerta("Error", data.message, "error");
     });
 }
 
+/* ============================================
+   ASIGNAR CLIENTE
+============================================ */
 function asignarCliente(clienteId) {
     if(!clienteId) return;
+
     fetch("{{ url_for('ventas.asignar_cliente') }}", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ venta_id: ventaIdActual, cliente_id: clienteId })
+        body: JSON.stringify({
+            venta_id: ventaIdActual,
+            cliente_id: clienteId
+        })
     })
     .then(res => res.json())
     .then(data => {
@@ -316,81 +417,114 @@ function asignarCliente(clienteId) {
     });
 }
 
+/* ============================================
+   ✅ ACTUALIZAR CANTIDAD (FIX FINAL)
+============================================ */
 function actualizarCantidad(detalleId, nuevaCantidad) {
+
     if(nuevaCantidad < 1) return;
+
     fetch("{{ url_for('ventas.actualizar_cantidad') }}", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ detalle_id: detalleId, cantidad: nueva_cantidad })
+        body: JSON.stringify({
+            detalle_id: detalleId,
+            cantidad: nuevaCantidad   // ✅ CORRECTO
+        })
     })
     .then(res => res.json())
     .then(data => {
         if(data.success) {
-            document.getElementById(`subtotal-${detalleId}`).innerText = formatMoney(data.nuevo_subtotal);
-            document.getElementById('total-display').innerText = formatMoney(data.nuevo_total);
+
+            document.getElementById(`subtotal-${detalleId}`).innerText =
+                formatMoney(data.nuevo_subtotal);
+
+            document.getElementById("total-display").innerText =
+                formatMoney(data.nuevo_total);
+
             totalVentaGlobal = data.nuevo_total;
-            resetFocus();
+
+        } else {
+            alerta("Error", data.message, "error");
         }
+
+        resetFocus();
     });
 }
 
+/* ============================================
+   ELIMINAR PRODUCTO
+============================================ */
 function eliminarProducto(detalleId){
+
     fetch("{{ url_for('ventas.eliminar_producto') }}", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ detalle_id: detalleId })
+        body: JSON.stringify({
+            detalle_id: detalleId
+        })
     })
     .then(res => res.json())
     .then(data => {
         if(data.success) {
             document.getElementById(`fila-${detalleId}`).remove();
-            document.getElementById('total-display').innerText = formatMoney(data.nuevo_total);
+
+            document.getElementById("total-display").innerText =
+                formatMoney(data.nuevo_total);
+
             totalVentaGlobal = data.nuevo_total;
-            resetFocus();
         }
+
+        resetFocus();
     });
 }
 
-document.getElementById('pago_efectivo').addEventListener('input', function(e){
+/* ============================================
+   CAMBIO EFECTIVO
+============================================ */
+document.getElementById("pago_efectivo").addEventListener("input", function(e){
     let pago = parseFloat(e.target.value) || 0;
     let cambio = pago - totalVentaGlobal;
-    document.getElementById('cambio-txt').innerText = cambio > 0 ? formatMoney(cambio) : '$ 0';
+
+    document.getElementById("cambio-txt").innerText =
+        cambio > 0 ? formatMoney(cambio) : "$ 0";
 });
 
-document.getElementById('metodo_pago').addEventListener('change', function(e){
-    let metodo = e.target.value;
-    let contenedor = document.getElementById('contenedor-efectivo');
-    if(metodo === "EFECTIVO"){
-        contenedor.style.display = "block";
-        document.getElementById('pago_efectivo').focus();
-    } else {
-        contenedor.style.display = "none";
-        document.getElementById('pago_efectivo').value = totalVentaGlobal;
-        document.getElementById('cambio-txt').innerText = '$ 0';
-        resetFocus();
-    }
-});
-
+/* ============================================
+   CERRAR VENTA
+============================================ */
 function cerrarVenta(){
+
+    if(totalVentaGlobal <= 0){
+        return alerta("Vacío", "No hay productos en la venta", "warning");
+    }
+
     let metodo = document.getElementById("metodo_pago").value;
     let efec = parseFloat(document.getElementById("pago_efectivo").value) || 0;
 
     if(metodo === "EFECTIVO" && efec < totalVentaGlobal){
-        return Swal.fire("Monto insuficiente", "El efectivo no cubre el total", "error").then(resetFocus);
+        return alerta("Monto insuficiente", "El efectivo no cubre el total", "error");
     }
 
     fetch("{{ url_for('ventas.cerrar_venta') }}", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ venta_id: ventaIdActual, metodo_pago: metodo, pago_efectivo: efec })
+        body: JSON.stringify({
+            venta_id: ventaIdActual,
+            metodo_pago: metodo,
+            pago_efectivo: efec
+        })
     })
     .then(res => res.json())
     .then(data => {
-        if(data.success) {
-            Swal.fire("Venta Cerrada", "Generando ticket...", "success")
+        if(data.success){
+            alerta("Venta cerrada", "Generando ticket...", "success")
             .then(() => window.location.href = data.redirect_url);
+        } else {
+            alerta("Error", data.message, "error");
         }
     });
 }
 </script>
+
 {% endblock %}

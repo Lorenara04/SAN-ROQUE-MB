@@ -104,6 +104,9 @@ class Cliente(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
     tipo = db.Column(db.String(20), default='estandar')
+    telefono = db.Column(db.String(20))
+    email = db.Column(db.String(120))
+    direccion = db.Column(db.String(200))
 
     creditos_cliente = db.relationship(
         'Credito',
